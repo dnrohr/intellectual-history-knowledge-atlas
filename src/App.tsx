@@ -57,6 +57,17 @@ type ImportReviewItem = {
   status: ImportReviewStatus;
 };
 
+type ImportAuditLogItem = {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  confidence: number;
+  status: ImportReviewStatus;
+  reason: string;
+  sourceUrl: string;
+  reviewedAt: string;
+};
+
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
@@ -126,6 +137,7 @@ export default function App() {
     candidate: WikidataCandidate | null;
   }>>([]);
   const [importReviewQueue, setImportReviewQueue] = useState<ImportReviewItem[]>([]);
+  const [importAuditLog, setImportAuditLog] = useState<ImportAuditLogItem[]>([]);
   const [importConfidenceThreshold, setImportConfidenceThreshold] = useState(() => {
     const savedThreshold = localStorage.getItem("atlas_import_confidence_threshold_v1");
     const parsedThreshold = savedThreshold ? Number(savedThreshold) : 80;
@@ -225,6 +237,7 @@ export default function App() {
     const savedPeople = localStorage.getItem("atlas_people_v6");
     const savedEdges = localStorage.getItem("atlas_edges_v6");
     const savedImportQueue = localStorage.getItem("atlas_import_queue_v1");
+    const savedImportAuditLog = localStorage.getItem("atlas_import_audit_log_v1");
 
     if (savedPeople && savedEdges) {
       try {
@@ -266,6 +279,17 @@ export default function App() {
         setImportReviewQueue([]);
       }
     }
+
+    if (savedImportAuditLog) {
+      try {
+        const parsedImportAuditLog = JSON.parse(savedImportAuditLog);
+        if (Array.isArray(parsedImportAuditLog)) {
+          setImportAuditLog(parsedImportAuditLog.filter(Boolean).slice(0, 100));
+        }
+      } catch {
+        setImportAuditLog([]);
+      }
+    }
   }, []);
 
   // Database additions
@@ -296,7 +320,9 @@ export default function App() {
       localStorage.setItem("atlas_people_v6", JSON.stringify(INITIAL_PEOPLE_DATA));
       localStorage.setItem("atlas_edges_v6", JSON.stringify(INITIAL_EDGES_DATA));
       localStorage.removeItem("atlas_import_queue_v1");
+      localStorage.removeItem("atlas_import_audit_log_v1");
       setImportReviewQueue([]);
+      setImportAuditLog([]);
     }
   };
 
@@ -742,7 +768,7 @@ export default function App() {
 
     handleAddThinker(newThinker);
     if (draftQueueItemId) {
-      removeImportReviewItem(draftQueueItemId);
+      removeImportReviewItem(draftQueueItemId, "accepted", "Accepted from edited import draft");
     }
     setImportDraft((prev) => ({
       ...prev,
@@ -920,7 +946,31 @@ export default function App() {
     });
   };
 
-  const removeImportReviewItem = (id: string) => {
+  const persistImportAuditLog = (nextLog: ImportAuditLogItem[]) => {
+    const cappedLog = nextLog.slice(0, 100);
+    setImportAuditLog(cappedLog);
+    localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(cappedLog));
+  };
+
+  const logImportReviewItems = (items: ImportReviewItem[], status: ImportReviewStatus, reason: string) => {
+    if (items.length === 0) return;
+    const reviewedAt = new Date().toISOString();
+    const nextEntries = items.map((item) => ({
+      id: `${item.id}-${status}-${Date.now().toString(36)}`,
+      candidateId: item.candidate.id,
+      candidateName: item.candidate.name,
+      confidence: item.confidence,
+      status,
+      reason,
+      sourceUrl: item.candidate.wikipediaUrl || item.candidate.sourceUrl,
+      reviewedAt,
+    }));
+    persistImportAuditLog([...nextEntries, ...importAuditLog]);
+  };
+
+  const removeImportReviewItem = (id: string, status: ImportReviewStatus = "skipped", reason = "Skipped from review queue") => {
+    const itemToRemove = importReviewQueue.find((item) => item.id === id);
+    if (itemToRemove) logImportReviewItems([itemToRemove], status, reason);
     setImportReviewQueue((prev) => {
       const next = prev.filter((item) => item.id !== id);
       localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
@@ -978,7 +1028,7 @@ export default function App() {
     const duplicateId = getDuplicateIdForCandidate(candidate);
     if (duplicateId) {
       selectPerson(duplicateId);
-      removeImportReviewItem(item.id);
+      removeImportReviewItem(item.id, "duplicate", "Matched an existing thinker during accept");
       return;
     }
 
@@ -1031,7 +1081,7 @@ export default function App() {
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     setSelectedId(newId);
     setViewMode("split");
-    removeImportReviewItem(item.id);
+    removeImportReviewItem(item.id, "accepted", linkTopSuggestion ? "Accepted with top suggested link" : "Accepted from review queue");
     setWorkbenchTab("links");
   };
 
@@ -1128,6 +1178,11 @@ export default function App() {
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     setEdges(nextEdges);
     localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    logImportReviewItems(
+      importReviewQueue.filter((item) => acceptedItemIds.has(item.id)),
+      "accepted",
+      linkTopSuggestion ? "Bulk accepted with top suggested link" : "Bulk accepted from review queue"
+    );
     persistImportReviewQueue(importReviewQueue.filter((item) => !acceptedItemIds.has(item.id)));
     if (lastAcceptedId) {
       setSelectedId(lastAcceptedId);
@@ -1137,16 +1192,25 @@ export default function App() {
   };
 
   const clearDuplicateImportReviewItems = () => {
+    const duplicateItems = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate));
+    logImportReviewItems(duplicateItems, "duplicate", "Cleared duplicate candidates");
     persistImportReviewQueue(importReviewQueue.filter((item) => !getDuplicateIdForCandidate(item.candidate)));
   };
 
   const clearLowConfidenceImportReviewItems = () => {
+    const lowConfidenceItems = importReviewQueue.filter((item) => item.confidence < importConfidenceThreshold);
+    logImportReviewItems(lowConfidenceItems, "skipped", `Cleared below ${importConfidenceThreshold}% threshold`);
     persistImportReviewQueue(importReviewQueue.filter((item) => item.confidence >= importConfidenceThreshold));
   };
 
   const clearImportReviewQueue = () => {
     if (!window.confirm("Clear all queued import candidates?")) return;
+    logImportReviewItems(importReviewQueue, "skipped", "Cleared entire review queue");
     persistImportReviewQueue([]);
+  };
+
+  const clearImportAuditLog = () => {
+    persistImportAuditLog([]);
   };
 
   const updateImportConfidenceThreshold = (value: number) => {
@@ -2922,6 +2986,40 @@ export default function App() {
                           </div>
                         )}
                       </div>
+
+                      {importAuditLog.length > 0 && (
+                        <div className="mt-3 rounded-md border border-[#1d2232] bg-[#0b0d14] p-2">
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Recent Import Audit</span>
+                            <button
+                              onClick={clearImportAuditLog}
+                              className="rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500 hover:text-slate-200 cursor-pointer"
+                            >
+                              Clear
+                            </button>
+                          </div>
+                          <div className="max-h-24 space-y-1 overflow-y-auto pr-1 scrollbar-thin">
+                            {importAuditLog.slice(0, 6).map((entry) => (
+                              <div key={entry.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded border border-[#252a3d] bg-[#0e1119] px-2 py-1">
+                                <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono capitalize ${
+                                  entry.status === "accepted"
+                                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                    : entry.status === "duplicate"
+                                    ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                                    : "border-slate-700 bg-slate-700/20 text-slate-500"
+                                }`}>
+                                  {entry.status}
+                                </span>
+                                <div className="min-w-0">
+                                  <div className="truncate text-[9px] font-mono text-slate-300">{entry.candidateName}</div>
+                                  <div className="truncate text-[8px] font-mono text-slate-600">{entry.reason}</div>
+                                </div>
+                                <span className="font-mono text-[8px] text-slate-600">{entry.confidence}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between mb-3">
