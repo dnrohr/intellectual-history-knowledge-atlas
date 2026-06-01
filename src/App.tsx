@@ -47,11 +47,14 @@ type WikidataCandidate = {
   wikipediaUrl: string | null;
 };
 
+type ImportReviewStatus = "queued" | "edited" | "accepted" | "skipped" | "duplicate";
+
 type ImportReviewItem = {
   id: string;
   candidate: WikidataCandidate;
   confidence: number;
   duplicateId: string | null;
+  status: ImportReviewStatus;
 };
 
 export default function App() {
@@ -249,7 +252,15 @@ export default function App() {
       try {
         const parsedImportQueue = JSON.parse(savedImportQueue);
         if (Array.isArray(parsedImportQueue)) {
-          setImportReviewQueue(parsedImportQueue.filter(Boolean));
+          const normalizedQueue = parsedImportQueue
+            .filter(Boolean)
+            .map((item) => ({
+              ...item,
+              status: item.status || (item.duplicateId ? "duplicate" : "queued"),
+            }))
+            .filter((item) => item.candidate && item.id) as ImportReviewItem[];
+          setImportReviewQueue(normalizedQueue);
+          localStorage.setItem("atlas_import_queue_v1", JSON.stringify(normalizedQueue));
         }
       } catch {
         setImportReviewQueue([]);
@@ -897,7 +908,13 @@ export default function App() {
     const duplicateId = getDuplicateIdForCandidate(candidate);
     setImportReviewQueue((prev) => {
       if (prev.some((item) => item.candidate.id === candidate.id)) return prev;
-      const next = [...prev, { id: `${candidate.id}-${Date.now().toString(36)}`, candidate, confidence, duplicateId }];
+      const next = [...prev, {
+        id: `${candidate.id}-${Date.now().toString(36)}`,
+        candidate,
+        confidence,
+        duplicateId,
+        status: duplicateId ? "duplicate" : "queued",
+      }];
       localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
       return next;
     });
@@ -1061,6 +1078,13 @@ export default function App() {
     }
   };
 
+  const updateImportReviewItemStatus = (id: string, status: ImportReviewStatus) => {
+    const nextQueue = importReviewQueue.map((item) =>
+      item.id === id ? { ...item, status } : item
+    );
+    persistImportReviewQueue(nextQueue);
+  };
+
   const acceptImportReviewItems = (items: ImportReviewItem[], linkTopSuggestion = false) => {
     const acceptedItemIds = new Set<string>();
     const existingIds = new Set<string>(people.map((person) => person.id));
@@ -1183,6 +1207,7 @@ export default function App() {
   };
 
   const useWikidataCandidate = (candidate: WikidataCandidate, queueItemId: string | null = null) => {
+    if (queueItemId) updateImportReviewItemStatus(queueItemId, "edited");
     setImportDraft((prev) => ({
       ...prev,
       source: "wikidata",
@@ -2787,6 +2812,7 @@ export default function App() {
                             const currentDuplicateId = getDuplicateIdForCandidate(candidate);
                             const duplicate = currentDuplicateId ? people.find((person) => person.id === currentDuplicateId) : null;
                             const linkSuggestions = getCandidateLinkSuggestions(candidate);
+                            const reviewStatus: ImportReviewStatus = duplicate ? "duplicate" : item.status;
                             return (
                               <div key={item.id} className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2.5">
                                 <div className="flex items-start justify-between gap-2">
@@ -2796,15 +2822,26 @@ export default function App() {
                                       {candidate.birth ?? "?"} to {candidate.death ?? "present"} · {(candidate.fields || []).join(", ") || inferFieldFromExternalText(candidate.description)}
                                     </div>
                                   </div>
-                                  <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-mono ${
-                                    duplicate
-                                      ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
-                                      : item.confidence >= importConfidenceThreshold
-                                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                                      : "border-slate-700 bg-slate-700/20 text-slate-500"
-                                  }`}>
-                                    {duplicate ? "Duplicate" : `${item.confidence}%`}
-                                  </span>
+                                  <div className="flex shrink-0 flex-col items-end gap-1">
+                                    <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                                      duplicate
+                                        ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                                        : item.confidence >= importConfidenceThreshold
+                                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                        : "border-slate-700 bg-slate-700/20 text-slate-500"
+                                    }`}>
+                                      {duplicate ? "Duplicate" : `${item.confidence}%`}
+                                    </span>
+                                    <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono capitalize ${
+                                      reviewStatus === "edited"
+                                        ? "border-[#7b9cf5]/30 bg-[#7b9cf5]/10 text-[#9bdaff]"
+                                        : reviewStatus === "duplicate"
+                                        ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                                        : "border-[#252a3d] bg-[#10131d] text-slate-500"
+                                    }`}>
+                                      {reviewStatus}
+                                    </span>
+                                  </div>
                                 </div>
 
                                 {duplicate ? (
