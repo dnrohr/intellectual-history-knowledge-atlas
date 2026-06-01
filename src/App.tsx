@@ -10,7 +10,7 @@ import NetworkGraph from "./components/NetworkGraph";
 import DetailPanel from "./components/DetailPanel";
 import AddThinkerModal from "./components/AddThinkerModal";
 import PathFinder from "./components/PathFinder";
-import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getTopicGroupsForField } from "./taxonomy";
+import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getTopicGroupsForField, getDomainForField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
 import { 
   Plus, 
@@ -75,8 +75,15 @@ export default function App() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [expandedDisciplineGroups, setExpandedDisciplineGroups] = useState<string[]>(["Natural Inquiry", "Formal Systems"]);
   const [expandedFacetFields, setExpandedFacetFields] = useState<string[]>([]);
-  const [indexMode, setIndexMode] = useState<"context" | "era" | "field">("context");
-  const [expandedIndexGroups, setExpandedIndexGroups] = useState<string[]>(["Selected", "Connected", "Likely Links", "Current Matches"]);
+  const [indexMode, setIndexMode] = useState<"context" | "cluster" | "era" | "field">("context");
+  const [expandedIndexGroups, setExpandedIndexGroups] = useState<string[]>([
+    "Selected",
+    "Connected",
+    "Likely Links",
+    "Current Matches",
+    "Natural Inquiry",
+    "Human Systems",
+  ]);
   const [workbenchTab, setWorkbenchTab] = useState<"links" | "tags" | "imports" | "duplicates">("links");
   const [relationshipDraft, setRelationshipDraft] = useState({
     targetName: "",
@@ -958,6 +965,8 @@ export default function App() {
   const indexGroups =
     indexMode === "context"
       ? contextIndexGroups
+      : indexMode === "cluster"
+      ? groupPeopleBy(processedPeople, (person) => getDomainForField(person.fields?.[0] || ""))
       : indexMode === "era"
       ? groupPeopleBy(processedPeople, (person) => person.era || "Unclassified")
       : groupPeopleBy(processedPeople, (person) => person.fields?.[0] || "Unclassified");
@@ -988,6 +997,12 @@ export default function App() {
 
     if (indexMode === "era") {
       return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"}`;
+    }
+
+    if (indexMode === "cluster") {
+      const primaryField = person.fields?.[0] || "Unclassified";
+      const topic = person.subfields?.[0] || person.era || person.region || "Unclassified";
+      return `${primaryField} · ${topic}`;
     }
 
     if (indexMode === "field") {
@@ -2380,8 +2395,8 @@ export default function App() {
                 <span className="font-mono text-[8.5px] text-slate-500">({processedPeople.length})</span>
               </div>
               <div className="border-b border-[#22273b] bg-[#0d1018] px-3 py-2 pr-5">
-                <div className="grid grid-cols-3 gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
-                  {(["context", "era", "field"] as const).map((mode) => (
+                <div className="grid grid-cols-4 gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
+                  {(["context", "cluster", "era", "field"] as const).map((mode) => (
                     <button
                       key={mode}
                       onClick={() => setIndexMode(mode)}
@@ -2391,7 +2406,7 @@ export default function App() {
                           : "text-slate-500 hover:text-slate-200"
                       }`}
                     >
-                      {mode}
+                      {mode === "cluster" ? "clusters" : mode}
                     </button>
                   ))}
                 </div>
@@ -2412,6 +2427,31 @@ export default function App() {
                           <span className="flex-1 truncate">{group.title}</span>
                           <span>{group.list.length}</span>
                         </button>
+
+                        {open && indexMode === "cluster" && (
+                          <div className="px-3.5 pb-2 -mt-0.5 flex flex-wrap gap-1">
+                            {Array.from(new Set(group.list.map((person) => person.fields?.[0] || "Unclassified")))
+                              .slice(0, 5)
+                              .map((field) => {
+                                const col = FIELD_COLOR[field] || "#94a3b8";
+                                const count = group.list.filter((person) => person.fields?.[0] === field).length;
+                                return (
+                                  <button
+                                    key={`${group.title}-${field}`}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      setSelectedFields((prev) => prev.includes(field) ? prev : [...prev, field]);
+                                      setFilterDrawerOpen(true);
+                                    }}
+                                    className="rounded border border-[#252a3d] bg-[#0b0d14] px-1.5 py-0.5 text-[8.5px] font-mono text-slate-500 hover:text-slate-200 hover:border-slate-600 cursor-pointer"
+                                    title={`Filter to ${field}`}
+                                  >
+                                    <span style={{ color: col }}>{field}</span> <span className="text-slate-700">{count}</span>
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        )}
 
                         {open && (
                           <div className="pb-1">
