@@ -37,6 +37,7 @@ type WikidataCandidate = {
   description: string;
   birth: number | null;
   death: number | null;
+  aliases?: string[];
   fields?: string[];
   topics?: string[];
   region?: string | null;
@@ -848,8 +849,38 @@ export default function App() {
     return "Philosophy";
   };
 
-  const getDuplicateIdForCandidate = (candidate: WikidataCandidate) =>
-    people.find((person) => normalizeName(person.name) === normalizeName(candidate.name))?.id || null;
+  const getNameVariants = (name: string) =>
+    Array.from(new Set([
+      name,
+      name.replace(/\([^)]*\)/g, " "),
+      ...Array.from(name.matchAll(/\(([^)]*)\)/g)).map((match) => match[1]),
+    ].map(normalizeName).filter(Boolean)));
+
+  const yearsAreClose = (left: number | null, right: number | null, tolerance = 2) =>
+    left !== null && right !== null && Math.abs(left - right) <= tolerance;
+
+  const getDuplicateIdForCandidate = (candidate: WikidataCandidate) => {
+    const candidateNames = new Set([
+      ...getNameVariants(candidate.name),
+      ...(candidate.aliases || []).flatMap(getNameVariants),
+    ]);
+    const candidateSourceUrls = [candidate.sourceUrl, candidate.wikipediaUrl].filter(Boolean) as string[];
+    const candidateWorks = new Set((candidate.works || []).map(normalizeName).filter(Boolean));
+
+    return people.find((person) => {
+      const personNames = getNameVariants(person.name);
+      const nameMatches = personNames.some((name) => candidateNames.has(name));
+      if (nameMatches) return true;
+
+      const notes = person.notes || "";
+      if (candidateSourceUrls.some((url) => notes.includes(url))) return true;
+
+      const sameBirth = yearsAreClose(candidate.birth, person.birth);
+      const sameDeath = yearsAreClose(candidate.death, person.death);
+      const sharedWorks = (person.works || []).filter((work) => candidateWorks.has(normalizeName(work))).length;
+      return sameBirth && (sameDeath || sharedWorks > 0);
+    })?.id || null;
+  };
 
   const candidateToThinkerDraft = (candidate: WikidataCandidate): Thinker => ({
     id: candidate.id,
