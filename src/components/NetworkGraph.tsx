@@ -243,6 +243,12 @@ export default function NetworkGraph({
       highlightPath.forEach((id) => focusSet.add(id));
     }
     const shouldLimitFocus = focusSet.size > 0;
+    const highlightedEdgeKeys = new Set<string>();
+    if (highlightPath) {
+      for (let i = 0; i < highlightPath.length - 1; i += 1) {
+        highlightedEdgeKeys.add(`${highlightPath[i]}->${highlightPath[i + 1]}`);
+      }
+    }
 
     // Helper to calculate coordinates along quadratic bezier curves
     const getQuadraticPoint = (valT: number, x0: number, y0: number, x1: number, y1: number, x2: number, y2: number) => {
@@ -264,7 +270,7 @@ export default function NetworkGraph({
       const isSourceSelected = l.source.id === selectedId;
       const isTargetSelected = l.target.id === selectedId;
       const isEdgeActive = isSourceSelected || isTargetSelected;
-      const inHighlightPath = highlightPath && highlightPath.includes(l.source.id) && highlightPath.includes(l.target.id);
+      const inHighlightPath = highlightedEdgeKeys.has(`${l.source.id}->${l.target.id}`);
 
       ctx.save();
       // Faint out inactive lines if there's a selection

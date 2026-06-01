@@ -311,6 +311,7 @@ export default function App() {
     setBfsMapNodes([]);
     localStorage.setItem("atlas_people_v6", JSON.stringify(updated));
     setSelectedId(newThinker.id);
+    setHighlightPath(null);
   };
 
   const handleResetDatabase = () => {
@@ -337,8 +338,11 @@ export default function App() {
     }
   };
 
-  const selectPerson = (id: string) => {
+  const selectPerson = (id: string, options: { preserveHighlight?: boolean } = {}) => {
     setSelectedId(id);
+    if (!options.preserveHighlight) {
+      setHighlightPath(null);
+    }
     setOverlapContemps([]);
     setBfsMapNodes([]);
   };
@@ -671,7 +675,7 @@ export default function App() {
     setEdges(nextEdges);
     localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
     setHighlightPath([source.id, target.id]);
-    setSelectedId(target.id);
+    selectPerson(target.id, { preserveHighlight: true });
     setViewMode("split");
   };
 
@@ -689,7 +693,7 @@ export default function App() {
 
     if (edges.some((edge) => edge.source === sourceId && edge.target === targetId)) {
       setHighlightPath([sourceId, targetId]);
-      setSelectedId(target.id);
+      selectPerson(target.id, { preserveHighlight: true });
       return;
     }
 
@@ -708,7 +712,7 @@ export default function App() {
     setEdges(nextEdges);
     localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
     setHighlightPath([sourceId, targetId]);
-    setSelectedId(target.id);
+    selectPerson(target.id, { preserveHighlight: true });
     setRelationshipDraft((prev) => ({ ...prev, targetName: "", note: "" }));
     setViewMode("split");
   };
@@ -1217,7 +1221,7 @@ export default function App() {
 
     setPeople(nextPeople);
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
-    setSelectedId(newId);
+    selectPerson(newId, { preserveHighlight: Boolean(topSuggestion) });
     setViewMode("split");
     removeImportReviewItem(item.id, "accepted", linkTopSuggestion ? "Accepted with top suggested link" : "Accepted from review queue");
     setWorkbenchTab("links");
@@ -1352,7 +1356,7 @@ export default function App() {
     );
     persistImportReviewQueue(importReviewQueue.filter((item) => !acceptedItemIds.has(item.id)));
     if (lastAcceptedId) {
-      setSelectedId(lastAcceptedId);
+      selectPerson(lastAcceptedId, { preserveHighlight: lastHighlightPath.length > 0 });
       setViewMode("split");
     }
     if (lastHighlightPath.length > 0) setHighlightPath(lastHighlightPath);
@@ -1672,7 +1676,7 @@ export default function App() {
   const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
     const path = thread.resolvedPeople.map((person) => person.id);
     setHighlightPath(path);
-    selectPerson(path[0]);
+    selectPerson(path[0], { preserveHighlight: true });
     setViewMode("split");
   };
   const selectedLensLabels = selectedThinker
@@ -2177,7 +2181,7 @@ export default function App() {
                         <button
                           onClick={() => {
                             setHighlightPath([selectedThinker.id, person.id]);
-                            selectPerson(person.id);
+                            selectPerson(person.id, { preserveHighlight: true });
                           }}
                           className="min-w-0 flex-1 text-left cursor-pointer"
                         >
@@ -3448,7 +3452,7 @@ export default function App() {
                                         key={`${item.id}-${suggestion.person.id}`}
                                         onClick={() => {
                                           setHighlightPath([suggestion.person.id]);
-                                          selectPerson(suggestion.person.id);
+                                          selectPerson(suggestion.person.id, { preserveHighlight: true });
                                         }}
                                         className="w-full rounded border border-[#252a3d] bg-[#0b0d14] px-2 py-1 text-left hover:border-[#7b9cf5] cursor-pointer"
                                       >
@@ -3818,7 +3822,7 @@ export default function App() {
             edges={edges}
             selectedId={selectedId}
             onFindPath={setHighlightPath}
-            onSelect={selectPerson}
+            onSelect={(id) => selectPerson(id, { preserveHighlight: true })}
             isOpen={pathFinderOpen}
             onToggle={() => setPathFinderOpen((prev) => !prev)}
             highlightPath={highlightPath}
@@ -3847,7 +3851,12 @@ export default function App() {
               <div className="shrink-0 px-5 py-3 border-b border-[#22273b] bg-[#141722] flex justify-between items-center pl-6">
                 <span className="font-mono text-[9px] text-[#8c9bbb] uppercase tracking-widest font-bold">SCHOLAR DOSSIER</span>
                 <button
-                  onClick={() => setSelectedId(null)}
+                  onClick={() => {
+                    setSelectedId(null);
+                    setHighlightPath(null);
+                    setOverlapContemps([]);
+                    setBfsMapNodes([]);
+                  }}
                   className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                   title="Close dossier"
                 >

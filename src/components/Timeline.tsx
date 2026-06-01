@@ -369,13 +369,20 @@ export default function Timeline({
     }
 
     // ── 3. Influence connectors edges ──
+    const highlightedEdgeKeys = new Set<string>();
+    if (highlightPath) {
+      for (let i = 0; i < highlightPath.length - 1; i += 1) {
+        highlightedEdgeKeys.add(`${highlightPath[i]}->${highlightPath[i + 1]}`);
+      }
+    }
+
     if (showEdges) {
       edges.forEach((e) => {
         const src = packedPeople.find((p) => p.id === e.source);
         const tgt = packedPeople.find((p) => p.id === e.target);
         if (!src || !tgt) return;
 
-        const isHighlightedPathEdge = highlightPath && highlightPath.includes(e.source) && highlightPath.includes(e.target);
+        const isHighlightedPathEdge = highlightedEdgeKeys.has(`${e.source}->${e.target}`);
         const isCurrentlySelected = src.id === selectedId || tgt.id === selectedId;
 
         // Skip connection if a selection is active and this link is unrelated
