@@ -1,0 +1,6 @@
+{
+  "name": "Intellectual History Knowledge Atlas",
+  "description": "An interactive mapping tool exploring the chronological lifespans, overlaps, and BFS influence paths of historical thinkers across 15 domains of science and philosophy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

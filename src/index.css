@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/* Custom elegant dark-themed scrollbars to fit the Cosmic Slate aesthetic */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Specific styling for scrollbar-thin fallback helper classes if used */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+/* Range slider with overlapping thumbs */
+.range-slider-container {
+  position: relative;
+  width: 100%;
+  height: 6px;
+}
+.range-slider-container input[type="range"] {
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+.range-slider-container input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f59e0b; /* Amber design accent */
+  border: 1.5px solid #ffffff;
+  cursor: grab;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+  transition: transform 0.1s;
+}
+.range-slider-container input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.25);
+  background: #fbbf24;
+}
+.range-slider-container input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f59e0b;
+  border: 1.5px solid #ffffff;
+  cursor: grab;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+.range-slider-container input[type="range"]::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.25);
+  background: #fbbf24;
+}
+
+/* Premium Cosmic Slate Glassmorphism Styles */
+.glass-panel {
+  background: rgba(16, 18, 27, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.glass-panel-heavy {
+  background: rgba(9, 10, 16, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.glow-border-selected {
+  box-shadow: 0 0 15px rgba(123, 156, 245, 0.25) !important;
+  border-color: rgba(123, 156, 245, 0.45) !important;
+}
+
+.timeline-event-line {
+  transition: stroke-width 0.2s, stroke 0.2s;
+}
+
+.timeline-event-line:hover {
+  stroke-width: 2.2px !important;
+  stroke: rgba(232, 184, 75, 0.9) !important;
+}
+
+
