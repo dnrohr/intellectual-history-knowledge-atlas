@@ -759,6 +759,31 @@ export default function App() {
   };
 
   const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const tokenizeEvidenceText = (value: string) =>
+    Array.from(new Set(value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((token) => token.length > 4)
+      .filter((token) => !["philosopher", "mathematician", "scientist", "writer", "known", "notable", "theory", "school"].includes(token))
+    ));
+
+  const getTextOverlap = (candidate: WikidataCandidate, person: Thinker) => {
+    const candidateTokens = tokenizeEvidenceText([
+      candidate.description,
+      candidate.movement || "",
+      ...(candidate.works || []),
+      ...(candidate.topics || []),
+    ].join(" "));
+    const personTokens = new Set(tokenizeEvidenceText([
+      person.notes || "",
+      person.movement || "",
+      ...(person.works || []),
+      ...(person.subfields || []),
+    ].join(" ")));
+
+    return candidateTokens.filter((token) => personTokens.has(token)).slice(0, 4);
+  };
 
   const inferFieldFromExternalText = (text: string) => {
     const value = text.toLowerCase();
@@ -807,27 +832,60 @@ export default function App() {
         const sharedFields = person.fields.filter((field) => draft.fields.includes(field));
         const sharedTopics = (person.subfields || []).filter((topic) => draft.subfields?.includes(topic));
         const sharedLensTags = personLens.filter((tag) => candidateLens.includes(tag));
+        const sharedWorks = (person.works || []).filter((work) =>
+          (candidate.works || []).some((candidateWork) => normalizeName(candidateWork) === normalizeName(work))
+        );
+        const textOverlap = getTextOverlap(candidate, person);
         const timeGap = candidate.birth === null
           ? 300
           : Math.min(
               Math.abs(person.birth - (candidate.death ?? candidate.birth)),
               Math.abs(candidate.birth - (person.death ?? person.birth))
             );
+        const chronologicalDirection = candidate.birth !== null
+          ? person.birth <= candidate.birth ? "candidate may inherit from this node" : "candidate may precede this node"
+          : "";
+        const chronologyScore = candidate.birth === null
+          ? 0
+          : timeGap <= 60
+          ? 3
+          : timeGap <= 150
+          ? 2
+          : timeGap <= 300
+          ? 1
+          : -2;
+        const movementBonus = candidate.movement && person.movement === candidate.movement ? 4 : 0;
         const eraBonus = candidate.era && person.era === candidate.era ? 2 : 0;
-        const regionBonus = candidate.region && person.region === candidate.region ? 1 : 0;
-        const score = sharedFields.length * 4 + sharedTopics.length * 3 + sharedLensTags.length * 2 + eraBonus + regionBonus - Math.min(timeGap / 150, 4);
+        const regionBonus = candidate.region && person.region === candidate.region ? 1.5 : 0;
+        const workBonus = sharedWorks.length * 5;
+        const textBonus = Math.min(textOverlap.length, 3) * 1.5;
+        const score =
+          sharedFields.length * 4 +
+          sharedTopics.length * 3 +
+          sharedLensTags.length * 2 +
+          movementBonus +
+          eraBonus +
+          regionBonus +
+          workBonus +
+          textBonus +
+          chronologyScore;
         const reasons = [
-          ...sharedFields.slice(0, 2),
-          ...sharedTopics.slice(0, 2),
-          ...sharedLensTags.slice(0, 2).map(getLensOptionLabel),
-          eraBonus > 0 ? candidate.era : "",
-          regionBonus > 0 ? candidate.region : "",
+          ...sharedFields.slice(0, 2).map((field) => `field: ${field}`),
+          ...sharedTopics.slice(0, 2).map((topic) => `topic: ${topic}`),
+          ...sharedLensTags.slice(0, 2).map((tag) => `lens: ${getLensOptionLabel(tag)}`),
+          ...sharedWorks.slice(0, 1).map((work) => `work: ${work}`),
+          ...textOverlap.slice(0, 2).map((token) => `source term: ${token}`),
+          movementBonus > 0 ? `movement: ${candidate.movement}` : "",
+          eraBonus > 0 ? `era: ${candidate.era}` : "",
+          regionBonus > 0 ? `region: ${candidate.region}` : "",
+          chronologyScore > 0 ? `chronology: ${chronologicalDirection}` : "",
         ].filter(Boolean) as string[];
-        return { person, score, reasons };
+        const confidence = score >= 12 ? "strong" : score >= 7 ? "medium" : "weak";
+        return { person, score, reasons, confidence };
       })
-      .filter((item) => item.score > 1)
+      .filter((item) => item.score >= 4)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .slice(0, 5);
   };
 
   const queueWikidataCandidate = (candidate: WikidataCandidate, confidence = 90) => {
@@ -938,6 +996,7 @@ export default function App() {
           strength: 2,
           confidence: 0.35,
           note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
+          sourceClaims: [candidate.wikipediaUrl || candidate.sourceUrl],
         },
       ];
       setEdges(nextEdges);
@@ -2516,7 +2575,7 @@ export default function App() {
                       <div className="mb-2 flex items-center justify-between">
                         <div>
                           <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-200">Review Queue</span>
-                          <p className="text-[10px] text-slate-600 font-mono mt-0.5">Check duplicate and link signals before adding people.</p>
+                          <p className="text-[10px] text-slate-600 font-mono mt-0.5">Automated links are evidence-weighted suggestions, not confirmed influence claims.</p>
                         </div>
                         <span className="font-mono text-[9px] text-slate-600">{importReviewQueue.length}</span>
                       </div>
@@ -2569,7 +2628,15 @@ export default function App() {
                                       >
                                         <div className="flex items-center justify-between gap-2">
                                           <span className="truncate text-[9px] font-mono text-slate-300">{suggestion.person.name}</span>
-                                          <span className="text-[8px] font-mono text-emerald-300">{Math.max(1, Math.round(suggestion.score))}</span>
+                                          <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                                            suggestion.confidence === "strong"
+                                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                              : suggestion.confidence === "medium"
+                                              ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+                                              : "border-slate-700 bg-slate-700/20 text-slate-500"
+                                          }`}>
+                                            {suggestion.confidence} {Math.max(1, Math.round(suggestion.score))}
+                                          </span>
                                         </div>
                                         <div className="truncate text-[8px] font-mono text-slate-600">
                                           {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
