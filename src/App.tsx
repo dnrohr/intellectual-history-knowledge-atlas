@@ -47,6 +47,13 @@ type WikidataCandidate = {
   wikipediaUrl: string | null;
 };
 
+type ImportReviewItem = {
+  id: string;
+  candidate: WikidataCandidate;
+  confidence: number;
+  duplicateId: string | null;
+};
+
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
@@ -114,6 +121,7 @@ export default function App() {
     duplicateId: string | null;
     candidate: WikidataCandidate | null;
   }>>([]);
+  const [importReviewQueue, setImportReviewQueue] = useState<ImportReviewItem[]>([]);
   const [wikidataLoading, setWikidataLoading] = useState(false);
 
   const [sortMode, setSortMode] = useState<"birth" | "field" | "bridge" | "name">("birth");
@@ -737,6 +745,69 @@ export default function App() {
   const getDuplicateIdForCandidate = (candidate: WikidataCandidate) =>
     people.find((person) => normalizeName(person.name) === normalizeName(candidate.name))?.id || null;
 
+  const candidateToThinkerDraft = (candidate: WikidataCandidate): Thinker => ({
+    id: candidate.id,
+    name: candidate.name,
+    birth: candidate.birth ?? 0,
+    death: candidate.death,
+    fields: candidate.fields && candidate.fields.length > 0
+      ? candidate.fields
+      : [inferFieldFromExternalText(candidate.description)],
+    subfields: candidate.topics || [],
+    region: candidate.region || null,
+    era: candidate.era || null,
+    movement: candidate.movement || "Imported",
+    bridge_score: 2,
+    works: candidate.works || [],
+    influenced: [],
+    notes: candidate.description || null,
+  });
+
+  const getCandidateLinkSuggestions = (candidate: WikidataCandidate) => {
+    const draft = candidateToThinkerDraft(candidate);
+    const candidateLens = Object.values(inferLensTags(draft)).flat();
+
+    return people
+      .map((person) => {
+        const personLens = Object.values(inferLensTags(person)).flat();
+        const sharedFields = person.fields.filter((field) => draft.fields.includes(field));
+        const sharedTopics = (person.subfields || []).filter((topic) => draft.subfields?.includes(topic));
+        const sharedLensTags = personLens.filter((tag) => candidateLens.includes(tag));
+        const timeGap = candidate.birth === null
+          ? 300
+          : Math.min(
+              Math.abs(person.birth - (candidate.death ?? candidate.birth)),
+              Math.abs(candidate.birth - (person.death ?? person.birth))
+            );
+        const eraBonus = candidate.era && person.era === candidate.era ? 2 : 0;
+        const regionBonus = candidate.region && person.region === candidate.region ? 1 : 0;
+        const score = sharedFields.length * 4 + sharedTopics.length * 3 + sharedLensTags.length * 2 + eraBonus + regionBonus - Math.min(timeGap / 150, 4);
+        const reasons = [
+          ...sharedFields.slice(0, 2),
+          ...sharedTopics.slice(0, 2),
+          ...sharedLensTags.slice(0, 2).map(getLensOptionLabel),
+          eraBonus > 0 ? candidate.era : "",
+          regionBonus > 0 ? candidate.region : "",
+        ].filter(Boolean) as string[];
+        return { person, score, reasons };
+      })
+      .filter((item) => item.score > 1)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  };
+
+  const queueWikidataCandidate = (candidate: WikidataCandidate, confidence = 90) => {
+    const duplicateId = getDuplicateIdForCandidate(candidate);
+    setImportReviewQueue((prev) => {
+      if (prev.some((item) => item.candidate.id === candidate.id)) return prev;
+      return [...prev, { id: `${candidate.id}-${Date.now().toString(36)}`, candidate, confidence, duplicateId }];
+    });
+  };
+
+  const removeImportReviewItem = (id: string) => {
+    setImportReviewQueue((prev) => prev.filter((item) => item.id !== id));
+  };
+
   const getCandidateConfidence = (query: string, candidate: WikidataCandidate | null) => {
     if (!candidate) return 0;
     let score = 0;
@@ -778,6 +849,67 @@ export default function App() {
       influenced: [],
       notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
     });
+  };
+
+  const acceptImportReviewItem = (item: ImportReviewItem, linkTopSuggestion = false) => {
+    const candidate = item.candidate;
+    if (candidate.birth === null) return;
+    if (item.duplicateId) {
+      selectPerson(item.duplicateId);
+      removeImportReviewItem(item.id);
+      return;
+    }
+
+    const field = candidate.fields?.[0] || inferFieldFromExternalText(candidate.description);
+    const slug = candidate.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+    const newId = people.some((person) => person.id === slug) ? `${slug}_${candidate.id.toLowerCase()}` : slug;
+    const newThinker: Thinker = {
+      id: newId,
+      name: candidate.name,
+      birth: candidate.birth,
+      death: candidate.death,
+      fields: [field],
+      subfields: candidate.topics || [],
+      region: candidate.region || null,
+      era: candidate.era || null,
+      movement: candidate.movement || "Imported",
+      bridge_score: 2,
+      works: candidate.works || [],
+      influenced: [],
+      notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
+    };
+
+    const nextPeople = [...people, newThinker];
+    let nextEdges = edges;
+    const topSuggestion = getCandidateLinkSuggestions(candidate)[0];
+    if (linkTopSuggestion && topSuggestion) {
+      const source = topSuggestion.person.birth <= newThinker.birth ? topSuggestion.person : newThinker;
+      const target = source.id === topSuggestion.person.id ? newThinker : topSuggestion.person;
+      nextEdges = [
+        ...edges,
+        {
+          source: source.id,
+          target: target.id,
+          type: "Suggested relationship",
+          strength: 2,
+          confidence: 0.35,
+          note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
+        },
+      ];
+      setEdges(nextEdges);
+      localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+      setHighlightPath([source.id, target.id]);
+    }
+
+    setPeople(nextPeople);
+    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
+    setSelectedId(newId);
+    setViewMode("split");
+    removeImportReviewItem(item.id);
+    setWorkbenchTab("links");
   };
 
   const searchWikidataCandidates = async () => {
@@ -828,7 +960,7 @@ export default function App() {
   const acceptHighConfidenceWikidataBatch = () => {
     wikidataBatchCandidates
       .filter((item) => item.candidate && item.confidence >= 80 && !item.duplicateId)
-      .forEach((item) => acceptWikidataCandidate(item.candidate!));
+      .forEach((item) => queueWikidataCandidate(item.candidate!, item.confidence));
   };
 
   const useWikidataCandidate = (candidate: WikidataCandidate) => {
@@ -2198,19 +2330,29 @@ export default function App() {
                     {wikidataCandidates.length > 0 && (
                       <div className="mb-3 max-h-36 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
                         {wikidataCandidates.map((candidate) => (
-                          <button
+                          <div
                             key={candidate.id}
-                            onClick={() => useWikidataCandidate(candidate)}
-                            className="w-full rounded-md border border-[#1d2232] bg-[#0e1119] px-2 py-1.5 text-left hover:border-[#7b9cf5] cursor-pointer"
+                            className="w-full rounded-md border border-[#1d2232] bg-[#0e1119] px-2 py-1.5 text-left hover:border-[#7b9cf5]"
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <span className="truncate text-[10px] font-mono text-slate-200">{candidate.name}</span>
+                              <button
+                                onClick={() => useWikidataCandidate(candidate)}
+                                className="min-w-0 flex-1 truncate text-left text-[10px] font-mono text-slate-200 hover:text-white cursor-pointer"
+                              >
+                                {candidate.name}
+                              </button>
                               <span className="shrink-0 text-[8.5px] font-mono text-slate-600">{candidate.id}</span>
+                              <button
+                                onClick={() => queueWikidataCandidate(candidate, getCandidateConfidence(wikidataQuery, candidate))}
+                                className="shrink-0 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
+                              >
+                                Queue
+                              </button>
                             </div>
                             <div className="mt-0.5 truncate text-[8.5px] font-mono text-slate-600">
                               {candidate.birth ?? "?"} to {candidate.death ?? "present"} · {candidate.description || "No description"}
                             </div>
-                          </button>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -2246,7 +2388,7 @@ export default function App() {
                               disabled={!wikidataBatchCandidates.some((item) => item.candidate && item.confidence >= 80 && !item.duplicateId)}
                               className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
                             >
-                              Accept High Confidence
+                              Queue High Confidence
                             </button>
                           </div>
                           <div className="max-h-44 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
@@ -2271,11 +2413,11 @@ export default function App() {
                                     {item.duplicateId ? "Duplicate" : `${item.confidence}%`}
                                   </span>
                                   <button
-                                    onClick={() => acceptWikidataCandidate(item.candidate!)}
+                                    onClick={() => queueWikidataCandidate(item.candidate!, item.confidence)}
                                     disabled={!!item.duplicateId || item.candidate.birth === null}
                                     className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
                                   >
-                                    Accept
+                                    Queue
                                   </button>
                                 </>
                               ) : (
@@ -2314,6 +2456,113 @@ export default function App() {
                   </div>
 
                   <div className="xl:col-span-5 bg-[#090a0f] border border-[#22273b] rounded-md p-3">
+                    <div className="mb-3 rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
+                      <div className="mb-2 flex items-center justify-between">
+                        <div>
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-200">Review Queue</span>
+                          <p className="text-[10px] text-slate-600 font-mono mt-0.5">Check duplicate and link signals before adding people.</p>
+                        </div>
+                        <span className="font-mono text-[9px] text-slate-600">{importReviewQueue.length}</span>
+                      </div>
+
+                      <div className="max-h-[280px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+                        {importReviewQueue.length > 0 ? (
+                          importReviewQueue.map((item) => {
+                            const candidate = item.candidate;
+                            const duplicate = item.duplicateId ? people.find((person) => person.id === item.duplicateId) : null;
+                            const linkSuggestions = getCandidateLinkSuggestions(candidate);
+                            return (
+                              <div key={item.id} className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2.5">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <div className="truncate text-[11px] font-semibold text-slate-100">{candidate.name}</div>
+                                    <div className="mt-0.5 truncate text-[8.5px] font-mono text-slate-600">
+                                      {candidate.birth ?? "?"} to {candidate.death ?? "present"} · {(candidate.fields || []).join(", ") || inferFieldFromExternalText(candidate.description)}
+                                    </div>
+                                  </div>
+                                  <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                                    duplicate
+                                      ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                                      : item.confidence >= 80
+                                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                      : "border-slate-700 bg-slate-700/20 text-slate-500"
+                                  }`}>
+                                    {duplicate ? "Duplicate" : `${item.confidence}%`}
+                                  </span>
+                                </div>
+
+                                {duplicate ? (
+                                  <button
+                                    onClick={() => selectPerson(duplicate.id)}
+                                    className="mt-2 w-full rounded border border-amber-500/20 bg-amber-500/5 px-2 py-1 text-left text-[9px] font-mono text-amber-200 hover:border-amber-400 cursor-pointer"
+                                  >
+                                    Matches existing: {duplicate.name}
+                                  </button>
+                                ) : (
+                                  <div className="mt-2 space-y-1">
+                                    <div className="font-mono text-[8.5px] uppercase tracking-wider text-slate-600">Suggested Links</div>
+                                    {linkSuggestions.length > 0 ? linkSuggestions.map((suggestion) => (
+                                      <button
+                                        key={`${item.id}-${suggestion.person.id}`}
+                                        onClick={() => {
+                                          setHighlightPath([suggestion.person.id]);
+                                          selectPerson(suggestion.person.id);
+                                        }}
+                                        className="w-full rounded border border-[#252a3d] bg-[#0b0d14] px-2 py-1 text-left hover:border-[#7b9cf5] cursor-pointer"
+                                      >
+                                        <div className="flex items-center justify-between gap-2">
+                                          <span className="truncate text-[9px] font-mono text-slate-300">{suggestion.person.name}</span>
+                                          <span className="text-[8px] font-mono text-emerald-300">{Math.max(1, Math.round(suggestion.score))}</span>
+                                        </div>
+                                        <div className="truncate text-[8px] font-mono text-slate-600">
+                                          {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
+                                        </div>
+                                      </button>
+                                    )) : (
+                                      <div className="text-[9px] font-mono text-slate-600 italic">No strong link suggestions yet.</div>
+                                    )}
+                                  </div>
+                                )}
+
+                                <div className="mt-2 flex items-center justify-end gap-1.5">
+                                  <button
+                                    onClick={() => removeImportReviewItem(item.id)}
+                                    className="rounded border border-[#252a3d] px-2 py-1 text-[8.5px] font-mono text-slate-500 hover:text-slate-200 cursor-pointer"
+                                  >
+                                    Skip
+                                  </button>
+                                  <button
+                                    onClick={() => useWikidataCandidate(candidate)}
+                                    className="rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-2 py-1 text-[8.5px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+                                  >
+                                    Edit Draft
+                                  </button>
+                                  <button
+                                    onClick={() => acceptImportReviewItem(item, true)}
+                                    disabled={!!duplicate || candidate.birth === null || linkSuggestions.length === 0}
+                                    className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                                  >
+                                    Accept + Link
+                                  </button>
+                                  <button
+                                    onClick={() => acceptImportReviewItem(item)}
+                                    disabled={!!duplicate || candidate.birth === null}
+                                    className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                                  >
+                                    Accept
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="rounded border border-[#1d2232] bg-[#0e1119] px-3 py-4 text-center text-[10px] font-mono text-slate-600">
+                            Queue candidates from search or batch results.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Source Adapters</span>
