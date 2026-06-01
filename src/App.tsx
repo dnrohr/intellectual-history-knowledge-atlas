@@ -914,6 +914,15 @@ export default function App() {
         .sort((a, b) => b.score - a.score)
         .slice(0, 8)
     : [];
+  const getSuggestedLinkReason = (candidate: (typeof suggestedLinks)[number]) => {
+    const reasons = [
+      ...candidate.sharedFields.slice(0, 2),
+      ...candidate.sharedTopics.slice(0, 2),
+      ...candidate.sharedLensTags.slice(0, 2).map(getLensOptionLabel),
+    ];
+    return reasons.length > 0 ? reasons.join(", ") : "nearby context";
+  };
+  const focusLinkQueue = suggestedLinks.slice(0, 4);
   const connectedIndexPeople = selectedNearestRelations
     .map((item) => item.other)
     .filter(Boolean) as Thinker[];
@@ -949,6 +958,41 @@ export default function App() {
       : indexMode === "era"
       ? groupPeopleBy(processedPeople, (person) => person.era || "Unclassified")
       : groupPeopleBy(processedPeople, (person) => person.fields?.[0] || "Unclassified");
+
+  const getIndexContext = (person: Thinker, groupTitle: string) => {
+    if (groupTitle === "Selected") {
+      return `${formatYear(person.birth)} · current focus`;
+    }
+
+    if (groupTitle === "Connected") {
+      const relation = selectedId
+        ? edges.find((edge) =>
+            (edge.source === selectedId && edge.target === person.id) ||
+            (edge.target === selectedId && edge.source === person.id)
+          )
+        : null;
+      if (relation && selectedId) {
+        const direction = relation.source === selectedId ? "influences" : "influenced by";
+        return `${direction} · ${relation.type}`;
+      }
+      return `${formatYear(person.birth)} · mapped relation`;
+    }
+
+    if (groupTitle === "Likely Links") {
+      const candidate = suggestedLinks.find((item) => item.person.id === person.id);
+      return candidate ? getSuggestedLinkReason(candidate) : `${formatYear(person.birth)} · possible link`;
+    }
+
+    if (indexMode === "era") {
+      return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"}`;
+    }
+
+    if (indexMode === "field") {
+      return `${formatYear(person.birth)} · ${person.era || person.region || "Unclassified"}`;
+    }
+
+    return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"}`;
+  };
 
   const toggleIndexGroup = (group: string) => {
     setExpandedIndexGroups((prev) =>
@@ -1211,7 +1255,7 @@ export default function App() {
 
       {selectedThinker && (
         <div className="shrink-0 px-6 py-3 bg-[#10131d] border-b border-[#22273b] z-20">
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-center">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-start">
             <div className="xl:col-span-3 min-w-0">
               <div className="flex items-center gap-2 min-w-0">
                 <span
@@ -1255,6 +1299,63 @@ export default function App() {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 xl:grid-cols-[auto_1fr] gap-2 items-center">
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Connection Radar</span>
+              <button
+                onClick={() => {
+                  setExtensionWorkbenchOpen(true);
+                  setWorkbenchTab("links");
+                }}
+                className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
+              >
+                Review Queue
+              </button>
+            </div>
+
+            <div className="min-w-0 flex gap-2 overflow-x-auto scrollbar-thin pb-0.5">
+              {focusLinkQueue.length > 0 ? (
+                focusLinkQueue.map((candidate) => {
+                  const person = candidate.person;
+                  const col = FIELD_COLOR[person.fields?.[0] || "Philosophy"] || "#94a3b8";
+                  return (
+                    <div
+                      key={`focus-radar-${person.id}`}
+                      className="shrink-0 w-[250px] rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-2"
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="mt-1 w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: col }} />
+                        <button
+                          onClick={() => {
+                            setHighlightPath([selectedThinker.id, person.id]);
+                            selectPerson(person.id);
+                          }}
+                          className="min-w-0 flex-1 text-left cursor-pointer"
+                        >
+                          <div className="truncate text-[10.5px] font-semibold text-slate-200">{person.name}</div>
+                          <div className="truncate text-[9px] font-mono text-slate-500">
+                            {formatYear(person.birth)} · {getSuggestedLinkReason(candidate)}
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => addSuggestedRelationship(selectedThinker, person, `Shared context: ${getSuggestedLinkReason(candidate)}`)}
+                          className="rounded border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-2 py-1 text-[9px] font-mono text-[#9bdaff] hover:border-[#9bdaff] cursor-pointer"
+                          title="Add a low-confidence suggested relationship"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-2 text-[10px] font-mono text-slate-600">
+                  No high-signal link suggestions for this focus yet.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -2302,6 +2403,7 @@ export default function App() {
                               const col = FIELD_COLOR[primaryField] || "#94a3b8";
                               const isSelected = p.id === selectedId;
                               const inPath = highlightPath && highlightPath.includes(p.id);
+                              const contextText = getIndexContext(p, group.title);
 
                               return (
                                 <button
@@ -2319,7 +2421,7 @@ export default function App() {
                                   <div className="flex-1 overflow-hidden">
                                     <div className="truncate font-sans font-medium">{p.name}</div>
                                     <div className="text-[8.5px] text-slate-500 font-mono mt-0.5 truncate">
-                                      {p.birth < 0 ? `${Math.abs(p.birth)} BCE` : p.birth} · {p.fields?.[0] || "Unclassified"}
+                                      {contextText}
                                     </div>
                                   </div>
                                 </button>
