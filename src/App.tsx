@@ -882,6 +882,12 @@ export default function App() {
     return Array.from(new Set([...(candidate.topics || []), ...matchedTopics])).slice(0, 12);
   };
 
+  const getCandidateSourceName = (candidate: WikidataCandidate) =>
+    candidate.sourceUrl === "manual-paste" ? "manual paste" : "Wikidata";
+
+  const getCandidateSourceUrl = (candidate: WikidataCandidate) =>
+    candidate.sourceUrl === "manual-paste" ? "" : candidate.wikipediaUrl || candidate.sourceUrl;
+
   const getNameVariants = (name: string) =>
     Array.from(new Set([
       name,
@@ -1092,7 +1098,9 @@ export default function App() {
       !!candidate.movement,
     ].filter(Boolean).length;
     const labels: ImportQualityLabel[] = [
-      candidate.wikipediaUrl
+      candidate.sourceUrl === "manual-paste"
+        ? { label: "Manual paste", tone: "medium" }
+        : candidate.wikipediaUrl
         ? { label: "Wikidata article", tone: "strong" }
         : { label: "Wikidata entity", tone: "medium" },
       structuredSignalCount >= 4
@@ -1145,7 +1153,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
-      notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
+      notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
     });
   };
 
@@ -1178,7 +1186,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
-      notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
+      notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
     };
 
     const nextPeople = [...people, newThinker];
@@ -1196,7 +1204,7 @@ export default function App() {
           strength: 2,
           confidence: 0.35,
           note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
-          sourceClaims: [candidate.wikipediaUrl || candidate.sourceUrl],
+          sourceClaims: [getCandidateSourceUrl(candidate)].filter(Boolean),
         },
       ];
       setEdges(nextEdges);
@@ -1227,7 +1235,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
-      notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
+      notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
     };
   };
 
@@ -1267,7 +1275,7 @@ export default function App() {
 
   const mergeImportReviewItemIntoDuplicate = (item: ImportReviewItem, duplicateId: string) => {
     const candidate = item.candidate;
-    const sourceUrl = candidate.wikipediaUrl || candidate.sourceUrl;
+    const sourceUrl = getCandidateSourceUrl(candidate);
     const updatedPeople = people.map((person) => {
       if (person.id !== duplicateId) return person;
       const sourceNote = `Merged duplicate import from Wikidata: ${sourceUrl}`;
@@ -1322,7 +1330,7 @@ export default function App() {
           strength: 2,
           confidence: 0.35,
           note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
-          sourceClaims: [candidate.wikipediaUrl || candidate.sourceUrl],
+          sourceClaims: [getCandidateSourceUrl(candidate)].filter(Boolean),
         });
         lastHighlightPath = [source.id, target.id];
       }
@@ -1420,6 +1428,40 @@ export default function App() {
     setWikidataLoading(false);
   };
 
+  const queuePastedImportRows = () => {
+    const rows = wikidataBatchText
+      .split(/\r?\n/)
+      .map((row) => row.trim())
+      .filter((row) => row.includes("|"))
+      .slice(0, 25);
+
+    rows.forEach((row) => {
+      const [rawName, rawBirth, rawDeath, rawField, ...noteParts] = row.split("|").map((part) => part.trim());
+      const birth = Number(rawBirth);
+      if (!rawName || Number.isNaN(birth)) return;
+      const death = rawDeath && !Number.isNaN(Number(rawDeath)) ? Number(rawDeath) : null;
+      const notes = noteParts.join(" | ").trim();
+      const field = rawField || inferFieldFromExternalText(notes);
+      const candidate: WikidataCandidate = {
+        id: `manual-${normalizeName(rawName)}-${Date.now().toString(36)}`,
+        name: rawName,
+        description: notes || "Manual pasted import.",
+        birth,
+        death,
+        fields: [field],
+        topics: [],
+        region: null,
+        era: inferEraFromYear(birth),
+        movement: "",
+        works: [],
+        sourceUrl: "manual-paste",
+        wikipediaUrl: null,
+      };
+      const confidence = Math.min(95, 55 + (field ? 15 : 0) + (notes ? 15 : 0) + (death !== null ? 5 : 0));
+      queueWikidataCandidate(candidate, confidence);
+    });
+  };
+
   const acceptHighConfidenceWikidataBatch = () => {
     wikidataBatchCandidates
       .filter((item) => item.candidate && item.confidence >= importConfidenceThreshold && !item.duplicateId)
@@ -1439,7 +1481,7 @@ export default function App() {
       era: candidate.era || inferEraFromYear(candidate.birth) || "",
       movement: candidate.movement || "",
       topics: getAutoTopicsForCandidate(candidate).join(", "),
-      sourceUrl: candidate.wikipediaUrl || candidate.sourceUrl,
+      sourceUrl: getCandidateSourceUrl(candidate),
       notes: candidate.description,
     }));
     setDraftQueueItemId(queueItemId);
@@ -2868,6 +2910,13 @@ export default function App() {
                           className="self-stretch rounded-md border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-3 py-2 text-[10px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Find
+                        </button>
+                        <button
+                          onClick={queuePastedImportRows}
+                          disabled={!wikidataBatchText.includes("|")}
+                          className="self-stretch rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          Queue Rows
                         </button>
                       </div>
                       {wikidataBatchCandidates.length > 0 && (
