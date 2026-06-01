@@ -3226,7 +3226,36 @@ export const INITIAL_PEOPLE_DATA: Thinker[] = [
 
 ];
 
-export const INITIAL_EDGES_DATA: InfluenceEdge[] = [
+const deriveMetadataInfluenceEdges = (people: Thinker[], explicitEdges: InfluenceEdge[]): InfluenceEdge[] => {
+  const peopleIds = new Set(people.map((person) => person.id));
+  const explicitEdgeKeys = new Set(explicitEdges.map((edge) => `${edge.source}->${edge.target}`));
+
+  return people.flatMap((person) =>
+    (person.influenced || [])
+      .filter((target) => target !== person.id && peopleIds.has(target))
+      .filter((target) => !explicitEdgeKeys.has(`${person.id}->${target}`))
+      .map((target) => ({
+        source: person.id,
+        target,
+        type: "Recorded influence",
+        strength: 3,
+        confidence: 0.6,
+        note: "Derived from existing thinker influence metadata",
+      }))
+  );
+};
+
+const dedupeEdges = (edges: InfluenceEdge[]) => {
+  const seen = new Set<string>();
+  return edges.filter((edge) => {
+    const key = `${edge.source}->${edge.target}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
 // --- ANCIENT ---
   { source: "thales", target: "anaximander", type: "Mentorship", strength: 5, note: "Pre-Socratic Milesian school" },
   { source: "thales", target: "pythagoras", type: "Influence", strength: 4, note: "Inspired mathematical cosmos view" },
@@ -3719,6 +3748,11 @@ export const INITIAL_EDGES_DATA: InfluenceEdge[] = [
 
 
 ];
+
+export const INITIAL_EDGES_DATA: InfluenceEdge[] = dedupeEdges([
+  ...EXPLICIT_EDGES_DATA,
+  ...deriveMetadataInfluenceEdges(INITIAL_PEOPLE_DATA, EXPLICIT_EDGES_DATA),
+]);
 
 export const INITIAL_MOVEMENTS_DATA: Movement[] = [
   { name: "Ancient Greek Philosophy", start: -550, end: -30, core: "Logos, reason, forms", fields: ["Philosophy", "Mathematics", "Cosmology"] },
