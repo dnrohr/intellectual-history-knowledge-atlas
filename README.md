@@ -1,20 +1,40 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Intellectual History Knowledge Atlas
 
-# Run and deploy your AI Studio app
+An interactive atlas for exploring thinkers, timelines, influence relationships, topics, and externally sourced import candidates.
 
-This contains everything you need to run your app locally.
+## Run In GitHub Codespaces
 
-View your app in AI Studio: https://ai.studio/apps/712590f0-07bd-482b-9926-fb441b020d2d
+1. Open the repository on GitHub.
+2. Choose **Code** -> **Codespaces** -> **Create codespace on main**.
+3. Wait for dependencies to install.
+4. Run:
+
+```bash
+npm run dev
+```
+
+Codespaces will forward port `3000`. Open the forwarded URL to use the app.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+Prerequisite: Node.js 20 or newer.
 
+```bash
+npm install
+npm run dev
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Then open [http://localhost:3000](http://localhost:3000).
+
+## Build
+
+```bash
+npm run build
+npm run start
+```
+
+## Notes
+
+- Local additions and edits are stored in browser `localStorage`.
+- The Workbench includes review flows for links, tags, imports, and duplicates.
+- Wikidata import search is available through the local Express backend.
