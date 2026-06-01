@@ -4,6 +4,7 @@ import {
   INITIAL_PEOPLE_DATA,
   INITIAL_EDGES_DATA,
   FIELD_COLOR,
+  ERA_BANDS,
 } from "./data";
 import Timeline from "./components/Timeline";
 import NetworkGraph from "./components/NetworkGraph";
@@ -127,6 +128,7 @@ export default function App() {
     death: "",
     field: "Philosophy",
     region: "",
+    era: "",
     movement: "",
     topics: "",
     sourceUrl: "",
@@ -735,6 +737,13 @@ export default function App() {
       ...Object.values(inferLensTags(person)).flat().map(getLensOptionLabel),
     ])).slice(0, 14);
 
+  const inferEraFromYear = (year: number | null) => {
+    if (year === null || Number.isNaN(year)) return null;
+    const band = ERA_BANDS.find((item) => year >= item.s && year < item.e);
+    if (!band) return year < ERA_BANDS[0].s ? ERA_BANDS[0].label : ERA_BANDS[ERA_BANDS.length - 1].label;
+    return band.label === "Scientific Rev." ? "Scientific Revolution" : band.label;
+  };
+
   const acceptImportDraft = () => {
     const name = importDraft.name.trim();
     const birth = Number(importDraft.birth);
@@ -761,7 +770,7 @@ export default function App() {
       fields: [importDraft.field],
       subfields: topics,
       region: importDraft.region.trim() || null,
-      era: null,
+      era: importDraft.era.trim() || inferEraFromYear(birth),
       movement: importDraft.movement.trim() || "Imported",
       bridge_score: 2,
       works: [],
@@ -782,6 +791,7 @@ export default function App() {
       birth: "",
       death: "",
       region: "",
+      era: "",
       movement: "",
       topics: "",
       sourceUrl: "",
@@ -798,6 +808,7 @@ export default function App() {
       birth: "",
       death: "",
       region: "",
+      era: "",
       movement: "",
       topics: "",
       sourceUrl: "",
@@ -914,7 +925,7 @@ export default function App() {
       : [inferFieldFromExternalText(candidate.description)],
     subfields: getAutoTopicsForCandidate(candidate),
     region: candidate.region || null,
-    era: candidate.era || null,
+    era: candidate.era || inferEraFromYear(candidate.birth),
     movement: candidate.movement || "Imported",
     bridge_score: 2,
     works: candidate.works || [],
@@ -1106,7 +1117,7 @@ export default function App() {
       fields: [field],
       subfields: getAutoTopicsForCandidate(candidate),
       region: candidate.region || null,
-      era: candidate.era || null,
+      era: candidate.era || inferEraFromYear(candidate.birth),
       movement: candidate.movement || "Imported",
       bridge_score: 2,
       works: candidate.works || [],
@@ -1139,7 +1150,7 @@ export default function App() {
       fields: [field],
       subfields: getAutoTopicsForCandidate(candidate),
       region: candidate.region || null,
-      era: candidate.era || null,
+      era: candidate.era || inferEraFromYear(candidate.birth),
       movement: candidate.movement || "Imported",
       bridge_score: 2,
       works: candidate.works || [],
@@ -1188,7 +1199,7 @@ export default function App() {
       fields: [field],
       subfields: getAutoTopicsForCandidate(candidate),
       region: candidate.region || null,
-      era: candidate.era || null,
+      era: candidate.era || inferEraFromYear(candidate.birth),
       movement: candidate.movement || "Imported",
       bridge_score: 2,
       works: candidate.works || [],
@@ -1243,7 +1254,7 @@ export default function App() {
         subfields: mergeUniqueValues(person.subfields, getAutoTopicsForCandidate(candidate)),
         works: mergeUniqueValues(person.works, candidate.works),
         region: person.region || candidate.region || null,
-        era: person.era || candidate.era || null,
+        era: person.era || candidate.era || inferEraFromYear(candidate.birth),
         movement: person.movement || candidate.movement || "Imported",
         notes: [person.notes, candidate.description, sourceNote].filter(Boolean).join(" "),
       };
@@ -1402,6 +1413,7 @@ export default function App() {
       death: candidate.death === null ? "" : String(candidate.death),
       field: candidate.fields?.[0] || inferFieldFromExternalText(candidate.description),
       region: candidate.region || "",
+      era: candidate.era || inferEraFromYear(candidate.birth) || "",
       movement: candidate.movement || "",
       topics: getAutoTopicsForCandidate(candidate).join(", "),
       sourceUrl: candidate.wikipediaUrl || candidate.sourceUrl,
@@ -2909,6 +2921,10 @@ export default function App() {
                         {allFields.map((field) => <option key={field} value={field}>{field}</option>)}
                       </select>
                       <input value={importDraft.region} onChange={(event) => setImportDraft((prev) => ({ ...prev, region: event.target.value }))} placeholder="Region" className="md:col-span-2 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
+                      <select value={importDraft.era} onChange={(event) => setImportDraft((prev) => ({ ...prev, era: event.target.value }))} className="md:col-span-2 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200">
+                        <option value="">{importDraft.birth.trim() && !Number.isNaN(Number(importDraft.birth)) ? `Auto: ${inferEraFromYear(Number(importDraft.birth)) || "Unclassified"}` : "Auto era"}</option>
+                        {allEras.map((era) => <option key={era} value={era}>{era}</option>)}
+                      </select>
                       <input value={importDraft.topics} onChange={(event) => setImportDraft((prev) => ({ ...prev, topics: event.target.value }))} placeholder="Topics, comma separated" className="md:col-span-3 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <input value={importDraft.movement} onChange={(event) => setImportDraft((prev) => ({ ...prev, movement: event.target.value }))} placeholder="Movement" className="md:col-span-3 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <input value={importDraft.sourceUrl} onChange={(event) => setImportDraft((prev) => ({ ...prev, sourceUrl: event.target.value }))} placeholder="Source URL" className="md:col-span-6 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
