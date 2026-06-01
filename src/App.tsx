@@ -215,6 +215,7 @@ export default function App() {
   useEffect(() => {
     const savedPeople = localStorage.getItem("atlas_people_v6");
     const savedEdges = localStorage.getItem("atlas_edges_v6");
+    const savedImportQueue = localStorage.getItem("atlas_import_queue_v1");
 
     if (savedPeople && savedEdges) {
       try {
@@ -236,6 +237,17 @@ export default function App() {
       setEdges(INITIAL_EDGES_DATA);
       localStorage.setItem("atlas_people_v6", JSON.stringify(INITIAL_PEOPLE_DATA));
       localStorage.setItem("atlas_edges_v6", JSON.stringify(INITIAL_EDGES_DATA));
+    }
+
+    if (savedImportQueue) {
+      try {
+        const parsedImportQueue = JSON.parse(savedImportQueue);
+        if (Array.isArray(parsedImportQueue)) {
+          setImportReviewQueue(parsedImportQueue.filter(Boolean));
+        }
+      } catch {
+        setImportReviewQueue([]);
+      }
     }
   }, []);
 
@@ -266,6 +278,8 @@ export default function App() {
       setBfsMapNodes([]);
       localStorage.setItem("atlas_people_v6", JSON.stringify(INITIAL_PEOPLE_DATA));
       localStorage.setItem("atlas_edges_v6", JSON.stringify(INITIAL_EDGES_DATA));
+      localStorage.removeItem("atlas_import_queue_v1");
+      setImportReviewQueue([]);
     }
   };
 
@@ -800,12 +814,18 @@ export default function App() {
     const duplicateId = getDuplicateIdForCandidate(candidate);
     setImportReviewQueue((prev) => {
       if (prev.some((item) => item.candidate.id === candidate.id)) return prev;
-      return [...prev, { id: `${candidate.id}-${Date.now().toString(36)}`, candidate, confidence, duplicateId }];
+      const next = [...prev, { id: `${candidate.id}-${Date.now().toString(36)}`, candidate, confidence, duplicateId }];
+      localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
+      return next;
     });
   };
 
   const removeImportReviewItem = (id: string) => {
-    setImportReviewQueue((prev) => prev.filter((item) => item.id !== id));
+    setImportReviewQueue((prev) => {
+      const next = prev.filter((item) => item.id !== id);
+      localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
+      return next;
+    });
   };
 
   const getCandidateConfidence = (query: string, candidate: WikidataCandidate | null) => {
@@ -854,8 +874,9 @@ export default function App() {
   const acceptImportReviewItem = (item: ImportReviewItem, linkTopSuggestion = false) => {
     const candidate = item.candidate;
     if (candidate.birth === null) return;
-    if (item.duplicateId) {
-      selectPerson(item.duplicateId);
+    const duplicateId = getDuplicateIdForCandidate(candidate);
+    if (duplicateId) {
+      selectPerson(duplicateId);
       removeImportReviewItem(item.id);
       return;
     }
@@ -1958,7 +1979,7 @@ export default function App() {
                 {([
                   ["links", `Links ${suggestedLinks.length + unlinkedThinkers.length + sparseThinkers.length}`],
                   ["tags", `Tags ${weaklyTaggedThinkers.length}`],
-                  ["imports", `Imports ${EXTERNAL_SOURCES.length}`],
+                  ["imports", `Imports ${importReviewQueue.length} queued`],
                   ["duplicates", `Duplicates ${duplicateCandidates.length}`],
                 ] as const).map(([tab, label]) => (
                   <button
@@ -2469,7 +2490,8 @@ export default function App() {
                         {importReviewQueue.length > 0 ? (
                           importReviewQueue.map((item) => {
                             const candidate = item.candidate;
-                            const duplicate = item.duplicateId ? people.find((person) => person.id === item.duplicateId) : null;
+                            const currentDuplicateId = getDuplicateIdForCandidate(candidate);
+                            const duplicate = currentDuplicateId ? people.find((person) => person.id === currentDuplicateId) : null;
                             const linkSuggestions = getCandidateLinkSuggestions(candidate);
                             return (
                               <div key={item.id} className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2.5">
