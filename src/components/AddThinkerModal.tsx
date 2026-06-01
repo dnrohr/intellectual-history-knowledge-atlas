@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Thinker } from "../types";
-import { CONTROLLED_TOPICS, TAXONOMY_DOMAINS, getFieldsForDomain } from "../taxonomy";
+import { CONTROLLED_TOPICS, TAXONOMY_DOMAINS, getFieldsForDomain, getTopicGroupsForField } from "../taxonomy";
 
 interface AddThinkerModalProps {
   isOpen: boolean;
@@ -58,6 +58,7 @@ export default function AddThinkerModal({ isOpen, onClose, onAdd }: AddThinkerMo
 
   const availableFields = getFieldsForDomain(domain);
   const availableTopics = CONTROLLED_TOPICS[field] || [];
+  const availableTopicGroups = getTopicGroupsForField(field);
 
   const handleDomainChange = (nextDomain: string) => {
     const nextFields = getFieldsForDomain(nextDomain);
@@ -164,24 +165,33 @@ export default function AddThinkerModal({ isOpen, onClose, onAdd }: AddThinkerMo
 
           <div className="modal-field">
             <label className="font-mono text-[10px] text-[#5a6480] uppercase tracking-wider block mb-1">Topics</label>
-            <div className="flex flex-wrap gap-1.5 bg-[#111521] border border-[#252a3d] rounded p-2">
-              {availableTopics.map((topic) => {
-                const active = topics.includes(topic);
-                return (
-                  <button
-                    type="button"
-                    key={topic}
-                    onClick={() => toggleTopic(topic)}
-                    className={`px-2 py-1 rounded border text-[10px] font-mono transition-colors cursor-pointer ${
-                      active
-                        ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-white"
-                        : "border-[#252a3d] text-slate-400 hover:text-slate-100"
-                    }`}
-                  >
-                    {topic}
-                  </button>
-                );
-              })}
+            <div className="space-y-2 bg-[#111521] border border-[#252a3d] rounded p-2">
+              {availableTopicGroups.map((group) => (
+                <div key={`${field}-${group.name}`}>
+                  <div className="mb-1 font-mono text-[8.5px] uppercase tracking-wider text-slate-600">
+                    {group.name}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {group.topics.map((topic) => {
+                      const active = topics.includes(topic);
+                      return (
+                        <button
+                          type="button"
+                          key={topic}
+                          onClick={() => toggleTopic(topic)}
+                          className={`px-2 py-1 rounded border text-[10px] font-mono transition-colors cursor-pointer ${
+                            active
+                              ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-white"
+                              : "border-[#252a3d] text-slate-400 hover:text-slate-100"
+                          }`}
+                        >
+                          {topic}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

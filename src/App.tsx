@@ -10,7 +10,7 @@ import NetworkGraph from "./components/NetworkGraph";
 import DetailPanel from "./components/DetailPanel";
 import AddThinkerModal from "./components/AddThinkerModal";
 import PathFinder from "./components/PathFinder";
-import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel } from "./taxonomy";
+import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getTopicGroupsForField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
 import { 
   Plus, 
@@ -293,6 +293,9 @@ export default function App() {
         .flatMap((person) => person.subfields || [])])).sort(),
     ])
   ) as Record<string, string[]>;
+  const topicGroupsByField = Object.fromEntries(
+    allFields.map((field) => [field, getTopicGroupsForField(field, subfieldsByField[field] || [])])
+  );
 
   // ── FILTERING & SORTING PROCESSING ──
   const getFilteredPeople = (): Thinker[] => {
@@ -1587,23 +1590,37 @@ export default function App() {
 
                                       {fieldOpen && (
                                         <div className="ml-8 mt-1 space-y-1 border-l border-[#252a3d] pl-2">
-                                          {fieldSubfields.slice(0, 18).map((sub) => {
-                                            const subActive = selectedSubfields.includes(sub);
-                                            const subCount = countPeopleBy((p) => p.fields?.includes(field) && (p.subfields?.includes(sub) ?? false));
+                                          {(topicGroupsByField[field] || []).map((topicGroup) => {
+                                            const visibleTopics = topicGroup.topics.slice(0, 18);
+                                            const groupActiveCount = topicGroup.topics.filter((topic) => selectedSubfields.includes(topic)).length;
                                             return (
-                                              <button
-                                                key={`${field}-${sub}`}
-                                                onClick={() => handleToggleSubfield(sub)}
-                                                className={`w-full flex items-center gap-2 rounded px-2 py-1 text-left text-[9.5px] font-mono border transition-colors cursor-pointer ${
-                                                  subActive ? "bg-[#7b9cf5]/15 border-[#7b9cf5]/60 text-white" : "border-transparent text-slate-500 hover:bg-[#151824] hover:text-slate-200"
-                                                }`}
-                                              >
-                                                <span className={`w-2.5 h-2.5 rounded-sm border flex items-center justify-center ${subActive ? "border-[#7b9cf5]" : "border-slate-700"}`}>
-                                                  {subActive && <span className="w-1 h-1 rounded-sm bg-[#7b9cf5]" />}
-                                                </span>
-                                                <span className="flex-1 truncate">{sub}</span>
-                                                <span className="text-slate-600">{subCount}</span>
-                                              </button>
+                                              <div key={`${field}-${topicGroup.name}`} className="rounded bg-[#0a0c12]/70 px-1.5 py-1">
+                                                <div className="mb-1 flex items-center gap-2 px-1 font-mono text-[8.5px] uppercase tracking-wider text-slate-600">
+                                                  <span className="flex-1 truncate">{topicGroup.name}</span>
+                                                  {groupActiveCount > 0 && <span className="text-[#9bdaff]">{groupActiveCount}</span>}
+                                                </div>
+                                                <div className="space-y-1">
+                                                  {visibleTopics.map((sub) => {
+                                                    const subActive = selectedSubfields.includes(sub);
+                                                    const subCount = countPeopleBy((p) => p.fields?.includes(field) && (p.subfields?.includes(sub) ?? false));
+                                                    return (
+                                                      <button
+                                                        key={`${field}-${topicGroup.name}-${sub}`}
+                                                        onClick={() => handleToggleSubfield(sub)}
+                                                        className={`w-full flex items-center gap-2 rounded px-2 py-1 text-left text-[9.5px] font-mono border transition-colors cursor-pointer ${
+                                                          subActive ? "bg-[#7b9cf5]/15 border-[#7b9cf5]/60 text-white" : "border-transparent text-slate-500 hover:bg-[#151824] hover:text-slate-200"
+                                                        }`}
+                                                      >
+                                                        <span className={`w-2.5 h-2.5 rounded-sm border flex items-center justify-center ${subActive ? "border-[#7b9cf5]" : "border-slate-700"}`}>
+                                                          {subActive && <span className="w-1 h-1 rounded-sm bg-[#7b9cf5]" />}
+                                                        </span>
+                                                        <span className="flex-1 truncate">{sub}</span>
+                                                        <span className="text-slate-600">{subCount}</span>
+                                                      </button>
+                                                    );
+                                                  })}
+                                                </div>
+                                              </div>
                                             );
                                           })}
                                           {fieldSubfields.length === 0 && (

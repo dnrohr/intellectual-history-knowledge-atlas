@@ -3,6 +3,11 @@ export interface TaxonomyDomain {
   fields: string[];
 }
 
+export interface TaxonomyTopicGroup {
+  name: string;
+  topics: string[];
+}
+
 export interface AtlasLensOption {
   id: string;
   label: string;
@@ -35,25 +40,93 @@ export const TAXONOMY_DOMAINS: TaxonomyDomain[] = [
   },
 ];
 
-export const CONTROLLED_TOPICS: Record<string, string[]> = {
-  Mathematics: ["Geometry", "Algebra", "Analysis", "Number Theory", "Probability", "Topology"],
-  Logic: ["Formal Logic", "Foundations", "Language & Meaning", "Computability"],
-  Computing: ["Computation", "Information Theory", "Algorithms", "Networks", "Artificial Intelligence"],
-  Physics: ["Mechanics", "Optics", "Electromagnetism", "Quantum Theory", "Relativity", "Thermodynamics"],
-  Astronomy: ["Celestial Mechanics", "Observation", "Planetary Models", "Cosmic Distance"],
-  Cosmology: ["Universe Structure", "Expansion", "Black Holes", "Dark Matter", "Early Universe"],
-  Chemistry: ["Atomic Theory", "Bonding", "Materials", "Biochemistry", "Laboratory Method"],
-  Biology: ["Evolution", "Genetics", "Anatomy", "Ecology", "Molecular Biology"],
-  Engineering: ["Machines", "Energy Systems", "Aerospace", "Communication Systems", "Infrastructure"],
-  Philosophy: ["Metaphysics", "Epistemology", "Ethics", "Mind", "Science & Method", "Language"],
-  "Political Thought": ["Rights", "State Power", "Democracy", "Justice", "Revolution", "Political Economy"],
-  Economics: ["Markets", "Value", "Macroeconomics", "Game Theory", "Institutions"],
-  History: ["Historical Method", "Civilization", "Culture", "Technology & Society"],
-  Psychology: ["Cognition", "Behavior", "Development", "Social Psychology", "Consciousness"],
-  Linguistics: ["Grammar", "Signs & Meaning", "Language Structure", "Cognitive Linguistics"],
-  Literature: ["Poetics", "Narrative", "Modernism", "Political Literature", "Critical Theory"],
-  Music: ["Composition", "Harmony", "Theory", "Performance", "Cultural Form"],
+export const TOPIC_GROUPS: Record<string, TaxonomyTopicGroup[]> = {
+  Mathematics: [
+    { name: "Structures", topics: ["Geometry", "Algebra", "Topology"] },
+    { name: "Change & Quantity", topics: ["Analysis", "Number Theory"] },
+    { name: "Uncertainty", topics: ["Probability"] },
+  ],
+  Logic: [
+    { name: "Formal Systems", topics: ["Formal Logic", "Foundations"] },
+    { name: "Language", topics: ["Language & Meaning"] },
+    { name: "Computation", topics: ["Computability"] },
+  ],
+  Computing: [
+    { name: "Core Theory", topics: ["Computation", "Information Theory", "Algorithms"] },
+    { name: "Systems", topics: ["Networks"] },
+    { name: "Intelligence", topics: ["Artificial Intelligence"] },
+  ],
+  Physics: [
+    { name: "Classical Nature", topics: ["Mechanics", "Optics", "Thermodynamics"] },
+    { name: "Fields & Matter", topics: ["Electromagnetism", "Quantum Theory"] },
+    { name: "Space & Time", topics: ["Relativity"] },
+  ],
+  Astronomy: [
+    { name: "Observation", topics: ["Observation", "Cosmic Distance"] },
+    { name: "Models", topics: ["Celestial Mechanics", "Planetary Models"] },
+  ],
+  Cosmology: [
+    { name: "Large-Scale Structure", topics: ["Universe Structure", "Expansion"] },
+    { name: "Extreme Objects", topics: ["Black Holes", "Dark Matter"] },
+    { name: "Origins", topics: ["Early Universe"] },
+  ],
+  Chemistry: [
+    { name: "Matter", topics: ["Atomic Theory", "Bonding", "Materials"] },
+    { name: "Life & Method", topics: ["Biochemistry", "Laboratory Method"] },
+  ],
+  Biology: [
+    { name: "Organisms", topics: ["Anatomy", "Ecology"] },
+    { name: "Lineage", topics: ["Evolution", "Genetics"] },
+    { name: "Molecular Life", topics: ["Molecular Biology"] },
+  ],
+  Engineering: [
+    { name: "Machines & Energy", topics: ["Machines", "Energy Systems"] },
+    { name: "Built Systems", topics: ["Aerospace", "Communication Systems", "Infrastructure"] },
+  ],
+  Philosophy: [
+    { name: "Reality & Knowledge", topics: ["Metaphysics", "Epistemology"] },
+    { name: "Value & Action", topics: ["Ethics"] },
+    { name: "Mind & Language", topics: ["Mind", "Language"] },
+    { name: "Inquiry", topics: ["Science & Method"] },
+  ],
+  "Political Thought": [
+    { name: "Authority", topics: ["State Power", "Democracy", "Revolution"] },
+    { name: "Norms", topics: ["Rights", "Justice"] },
+    { name: "Material Order", topics: ["Political Economy"] },
+  ],
+  Economics: [
+    { name: "Exchange", topics: ["Markets", "Value"] },
+    { name: "Systems", topics: ["Macroeconomics", "Institutions"] },
+    { name: "Strategic Action", topics: ["Game Theory"] },
+  ],
+  History: [
+    { name: "Method", topics: ["Historical Method"] },
+    { name: "Collective Life", topics: ["Civilization", "Culture", "Technology & Society"] },
+  ],
+  Psychology: [
+    { name: "Mind", topics: ["Cognition", "Consciousness"] },
+    { name: "Behavior", topics: ["Behavior", "Development", "Social Psychology"] },
+  ],
+  Linguistics: [
+    { name: "Structure", topics: ["Grammar", "Language Structure"] },
+    { name: "Meaning", topics: ["Signs & Meaning", "Cognitive Linguistics"] },
+  ],
+  Literature: [
+    { name: "Form", topics: ["Poetics", "Narrative"] },
+    { name: "Historical Modes", topics: ["Modernism", "Political Literature", "Critical Theory"] },
+  ],
+  Music: [
+    { name: "Form", topics: ["Composition", "Harmony", "Theory"] },
+    { name: "Practice", topics: ["Performance", "Cultural Form"] },
+  ],
 };
+
+export const CONTROLLED_TOPICS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(TOPIC_GROUPS).map(([field, groups]) => [
+    field,
+    groups.flatMap((group) => group.topics),
+  ])
+);
 
 export const ATLAS_LENSES: AtlasLens[] = [
   {
@@ -103,6 +176,16 @@ export const getDomainForField = (field: string) =>
 
 export const getFieldsForDomain = (domainName: string) =>
   TAXONOMY_DOMAINS.find((domain) => domain.name === domainName)?.fields || [];
+
+export const getTopicGroupsForField = (field: string, extraTopics: string[] = []) => {
+  const groups = TOPIC_GROUPS[field] || [];
+  const knownTopics = new Set(groups.flatMap((group) => group.topics));
+  const localTopics = Array.from(new Set(extraTopics.filter((topic) => topic && !knownTopics.has(topic)))).sort();
+
+  return localTopics.length > 0
+    ? [...groups, { name: "Local Additions", topics: localTopics }]
+    : groups;
+};
 
 export const inferLensTags = (item: {
   fields?: string[];
