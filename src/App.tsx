@@ -772,7 +772,7 @@ export default function App() {
       region: importDraft.region.trim() || null,
       era: importDraft.era.trim() || inferEraFromYear(birth),
       movement: importDraft.movement.trim() || "Imported",
-      bridge_score: 2,
+      bridge_score: inferBridgeScoreForImportDraft(topics),
       works: [],
       influenced: [],
       notes: [
@@ -999,6 +999,29 @@ export default function App() {
       .slice(0, 5);
   };
 
+  const inferBridgeScoreForCandidate = (candidate: WikidataCandidate) => {
+    const topicCount = getAutoTopicsForCandidate(candidate).length;
+    const linkCount = getCandidateLinkSuggestions(candidate).filter((item) => item.confidence !== "weak").length;
+    const metadataSignals = [
+      (candidate.fields || []).length > 1,
+      topicCount >= 4,
+      (candidate.works || []).length >= 2,
+      !!candidate.movement,
+      linkCount >= 2,
+    ].filter(Boolean).length;
+    return Math.max(1, Math.min(5, 2 + metadataSignals));
+  };
+
+  const inferBridgeScoreForImportDraft = (topics: string[]) => {
+    const signals = [
+      topics.length >= 4,
+      importDraft.sourceUrl.trim() !== "",
+      importDraft.notes.trim().length > 80,
+      importDraft.movement.trim() !== "",
+    ].filter(Boolean).length;
+    return Math.max(1, Math.min(5, 2 + signals));
+  };
+
   const queueWikidataCandidate = (candidate: WikidataCandidate, confidence = 90) => {
     const duplicateId = getDuplicateIdForCandidate(candidate);
     setImportReviewQueue((prev) => {
@@ -1119,7 +1142,7 @@ export default function App() {
       region: candidate.region || null,
       era: candidate.era || inferEraFromYear(candidate.birth),
       movement: candidate.movement || "Imported",
-      bridge_score: 2,
+      bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
       notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
@@ -1152,7 +1175,7 @@ export default function App() {
       region: candidate.region || null,
       era: candidate.era || inferEraFromYear(candidate.birth),
       movement: candidate.movement || "Imported",
-      bridge_score: 2,
+      bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
       notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
@@ -1201,7 +1224,7 @@ export default function App() {
       region: candidate.region || null,
       era: candidate.era || inferEraFromYear(candidate.birth),
       movement: candidate.movement || "Imported",
-      bridge_score: 2,
+      bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
       notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
