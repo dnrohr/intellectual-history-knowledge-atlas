@@ -68,6 +68,11 @@ type ImportAuditLogItem = {
   reviewedAt: string;
 };
 
+type ImportQualityLabel = {
+  label: string;
+  tone: "strong" | "medium" | "weak" | "warning";
+};
+
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
@@ -990,6 +995,41 @@ export default function App() {
     if (candidate.wikipediaUrl) score += 6;
     return Math.min(100, score);
   };
+
+  const getImportQualityLabels = (candidate: WikidataCandidate, confidence: number): ImportQualityLabel[] => {
+    const structuredSignalCount = [
+      candidate.birth !== null,
+      (candidate.fields || []).length > 0,
+      (candidate.topics || []).length > 0,
+      (candidate.works || []).length > 0,
+      !!candidate.movement,
+    ].filter(Boolean).length;
+    const labels: ImportQualityLabel[] = [
+      candidate.wikipediaUrl
+        ? { label: "Wikidata article", tone: "strong" }
+        : { label: "Wikidata entity", tone: "medium" },
+      structuredSignalCount >= 4
+        ? { label: "Rich metadata", tone: "strong" }
+        : structuredSignalCount >= 2
+        ? { label: "Usable metadata", tone: "medium" }
+        : { label: "Sparse metadata", tone: "warning" },
+      confidence >= importConfidenceThreshold
+        ? { label: "Auto-ready", tone: "strong" }
+        : { label: "Needs review", tone: "weak" },
+    ];
+    if (candidate.birth === null) labels.push({ label: "Missing dates", tone: "warning" });
+    if ((candidate.works || []).length > 0) labels.push({ label: "Works found", tone: "medium" });
+    return labels.slice(0, 4);
+  };
+
+  const getImportQualityClass = (tone: ImportQualityLabel["tone"]) =>
+    tone === "strong"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+      : tone === "medium"
+      ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+      : tone === "warning"
+      ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+      : "border-slate-700 bg-slate-700/20 text-slate-500";
 
   const acceptWikidataCandidate = (candidate: WikidataCandidate) => {
     if (candidate.birth === null) return;
@@ -2654,7 +2694,10 @@ export default function App() {
 
                     {wikidataCandidates.length > 0 && (
                       <div className="mb-3 max-h-36 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
-                        {wikidataCandidates.map((candidate) => (
+                        {wikidataCandidates.map((candidate) => {
+                          const confidence = getCandidateConfidence(wikidataQuery, candidate);
+                          const qualityLabels = getImportQualityLabels(candidate, confidence);
+                          return (
                           <div
                             key={candidate.id}
                             className="w-full rounded-md border border-[#1d2232] bg-[#0e1119] px-2 py-1.5 text-left hover:border-[#7b9cf5]"
@@ -2668,7 +2711,7 @@ export default function App() {
                               </button>
                               <span className="shrink-0 text-[8.5px] font-mono text-slate-600">{candidate.id}</span>
                               <button
-                                onClick={() => queueWikidataCandidate(candidate, getCandidateConfidence(wikidataQuery, candidate))}
+                                onClick={() => queueWikidataCandidate(candidate, confidence)}
                                 className="shrink-0 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
                               >
                                 Queue
@@ -2677,8 +2720,16 @@ export default function App() {
                             <div className="mt-0.5 truncate text-[8.5px] font-mono text-slate-600">
                               {candidate.birth ?? "?"} to {candidate.death ?? "present"} · {candidate.description || "No description"}
                             </div>
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {qualityLabels.map((label) => (
+                                <span key={`${candidate.id}-${label.label}`} className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${getImportQualityClass(label.tone)}`}>
+                                  {label.label}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 
@@ -2717,7 +2768,9 @@ export default function App() {
                             </button>
                           </div>
                           <div className="max-h-44 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
-                          {wikidataBatchCandidates.map((item) => (
+                          {wikidataBatchCandidates.map((item) => {
+                            const qualityLabels = item.candidate ? getImportQualityLabels(item.candidate, item.confidence) : [];
+                            return (
                             <div key={item.query} className="flex items-center gap-2 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
                               <span className="w-24 shrink-0 truncate text-[9px] font-mono text-slate-600">{item.query}</span>
                               {item.candidate ? (
@@ -2728,6 +2781,13 @@ export default function App() {
                                   >
                                     {item.candidate.name} · {item.candidate.birth ?? "?"}
                                   </button>
+                                  <div className="hidden max-w-40 shrink-0 flex-wrap gap-1 md:flex">
+                                    {qualityLabels.slice(0, 2).map((label) => (
+                                      <span key={`${item.query}-${label.label}`} className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${getImportQualityClass(label.tone)}`}>
+                                        {label.label}
+                                      </span>
+                                    ))}
+                                  </div>
                                   <span className={`rounded px-1.5 py-0.5 text-[8px] font-mono ${
                                     item.duplicateId
                                       ? "bg-amber-500/10 text-amber-300 border border-amber-500/30"
@@ -2749,7 +2809,8 @@ export default function App() {
                                 <span className="text-[9px] font-mono text-slate-600">No candidate</span>
                               )}
                             </div>
-                          ))}
+                            );
+                          })}
                           </div>
                         </div>
                       )}
@@ -2877,6 +2938,7 @@ export default function App() {
                             const duplicate = currentDuplicateId ? people.find((person) => person.id === currentDuplicateId) : null;
                             const linkSuggestions = getCandidateLinkSuggestions(candidate);
                             const reviewStatus: ImportReviewStatus = duplicate ? "duplicate" : item.status;
+                            const qualityLabels = getImportQualityLabels(candidate, item.confidence);
                             return (
                               <div key={item.id} className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2.5">
                                 <div className="flex items-start justify-between gap-2">
@@ -2906,6 +2968,14 @@ export default function App() {
                                       {reviewStatus}
                                     </span>
                                   </div>
+                                </div>
+
+                                <div className="mt-2 flex flex-wrap gap-1">
+                                  {qualityLabels.map((label) => (
+                                    <span key={`${item.id}-${label.label}`} className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${getImportQualityClass(label.tone)}`}>
+                                      {label.label}
+                                    </span>
+                                  ))}
                                 </div>
 
                                 {duplicate ? (
