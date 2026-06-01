@@ -79,6 +79,7 @@ export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
   const csvImportInputRef = useRef<HTMLInputElement | null>(null);
+  const jsonImportInputRef = useRef<HTMLInputElement | null>(null);
 
   // Layout Controls
   const [viewMode, setViewMode] = useState<"timeline" | "network" | "split">("split");
@@ -1579,6 +1580,54 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
+  const exportAtlasJson = () => {
+    const state = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      people,
+      edges,
+      importReviewQueue,
+      importAuditLog,
+      importConfidenceThreshold,
+    };
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "intellectual-history-atlas-state.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importAtlasJson = async (file: File) => {
+    const parsed = JSON.parse(await file.text());
+    if (!Array.isArray(parsed.people) || !Array.isArray(parsed.edges)) return;
+    const nextPeople = parsed.people.filter(Boolean);
+    const nextEdges = parsed.edges.filter(Boolean);
+    const nextQueue = Array.isArray(parsed.importReviewQueue) ? parsed.importReviewQueue.filter(Boolean) : [];
+    const nextAuditLog = Array.isArray(parsed.importAuditLog) ? parsed.importAuditLog.filter(Boolean).slice(0, 100) : [];
+    const nextThreshold = Number.isFinite(Number(parsed.importConfidenceThreshold))
+      ? Math.max(0, Math.min(100, Number(parsed.importConfidenceThreshold)))
+      : importConfidenceThreshold;
+
+    setPeople(nextPeople);
+    setEdges(nextEdges);
+    setImportReviewQueue(nextQueue);
+    setImportAuditLog(nextAuditLog);
+    setImportConfidenceThreshold(nextThreshold);
+    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
+    localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    localStorage.setItem("atlas_import_queue_v1", JSON.stringify(nextQueue));
+    localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(nextAuditLog));
+    localStorage.setItem("atlas_import_confidence_threshold_v1", String(nextThreshold));
+  };
+
+  const handleJsonImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) await importAtlasJson(file);
+    event.target.value = "";
+  };
+
   const acceptHighConfidenceWikidataBatch = () => {
     wikidataBatchCandidates
       .filter((item) => item.candidate && item.confidence >= importConfidenceThreshold && !item.duplicateId)
@@ -3042,6 +3091,13 @@ export default function App() {
                           onChange={handleCsvImport}
                           className="hidden"
                         />
+                        <input
+                          ref={jsonImportInputRef}
+                          type="file"
+                          accept=".json,application/json"
+                          onChange={handleJsonImport}
+                          className="hidden"
+                        />
                         <button
                           type="button"
                           onClick={() => csvImportInputRef.current?.click()}
@@ -3055,6 +3111,20 @@ export default function App() {
                           className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
                         >
                           Export CSV
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => jsonImportInputRef.current?.click()}
+                          className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
+                        >
+                          Import JSON
+                        </button>
+                        <button
+                          type="button"
+                          onClick={exportAtlasJson}
+                          className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
+                        >
+                          Export JSON
                         </button>
                       </div>
                       {wikidataBatchCandidates.length > 0 && (
