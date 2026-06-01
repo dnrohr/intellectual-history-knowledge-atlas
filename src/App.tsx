@@ -1191,6 +1191,9 @@ export default function App() {
     return nextId;
   };
 
+  const mergeUniqueValues = (left: string[] = [], right: string[] = []) =>
+    Array.from(new Set([...left, ...right].map((item) => item.trim()).filter(Boolean)));
+
   const persistImportReviewQueue = (nextQueue: ImportReviewItem[]) => {
     setImportReviewQueue(nextQueue);
     localStorage.setItem("atlas_import_queue_v1", JSON.stringify(nextQueue));
@@ -1204,6 +1207,32 @@ export default function App() {
       item.id === id ? { ...item, status } : item
     );
     persistImportReviewQueue(nextQueue);
+  };
+
+  const mergeImportReviewItemIntoDuplicate = (item: ImportReviewItem, duplicateId: string) => {
+    const candidate = item.candidate;
+    const sourceUrl = candidate.wikipediaUrl || candidate.sourceUrl;
+    const updatedPeople = people.map((person) => {
+      if (person.id !== duplicateId) return person;
+      const sourceNote = `Merged duplicate import from Wikidata: ${sourceUrl}`;
+      return {
+        ...person,
+        fields: mergeUniqueValues(person.fields, candidate.fields && candidate.fields.length > 0 ? candidate.fields : [inferFieldFromExternalText(candidate.description)]),
+        subfields: mergeUniqueValues(person.subfields, candidate.topics),
+        works: mergeUniqueValues(person.works, candidate.works),
+        region: person.region || candidate.region || null,
+        era: person.era || candidate.era || null,
+        movement: person.movement || candidate.movement || "Imported",
+        notes: [person.notes, candidate.description, sourceNote].filter(Boolean).join(" "),
+      };
+    });
+    setPeople(updatedPeople);
+    localStorage.setItem("atlas_people_v6", JSON.stringify(updatedPeople));
+    logImportReviewItems([item], "accepted", `Merged duplicate metadata into ${people.find((person) => person.id === duplicateId)?.name || "existing thinker"}`);
+    persistImportReviewQueue(importReviewQueue.filter((queueItem) => queueItem.id !== item.id));
+    selectPerson(duplicateId);
+    setViewMode("split");
+    setWorkbenchTab("links");
   };
 
   const acceptImportReviewItems = (items: ImportReviewItem[], linkTopSuggestion = false) => {
@@ -3010,12 +3039,20 @@ export default function App() {
                                 </div>
 
                                 {duplicate ? (
-                                  <button
-                                    onClick={() => selectPerson(duplicate.id)}
-                                    className="mt-2 w-full rounded border border-amber-500/20 bg-amber-500/5 px-2 py-1 text-left text-[9px] font-mono text-amber-200 hover:border-amber-400 cursor-pointer"
-                                  >
-                                    Matches existing: {duplicate.name}
-                                  </button>
+                                  <div className="mt-2 grid grid-cols-1 gap-1.5 md:grid-cols-2">
+                                    <button
+                                      onClick={() => selectPerson(duplicate.id)}
+                                      className="rounded border border-amber-500/20 bg-amber-500/5 px-2 py-1 text-left text-[9px] font-mono text-amber-200 hover:border-amber-400 cursor-pointer"
+                                    >
+                                      Matches existing: {duplicate.name}
+                                    </button>
+                                    <button
+                                      onClick={() => mergeImportReviewItemIntoDuplicate(item, duplicate.id)}
+                                      className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-left text-[9px] font-mono text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
+                                    >
+                                      Merge metadata
+                                    </button>
+                                  </div>
                                 ) : (
                                   <div className="mt-2 space-y-1">
                                     <div className="font-mono text-[8.5px] uppercase tracking-wider text-slate-600">Suggested Links</div>
