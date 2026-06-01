@@ -123,6 +123,11 @@ export default function App() {
     candidate: WikidataCandidate | null;
   }>>([]);
   const [importReviewQueue, setImportReviewQueue] = useState<ImportReviewItem[]>([]);
+  const [importConfidenceThreshold, setImportConfidenceThreshold] = useState(() => {
+    const savedThreshold = localStorage.getItem("atlas_import_confidence_threshold_v1");
+    const parsedThreshold = savedThreshold ? Number(savedThreshold) : 80;
+    return Number.isFinite(parsedThreshold) ? Math.max(0, Math.min(100, parsedThreshold)) : 80;
+  });
   const [wikidataLoading, setWikidataLoading] = useState(false);
 
   const [sortMode, setSortMode] = useState<"birth" | "field" | "bridge" | "name">("birth");
@@ -1112,12 +1117,18 @@ export default function App() {
   };
 
   const clearLowConfidenceImportReviewItems = () => {
-    persistImportReviewQueue(importReviewQueue.filter((item) => item.confidence >= 80));
+    persistImportReviewQueue(importReviewQueue.filter((item) => item.confidence >= importConfidenceThreshold));
   };
 
   const clearImportReviewQueue = () => {
     if (!window.confirm("Clear all queued import candidates?")) return;
     persistImportReviewQueue([]);
+  };
+
+  const updateImportConfidenceThreshold = (value: number) => {
+    const nextThreshold = Math.max(0, Math.min(100, Math.round(value)));
+    setImportConfidenceThreshold(nextThreshold);
+    localStorage.setItem("atlas_import_confidence_threshold_v1", String(nextThreshold));
   };
 
   const searchWikidataCandidates = async () => {
@@ -1167,7 +1178,7 @@ export default function App() {
 
   const acceptHighConfidenceWikidataBatch = () => {
     wikidataBatchCandidates
-      .filter((item) => item.candidate && item.confidence >= 80 && !item.duplicateId)
+      .filter((item) => item.candidate && item.confidence >= importConfidenceThreshold && !item.duplicateId)
       .forEach((item) => queueWikidataCandidate(item.candidate!, item.confidence));
   };
 
@@ -1360,13 +1371,13 @@ export default function App() {
   };
 
   const importQueueAcceptableItems = importReviewQueue.filter(
-    (item) => item.candidate.birth !== null && !getDuplicateIdForCandidate(item.candidate)
+    (item) => item.candidate.birth !== null && item.confidence >= importConfidenceThreshold && !getDuplicateIdForCandidate(item.candidate)
   );
   const importQueueLinkableItems = importQueueAcceptableItems.filter(
     (item) => getCandidateLinkSuggestions(item.candidate).length > 0
   );
   const importQueueDuplicateCount = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate)).length;
-  const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < 80).length;
+  const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < importConfidenceThreshold).length;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
@@ -2606,14 +2617,14 @@ export default function App() {
                         <div className="mt-2 space-y-2">
                           <div className="flex items-center justify-between rounded-md border border-emerald-500/20 bg-emerald-500/5 px-2 py-1.5">
                             <span className="text-[9px] font-mono text-slate-500">
-                              {wikidataBatchCandidates.filter((item) => item.candidate && item.confidence >= 80 && !item.duplicateId).length} ready / {wikidataBatchCandidates.length} reviewed
+                              {wikidataBatchCandidates.filter((item) => item.candidate && item.confidence >= importConfidenceThreshold && !item.duplicateId).length} ready at {importConfidenceThreshold}% / {wikidataBatchCandidates.length} reviewed
                             </span>
                             <button
                               onClick={acceptHighConfidenceWikidataBatch}
-                              disabled={!wikidataBatchCandidates.some((item) => item.candidate && item.confidence >= 80 && !item.duplicateId)}
+                              disabled={!wikidataBatchCandidates.some((item) => item.candidate && item.confidence >= importConfidenceThreshold && !item.duplicateId)}
                               className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
                             >
-                              Queue High Confidence
+                              Queue Ready
                             </button>
                           </div>
                           <div className="max-h-44 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
@@ -2631,7 +2642,7 @@ export default function App() {
                                   <span className={`rounded px-1.5 py-0.5 text-[8px] font-mono ${
                                     item.duplicateId
                                       ? "bg-amber-500/10 text-amber-300 border border-amber-500/30"
-                                      : item.confidence >= 80
+                                      : item.confidence >= importConfidenceThreshold
                                       ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
                                       : "bg-slate-700/20 text-slate-500 border border-slate-700"
                                   }`}>
@@ -2699,6 +2710,31 @@ export default function App() {
 
                       {importReviewQueue.length > 0 && (
                         <div className="mb-3 rounded-md border border-[#1d2232] bg-[#0b0d14] p-2">
+                          <div className="mb-2 grid grid-cols-[1fr_auto] items-center gap-3 rounded border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                            <label className="min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Auto threshold</span>
+                                <span className="font-mono text-[9px] text-emerald-300">{importConfidenceThreshold}%</span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="5"
+                                value={importConfidenceThreshold}
+                                onChange={(event) => updateImportConfidenceThreshold(Number(event.target.value))}
+                                className="mt-1 w-full accent-emerald-400"
+                              />
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={importConfidenceThreshold}
+                              onChange={(event) => updateImportConfidenceThreshold(Number(event.target.value))}
+                              className="w-14 rounded border border-[#252a3d] bg-[#090a0f] px-1.5 py-1 text-center text-[9px] font-mono text-slate-200"
+                            />
+                          </div>
                           <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[8.5px] text-slate-600">
                             <span>{importQueueAcceptableItems.length} acceptable</span>
                             <span>{importQueueLinkableItems.length} link-ready</span>
@@ -2763,7 +2799,7 @@ export default function App() {
                                   <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-mono ${
                                     duplicate
                                       ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
-                                      : item.confidence >= 80
+                                      : item.confidence >= importConfidenceThreshold
                                       ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
                                       : "border-slate-700 bg-slate-700/20 text-slate-500"
                                   }`}>
