@@ -112,6 +112,7 @@ export default function App() {
     sourceUrl: "",
     notes: "",
   });
+  const [draftQueueItemId, setDraftQueueItemId] = useState<string | null>(null);
   const [wikidataQuery, setWikidataQuery] = useState("");
   const [wikidataCandidates, setWikidataCandidates] = useState<WikidataCandidate[]>([]);
   const [wikidataBatchText, setWikidataBatchText] = useState("");
@@ -724,6 +725,9 @@ export default function App() {
     };
 
     handleAddThinker(newThinker);
+    if (draftQueueItemId) {
+      removeImportReviewItem(draftQueueItemId);
+    }
     setImportDraft((prev) => ({
       ...prev,
       name: "",
@@ -735,7 +739,23 @@ export default function App() {
       sourceUrl: "",
       notes: "",
     }));
+    setDraftQueueItemId(null);
     setWorkbenchTab("links");
+  };
+
+  const clearImportDraft = () => {
+    setImportDraft((prev) => ({
+      ...prev,
+      name: "",
+      birth: "",
+      death: "",
+      region: "",
+      movement: "",
+      topics: "",
+      sourceUrl: "",
+      notes: "",
+    }));
+    setDraftQueueItemId(null);
   };
 
   const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -984,7 +1004,7 @@ export default function App() {
       .forEach((item) => queueWikidataCandidate(item.candidate!, item.confidence));
   };
 
-  const useWikidataCandidate = (candidate: WikidataCandidate) => {
+  const useWikidataCandidate = (candidate: WikidataCandidate, queueItemId: string | null = null) => {
     setImportDraft((prev) => ({
       ...prev,
       source: "wikidata",
@@ -998,6 +1018,7 @@ export default function App() {
       sourceUrl: candidate.wikipediaUrl || candidate.sourceUrl,
       notes: candidate.description,
     }));
+    setDraftQueueItemId(queueItemId);
   };
 
   const hasActiveFilters = selectedFields.length > 0 || selectedSubfields.length > 0 || selectedLensTags.length > 0 || selectedEras.length > 0 || selectedRegions.length > 0 || minYear !== -650 || maxYear !== 2030;
@@ -2322,9 +2343,16 @@ export default function App() {
                         <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Import Review Draft</span>
                         <p className="text-[10px] text-slate-600 font-mono mt-0.5">Normalize an external candidate before it enters the atlas.</p>
                       </div>
-                      <span className="font-mono text-[9px] text-slate-600">
-                        {EXTERNAL_SOURCES.find((source) => source.id === importDraft.source)?.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {draftQueueItemId && (
+                          <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-emerald-300">
+                            Editing queued
+                          </span>
+                        )}
+                        <span className="font-mono text-[9px] text-slate-600">
+                          {EXTERNAL_SOURCES.find((source) => source.id === importDraft.source)?.name}
+                        </span>
+                      </div>
                     </div>
 
                     <form
@@ -2470,9 +2498,16 @@ export default function App() {
 
                     <div className="mt-3 flex items-center justify-between gap-3">
                       <div className="text-[9px] font-mono text-slate-600">Accepting creates a local thinker and preserves source context in notes.</div>
-                      <button onClick={acceptImportDraft} disabled={!importDraft.name.trim() || Number.isNaN(Number(importDraft.birth))} className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer">
-                        Accept Candidate
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {(importDraft.name.trim() || draftQueueItemId) && (
+                          <button onClick={clearImportDraft} className="rounded-md border border-[#252a3d] px-3 py-2 text-[10px] font-mono text-slate-500 hover:text-slate-200 cursor-pointer">
+                            Clear Draft
+                          </button>
+                        )}
+                        <button onClick={acceptImportDraft} disabled={!importDraft.name.trim() || Number.isNaN(Number(importDraft.birth))} className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer">
+                          {draftQueueItemId ? "Accept Edited" : "Accept Candidate"}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -2554,7 +2589,7 @@ export default function App() {
                                     Skip
                                   </button>
                                   <button
-                                    onClick={() => useWikidataCandidate(candidate)}
+                                    onClick={() => useWikidataCandidate(candidate, item.id)}
                                     className="rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-2 py-1 text-[8.5px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
                                   >
                                     Edit Draft
