@@ -92,6 +92,94 @@ This roadmap is intentionally ambitious. The goal is to make the atlas easier to
 - Add automated detection for isolated people and sparse neighborhoods.
 - Add "connect this person" workflow that proposes best candidates by evidence type.
 
+## Edges And Navigable Threads
+
+- Define a `Thread` concept for curated followable chains:
+  - title
+  - short purpose
+  - ordered people
+  - key works/concepts carried forward
+  - edge types used in the thread
+  - confidence/source status
+- Add a thread viewer that lets a user step through a chain one relationship at a time.
+- Add thread-aware graph highlighting:
+  - highlight the full thread
+  - dim unrelated graph regions
+  - show predecessor/current/successor context
+  - snap timeline and graph to each selected step
+- Add a "continue this thread" action on any selected person.
+- Add a "thread gaps" audit:
+  - missing intermediate figures
+  - missing edge sources
+  - weak or disputed edge claims
+  - overlong jumps across centuries
+- Add a "parallel thread" view for cases where multiple lineages converge.
+- Add a "branch point" marker for thinkers who split a tradition into competing paths.
+- Add a "convergence point" marker for thinkers who synthesize multiple threads.
+- Add thread labels to edges so a single edge can belong to multiple curated paths.
+- Add thread import/export so curated paths can be shared separately from the whole atlas.
+
+### Thread Expansion Tasks By Field
+
+- Philosophy and logic:
+  - Build ancient-to-modern metaphysics thread: Plato -> Aristotle -> Aquinas -> Descartes -> Kant -> Hegel.
+  - Build logic/formalism thread: Aristotle -> Chrysippus -> Leibniz -> Boole -> Frege -> Russell -> Wittgenstein -> Turing.
+  - Build empiricism/pragmatism thread: Bacon -> Locke -> Hume -> Mill -> James -> Dewey -> Rorty.
+  - Build existentialism/post-structuralism thread: Kierkegaard -> Nietzsche -> Heidegger -> Sartre -> Beauvoir -> Foucault -> Derrida -> Butler.
+  - Add missing or weak edges among Stoicism, Epicureanism, Scholasticism, Rationalism, Empiricism, German Idealism, Analytic Philosophy, Pragmatism, and Postmodernism.
+- Mathematics:
+  - Build geometry/topology thread: Euclid -> Descartes -> Gauss -> Riemann -> Poincare -> Hilbert -> Noether -> Atiyah -> Thurston -> Perelman.
+  - Build calculus/analysis thread: Archimedes -> Newton/Leibniz -> Euler -> Fourier -> Cauchy -> Weierstrass -> Riemann.
+  - Build probability/statistics thread: Pascal/Fermat -> Bayes -> Laplace -> Gauss -> Fisher -> Kolmogorov -> Shannon -> Pearl.
+  - Build computation foundations thread: Leibniz -> Boole -> Frege -> Hilbert -> Godel -> Church -> Turing -> von Neumann -> Shannon.
+  - Add source-backed edges for mentorship, collaboration, and theorem/program inheritance where current edges are only broad influence.
+- Physics, astronomy, and cosmology:
+  - Build mechanics thread: Archimedes -> Galileo -> Newton -> Lagrange/Hamilton -> Maxwell -> Einstein.
+  - Build electromagnetism/information thread: Coulomb -> Ampere -> Faraday -> Maxwell -> Hertz -> Shannon -> Landauer.
+  - Build quantum thread: Planck -> Einstein -> Bohr -> Heisenberg/Schrodinger/Dirac -> Feynman -> Dyson -> Weinberg.
+  - Build relativity/cosmology thread: Einstein -> Eddington -> Lemaitre -> Gamow -> Peebles -> Guth -> Hawking/Penrose.
+  - Build matter/particle thread: Thomson -> Rutherford -> Bohr -> Chadwick -> Fermi -> Gell-Mann -> Weinberg.
+- Biology, medicine, and genetics:
+  - Build evolution thread: Aristotle -> Linnaeus -> Lamarck -> Darwin -> Mendel -> Fisher/Haldane/Wright -> Gould/Dawkins.
+  - Build microbiology/medicine thread: Harvey -> Pasteur -> Koch -> Lister -> Salk/Sabin.
+  - Build molecular biology thread: Mendel -> Morgan -> Franklin -> Watson/Crick -> Brenner/Monod/Nirenberg -> Sanger -> Doudna/Venter.
+  - Build ecology thread: Humboldt -> Tansley -> Hutchinson -> Odum -> Lovelock -> Wilson -> Carson.
+  - Add edges connecting biological ideas to statistical, information-theoretic, and computational threads.
+- Computing, AI, and cognitive science:
+  - Build symbolic AI thread: Leibniz -> Boole -> Frege -> Russell -> Turing -> Newell/Simon -> McCarthy -> Minsky.
+  - Build neural networks thread: McCulloch/Pitts -> Hebb -> Rosenblatt -> Minsky critique -> Rumelhart/Hinton -> LeCun/Bengio.
+  - Build language/cognition thread: Saussure -> Chomsky -> Fodor -> Pinker and Chomsky -> Lakoff -> cognitive linguistics.
+  - Build human-computer/network thread: Turing -> von Neumann -> Shannon -> Engelbart/Kay -> Berners-Lee.
+  - Build causality/ML thread: Bayes -> Laplace -> Fisher -> Kolmogorov -> Pearl -> modern ML causality.
+- Political thought, economics, and social theory:
+  - Build social contract/liberalism thread: Hobbes -> Locke -> Rousseau -> Mill -> Rawls -> Nozick/Sen/Nussbaum.
+  - Build political economy thread: Smith -> Ricardo/Malthus -> Marx -> Keynes/Hayek/Polanyi -> Sen.
+  - Build sociology/social science thread: Comte -> Durkheim -> Weber -> Mauss -> Bourdieu -> Latour.
+  - Build feminist thought thread: Wollstonecraft -> Harriet Taylor Mill -> Beauvoir -> hooks -> Butler.
+  - Build postcolonial/cultural theory thread: Marx -> Gramsci -> Raymond Williams -> Said -> hooks.
+- Literature, music, and aesthetics:
+  - Build literary modernity thread: Goethe -> Dostoevsky/Kafka -> Borges -> postmodern literary theory.
+  - Build aesthetics/romanticism thread: Kant -> Goethe -> Wagner -> Nietzsche -> modern aesthetics.
+  - Add edges connecting literary figures to philosophy, psychology, and political thought where they transmit concepts rather than direct mentorship.
+- Engineering, communication, and technology:
+  - Build mechanical-to-electrical systems thread: Watt -> Faraday -> Maxwell -> Tesla/Edison -> Mead -> modern computing hardware.
+  - Build communication networks thread: Gutenberg -> telegraph/telephone figures -> Nyquist -> Shannon -> Cerf/Metcalfe -> Berners-Lee.
+  - Build aerospace thread: Tsiolkovsky -> Goddard -> von Braun/Korolev -> Johnson/Rich.
+  - Build energy/materials thread: Volta -> Davy -> Faraday -> Goodenough -> contemporary storage technologies.
+
+### Edge Expansion Audit Tasks
+
+- For each field, identify:
+  - isolated people with zero incoming and zero outgoing explicit edges
+  - people with only metadata-derived edges
+  - high bridge-score people with too few explicit edges
+  - repeated duplicate edges with conflicting direction/type
+  - edges that should be split into mentorship, collaboration, influence, parallel development, or source-context neighbor
+- Add at least one incoming and one outgoing explicit edge for every high bridge-score thinker where historically defensible.
+- Add source notes for the top 100 most important thread edges.
+- Create a "canonical threads" seed file separate from raw people/edges.
+- Build a dataset QA report that lists thread coverage by field and era.
+
 ## Data Model Expansion
 
 - Add first-class entities:
@@ -268,4 +356,3 @@ This roadmap is intentionally ambitious. The goal is to make the atlas easier to
 - Should confidence mean historical certainty, data-source quality, or review confidence?
 - Should the atlas support multiple user-created datasets or one canonical dataset?
 - Should the hosted demo persist user edits, or reset per session?
-
