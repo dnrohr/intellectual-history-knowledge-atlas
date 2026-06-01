@@ -849,6 +849,28 @@ export default function App() {
     return "Philosophy";
   };
 
+  const getAutoTopicsForCandidate = (candidate: WikidataCandidate) => {
+    const fields = candidate.fields && candidate.fields.length > 0
+      ? candidate.fields
+      : [inferFieldFromExternalText(candidate.description)];
+    const sourceText = normalizeName([
+      candidate.description,
+      candidate.movement || "",
+      ...(candidate.works || []),
+      ...fields,
+    ].join(" "));
+    const controlledTopics = Array.from(new Set([
+      ...fields.flatMap((field) => CONTROLLED_TOPICS[field] || []),
+      ...Object.values(CONTROLLED_TOPICS).flat(),
+    ]));
+    const matchedTopics = controlledTopics.filter((topic) => {
+      const normalizedTopic = normalizeName(topic);
+      const topicTokens = normalizedTopic.split(" ").filter((token) => token.length >= 5);
+      return sourceText.includes(normalizedTopic) || topicTokens.some((token) => sourceText.includes(token));
+    });
+    return Array.from(new Set([...(candidate.topics || []), ...matchedTopics])).slice(0, 12);
+  };
+
   const getNameVariants = (name: string) =>
     Array.from(new Set([
       name,
@@ -890,7 +912,7 @@ export default function App() {
     fields: candidate.fields && candidate.fields.length > 0
       ? candidate.fields
       : [inferFieldFromExternalText(candidate.description)],
-    subfields: candidate.topics || [],
+    subfields: getAutoTopicsForCandidate(candidate),
     region: candidate.region || null,
     era: candidate.era || null,
     movement: candidate.movement || "Imported",
@@ -1082,7 +1104,7 @@ export default function App() {
       birth: candidate.birth,
       death: candidate.death,
       fields: [field],
-      subfields: candidate.topics || [],
+      subfields: getAutoTopicsForCandidate(candidate),
       region: candidate.region || null,
       era: candidate.era || null,
       movement: candidate.movement || "Imported",
@@ -1115,7 +1137,7 @@ export default function App() {
       birth: candidate.birth,
       death: candidate.death,
       fields: [field],
-      subfields: candidate.topics || [],
+      subfields: getAutoTopicsForCandidate(candidate),
       region: candidate.region || null,
       era: candidate.era || null,
       movement: candidate.movement || "Imported",
@@ -1164,7 +1186,7 @@ export default function App() {
       birth: candidate.birth ?? 0,
       death: candidate.death,
       fields: [field],
-      subfields: candidate.topics || [],
+      subfields: getAutoTopicsForCandidate(candidate),
       region: candidate.region || null,
       era: candidate.era || null,
       movement: candidate.movement || "Imported",
@@ -1218,7 +1240,7 @@ export default function App() {
       return {
         ...person,
         fields: mergeUniqueValues(person.fields, candidate.fields && candidate.fields.length > 0 ? candidate.fields : [inferFieldFromExternalText(candidate.description)]),
-        subfields: mergeUniqueValues(person.subfields, candidate.topics),
+        subfields: mergeUniqueValues(person.subfields, getAutoTopicsForCandidate(candidate)),
         works: mergeUniqueValues(person.works, candidate.works),
         region: person.region || candidate.region || null,
         era: person.era || candidate.era || null,
@@ -1381,7 +1403,7 @@ export default function App() {
       field: candidate.fields?.[0] || inferFieldFromExternalText(candidate.description),
       region: candidate.region || "",
       movement: candidate.movement || "",
-      topics: (candidate.topics || []).join(", "),
+      topics: getAutoTopicsForCandidate(candidate).join(", "),
       sourceUrl: candidate.wikipediaUrl || candidate.sourceUrl,
       notes: candidate.description,
     }));
