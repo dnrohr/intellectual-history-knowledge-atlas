@@ -24,6 +24,17 @@ export interface InfluenceEdge {
   sourceClaims?: string[];
 }
 
+export interface CanonicalThread {
+  id: string;
+  title: string;
+  field: string;
+  purpose: string;
+  people: string[];
+  concepts: string[];
+  edgeTypes: string[];
+  confidence: "high" | "medium" | "needs-review";
+}
+
 export interface SourceClaim {
   id: string;
   sourceName: string;

@@ -13,6 +13,7 @@ import AddThinkerModal from "./components/AddThinkerModal";
 import PathFinder from "./components/PathFinder";
 import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getTopicGroupsForField, getDomainForField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
+import { CANONICAL_THREADS } from "./threads";
 import { 
   Plus, 
   RefreshCcw, 
@@ -1662,6 +1663,18 @@ export default function App() {
     if (year === null) return "present";
     return year < 0 ? `${Math.abs(year)} BCE` : `${year}`;
   };
+  const peopleById = new Map(people.map((person) => [person.id, person]));
+  const canonicalThreads = CANONICAL_THREADS.map((thread) => ({
+    ...thread,
+    resolvedPeople: thread.people.map((id) => peopleById.get(id)).filter(Boolean) as Thinker[],
+    missingPeople: thread.people.filter((id) => !peopleById.has(id)),
+  })).filter((thread) => thread.resolvedPeople.length >= 2);
+  const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
+    const path = thread.resolvedPeople.map((person) => person.id);
+    setHighlightPath(path);
+    selectPerson(path[0]);
+    setViewMode("split");
+  };
   const selectedLensLabels = selectedThinker
     ? Array.from(new Set(Object.values(inferLensTags(selectedThinker)).flat())).map(getLensOptionLabel).slice(0, 8)
     : [];
@@ -2660,6 +2673,62 @@ export default function App() {
 
               {workbenchTab === "links" && (
                 <div className="space-y-3">
+                  <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Canonical Threads</span>
+                        <p className="text-[10px] text-slate-600 font-mono mt-0.5">
+                          Curated chains for following concepts across fields and eras.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[9px] text-slate-600">{canonicalThreads.length}</span>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+                      {canonicalThreads.map((thread) => (
+                        <button
+                          key={thread.id}
+                          onClick={() => focusCanonicalThread(thread)}
+                          className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2 text-left hover:border-[#7b9cf5] hover:bg-[#151824] cursor-pointer"
+                          title={thread.purpose}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="truncate font-serif text-sm font-bold text-slate-100">{thread.title}</div>
+                              <div className="mt-0.5 truncate font-mono text-[8.5px] text-slate-600">{thread.field}</div>
+                            </div>
+                            <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                              thread.confidence === "high"
+                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                : thread.confidence === "medium"
+                                ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+                                : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                            }`}>
+                              {thread.confidence}
+                            </span>
+                          </div>
+                          <div className="mt-2 truncate text-[9px] font-mono text-slate-500">
+                            {thread.resolvedPeople.map((person) => person.name).join(" -> ")}
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-1">
+                            <span className="rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500">
+                              {thread.resolvedPeople.length} steps
+                            </span>
+                            {thread.concepts.slice(0, 3).map((concept) => (
+                              <span key={`${thread.id}-${concept}`} className="rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500">
+                                {concept}
+                              </span>
+                            ))}
+                            {thread.missingPeople.length > 0 && (
+                              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                                {thread.missingPeople.length} gaps
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <div>
