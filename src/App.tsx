@@ -1547,6 +1547,38 @@ export default function App() {
     event.target.value = "";
   };
 
+  const escapeCsvValue = (value: string | number | null | undefined) => {
+    const text = value === null || value === undefined ? "" : String(value);
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
+  };
+
+  const exportPeopleCsv = () => {
+    const headers = ["id", "name", "birth", "death", "fields", "topics", "region", "era", "movement", "works", "notes"];
+    const csv = [
+      headers.join(","),
+      ...people.map((person) => [
+        person.id,
+        person.name,
+        person.birth,
+        person.death ?? "",
+        (person.fields || []).join("; "),
+        (person.subfields || []).join("; "),
+        person.region || "",
+        person.era || "",
+        person.movement || "",
+        (person.works || []).join("; "),
+        person.notes || "",
+      ].map(escapeCsvValue).join(",")),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "intellectual-history-atlas-people.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const acceptHighConfidenceWikidataBatch = () => {
     wikidataBatchCandidates
       .filter((item) => item.candidate && item.confidence >= importConfidenceThreshold && !item.duplicateId)
@@ -3015,7 +3047,14 @@ export default function App() {
                           onClick={() => csvImportInputRef.current?.click()}
                           className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
                         >
-                          CSV
+                          Import CSV
+                        </button>
+                        <button
+                          type="button"
+                          onClick={exportPeopleCsv}
+                          className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
+                        >
+                          Export CSV
                         </button>
                       </div>
                       {wikidataBatchCandidates.length > 0 && (
