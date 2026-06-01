@@ -904,6 +904,7 @@ export default function App() {
       localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
       return next;
     });
+    if (draftQueueItemId === id) setDraftQueueItemId(null);
   };
 
   const getCandidateConfidence = (query: string, candidate: WikidataCandidate | null) => {
@@ -1010,6 +1011,113 @@ export default function App() {
     setViewMode("split");
     removeImportReviewItem(item.id);
     setWorkbenchTab("links");
+  };
+
+  const createThinkerFromImportCandidate = (candidate: WikidataCandidate, id: string): Thinker => {
+    const field = candidate.fields?.[0] || inferFieldFromExternalText(candidate.description);
+    return {
+      id,
+      name: candidate.name,
+      birth: candidate.birth ?? 0,
+      death: candidate.death,
+      fields: [field],
+      subfields: candidate.topics || [],
+      region: candidate.region || null,
+      era: candidate.era || null,
+      movement: candidate.movement || "Imported",
+      bridge_score: 2,
+      works: candidate.works || [],
+      influenced: [],
+      notes: `${candidate.description || "Imported candidate."} Imported from Wikidata: ${candidate.wikipediaUrl || candidate.sourceUrl}`,
+    };
+  };
+
+  const createUniqueImportId = (candidate: WikidataCandidate, existingIds: Set<string>) => {
+    const slug = candidate.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "") || candidate.id.toLowerCase();
+    const candidateSuffix = candidate.id.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+    let nextId = existingIds.has(slug) ? `${slug}_${candidateSuffix}` : slug;
+    let suffix = 2;
+    while (existingIds.has(nextId)) {
+      nextId = `${slug}_${candidateSuffix}_${suffix}`;
+      suffix += 1;
+    }
+    existingIds.add(nextId);
+    return nextId;
+  };
+
+  const persistImportReviewQueue = (nextQueue: ImportReviewItem[]) => {
+    setImportReviewQueue(nextQueue);
+    localStorage.setItem("atlas_import_queue_v1", JSON.stringify(nextQueue));
+    if (draftQueueItemId && !nextQueue.some((item) => item.id === draftQueueItemId)) {
+      setDraftQueueItemId(null);
+    }
+  };
+
+  const acceptImportReviewItems = (items: ImportReviewItem[], linkTopSuggestion = false) => {
+    const acceptedItemIds = new Set<string>();
+    const existingIds = new Set<string>(people.map((person) => person.id));
+    const existingNames = new Set<string>(people.map((person) => normalizeName(person.name)));
+    const nextPeople = [...people];
+    const nextEdges = [...edges];
+    let lastAcceptedId: string | null = null;
+    let lastHighlightPath: string[] = [];
+
+    items.forEach((item) => {
+      const candidate = item.candidate;
+      if (candidate.birth === null || existingNames.has(normalizeName(candidate.name))) return;
+
+      const newId = createUniqueImportId(candidate, existingIds);
+      const newThinker = createThinkerFromImportCandidate(candidate, newId);
+      const topSuggestion = linkTopSuggestion ? getCandidateLinkSuggestions(candidate)[0] : null;
+      nextPeople.push(newThinker);
+      existingNames.add(normalizeName(candidate.name));
+      acceptedItemIds.add(item.id);
+      lastAcceptedId = newId;
+
+      if (topSuggestion) {
+        const source = topSuggestion.person.birth <= newThinker.birth ? topSuggestion.person : newThinker;
+        const target = source.id === topSuggestion.person.id ? newThinker : topSuggestion.person;
+        nextEdges.push({
+          source: source.id,
+          target: target.id,
+          type: "Suggested relationship",
+          strength: 2,
+          confidence: 0.35,
+          note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
+          sourceClaims: [candidate.wikipediaUrl || candidate.sourceUrl],
+        });
+        lastHighlightPath = [source.id, target.id];
+      }
+    });
+
+    if (acceptedItemIds.size === 0) return;
+
+    setPeople(nextPeople);
+    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
+    setEdges(nextEdges);
+    localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    persistImportReviewQueue(importReviewQueue.filter((item) => !acceptedItemIds.has(item.id)));
+    if (lastAcceptedId) {
+      setSelectedId(lastAcceptedId);
+      setViewMode("split");
+    }
+    if (lastHighlightPath.length > 0) setHighlightPath(lastHighlightPath);
+  };
+
+  const clearDuplicateImportReviewItems = () => {
+    persistImportReviewQueue(importReviewQueue.filter((item) => !getDuplicateIdForCandidate(item.candidate)));
+  };
+
+  const clearLowConfidenceImportReviewItems = () => {
+    persistImportReviewQueue(importReviewQueue.filter((item) => item.confidence >= 80));
+  };
+
+  const clearImportReviewQueue = () => {
+    if (!window.confirm("Clear all queued import candidates?")) return;
+    persistImportReviewQueue([]);
   };
 
   const searchWikidataCandidates = async () => {
@@ -1250,6 +1358,15 @@ export default function App() {
       prev.includes(group) ? prev.filter((item) => item !== group) : [...prev, group]
     );
   };
+
+  const importQueueAcceptableItems = importReviewQueue.filter(
+    (item) => item.candidate.birth !== null && !getDuplicateIdForCandidate(item.candidate)
+  );
+  const importQueueLinkableItems = importQueueAcceptableItems.filter(
+    (item) => getCandidateLinkSuggestions(item.candidate).length > 0
+  );
+  const importQueueDuplicateCount = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate)).length;
+  const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < 80).length;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
@@ -2579,6 +2696,53 @@ export default function App() {
                         </div>
                         <span className="font-mono text-[9px] text-slate-600">{importReviewQueue.length}</span>
                       </div>
+
+                      {importReviewQueue.length > 0 && (
+                        <div className="mb-3 rounded-md border border-[#1d2232] bg-[#0b0d14] p-2">
+                          <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[8.5px] text-slate-600">
+                            <span>{importQueueAcceptableItems.length} acceptable</span>
+                            <span>{importQueueLinkableItems.length} link-ready</span>
+                            <span>{importQueueDuplicateCount} duplicates</span>
+                            <span>{importQueueLowConfidenceCount} low-confidence</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1.5 md:grid-cols-5">
+                            <button
+                              onClick={() => acceptImportReviewItems(importQueueAcceptableItems)}
+                              disabled={importQueueAcceptableItems.length === 0}
+                              className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1.5 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              Accept All
+                            </button>
+                            <button
+                              onClick={() => acceptImportReviewItems(importQueueLinkableItems, true)}
+                              disabled={importQueueLinkableItems.length === 0}
+                              className="rounded border border-cyan-400/30 bg-cyan-400/10 px-2 py-1.5 text-[8.5px] font-mono text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              Accept + Link
+                            </button>
+                            <button
+                              onClick={clearDuplicateImportReviewItems}
+                              disabled={importQueueDuplicateCount === 0}
+                              className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-[8.5px] font-mono text-amber-300 hover:bg-amber-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              Clear Dups
+                            </button>
+                            <button
+                              onClick={clearLowConfidenceImportReviewItems}
+                              disabled={importQueueLowConfidenceCount === 0}
+                              className="rounded border border-[#252a3d] bg-[#10131d] px-2 py-1.5 text-[8.5px] font-mono text-slate-400 hover:text-slate-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              Clear Low
+                            </button>
+                            <button
+                              onClick={clearImportReviewQueue}
+                              className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-1.5 text-[8.5px] font-mono text-rose-300 hover:bg-rose-500/20 cursor-pointer"
+                            >
+                              Clear Queue
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="max-h-[280px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
                         {importReviewQueue.length > 0 ? (
