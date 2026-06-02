@@ -1089,6 +1089,13 @@ export default function App() {
           chronologyScore > 0 ? `chronology: ${chronologicalDirection}` : "",
         ].filter(Boolean) as string[];
         const confidence = score >= 12 ? "strong" : score >= 7 ? "medium" : "weak";
+        const confidenceExplanation = wikidataClaimReasons.length > 0
+          ? "direct Wikidata claim"
+          : confidence === "strong"
+          ? "multiple matching signals"
+          : confidence === "medium"
+          ? "shared context signals"
+          : "thin evidence";
         const category: RelationshipSuggestionCategory = wikidataClaimReasons.some((reason) => reason.includes("advisor") || reason.includes("student"))
           ? "direct mentorship"
           : wikidataClaimReasons.some((reason) => reason.includes("influenced by"))
@@ -1100,7 +1107,7 @@ export default function App() {
           : timeGap <= 40 && (sharedFields.length > 0 || sharedTopics.length > 0 || sharedLensTags.length > 0)
           ? "parallel development"
           : "source-context neighbor";
-        return { person, score, reasons, confidence, category };
+        return { person, score, reasons, confidence, confidenceExplanation, category };
       })
       .filter((item) => item.score >= 4)
       .sort((a, b) => b.score - a.score)
@@ -1307,7 +1314,7 @@ export default function App() {
           type: topSuggestion.category,
           strength: 2,
           confidence: 0.35,
-          note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
+          note: `Imported with suggested context: ${topSuggestion.confidenceExplanation}; ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
           sourceClaims: [getCandidateSourceUrl(candidate)].filter(Boolean),
         },
       ];
@@ -1433,7 +1440,7 @@ export default function App() {
           type: topSuggestion.category,
           strength: 2,
           confidence: 0.35,
-          note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
+          note: `Imported with suggested context: ${topSuggestion.confidenceExplanation}; ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
           sourceClaims: [getCandidateSourceUrl(candidate)].filter(Boolean),
         });
         lastHighlightPath = [source.id, target.id];
@@ -3600,7 +3607,7 @@ export default function App() {
                                           </div>
                                         </div>
                                         <div className="truncate text-[8px] font-mono text-slate-600">
-                                          {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
+                                          {suggestion.confidenceExplanation} - {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
                                         </div>
                                       </button>
                                     )) : (
