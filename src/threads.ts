@@ -182,6 +182,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "molecular-biology",
+    title: "Molecular Biology",
+    field: "Biology / Genetics",
+    purpose: "Trace inheritance, chromosomes, DNA structure, gene regulation, genetic coding, sequencing, genome editing, and synthetic genomics.",
+    people: ["mendel", "morgan_th", "rosalind_franklin", "watson_crick", "brenner_sydney", "monod", "nirenberg_marshall", "sanger_fred", "doudna", "venter"],
+    concepts: ["inheritance", "chromosomes", "DNA structure", "messenger RNA", "operon regulation", "genetic code", "sequencing", "CRISPR", "genomics"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration", "Mentorship"],
+    confidence: "needs-review",
+  },
+  {
     id: "liberalism-and-capabilities",
     title: "Liberalism And Capabilities",
     field: "Political Thought / Economics",
