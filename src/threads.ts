@@ -22,6 +22,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "medium",
   },
   {
+    id: "empiricism-to-pragmatism",
+    title: "Empiricism To Pragmatism",
+    field: "Philosophy / Psychology",
+    purpose: "Follow sensory empiricism and skepticism into practical consequences, instrumentalism, and neo-pragmatism.",
+    people: ["bacon", "locke", "hume", "mill", "peirce", "james", "dewey", "rorty"],
+    concepts: ["induction", "tabula rasa", "skepticism", "liberty", "pragmatic maxim", "functional psychology", "instrumentalism", "anti-foundationalism"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration"],
+    confidence: "needs-review",
+  },
+  {
     id: "probability-to-causality",
     title: "Probability To Causality",
     field: "Mathematics / AI",
