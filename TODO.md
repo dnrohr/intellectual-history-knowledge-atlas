@@ -230,7 +230,7 @@ Status notation:
   - floating quick actions for the current selection
   - collapsible filter and lens controls
   - transient inspector panels that can be closed or pinned
-- Distinguish always-visible navigation from optional modification tools:
+- [x] Distinguish always-visible navigation from optional modification tools:
   - keep search, current focus, and primary mode visible
   - hide advanced filters until requested
   - hide Workbench/review tools outside curation mode

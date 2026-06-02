@@ -1926,6 +1926,7 @@ export default function App() {
   const showRelationshipToolbar = activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace";
   const showFocusContextBand = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
   const showConnectionRadar = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
+  const showRadarCurationActions = activeActivity === "curate" || activeActivity === "sources";
   const applyActivity = (activity: WorkspaceActivity) => {
     setActiveActivity(activity);
     setCommandMenuOpen(false);
@@ -2559,15 +2560,17 @@ export default function App() {
           <div className={`${showFocusContextBand ? "mt-3 " : ""}grid grid-cols-1 xl:grid-cols-[auto_1fr] gap-2 items-center`}>
             <div className="flex items-center gap-2 shrink-0">
               <span className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Connection Radar</span>
-              <button
-                onClick={() => {
-                  setExtensionWorkbenchOpen(true);
-                  setWorkbenchTab("links");
-                }}
-                className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
-              >
-                Review Queue
-              </button>
+              {showRadarCurationActions && (
+                <button
+                  onClick={() => {
+                    setExtensionWorkbenchOpen(true);
+                    setWorkbenchTab("links");
+                  }}
+                  className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
+                >
+                  Review Queue
+                </button>
+              )}
             </div>
 
             <div className="min-w-0 flex gap-2 overflow-x-auto scrollbar-thin pb-0.5">
@@ -2594,13 +2597,15 @@ export default function App() {
                             {formatYear(person.birth)} · {getSuggestedLinkReason(candidate)}
                           </div>
                         </button>
-                        <button
-                          onClick={() => addSuggestedRelationship(selectedThinker, person, `Shared context: ${getSuggestedLinkReason(candidate)}`)}
-                          className="rounded border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-2 py-1 text-[9px] font-mono text-[#9bdaff] hover:border-[#9bdaff] cursor-pointer"
-                          title="Add a low-confidence suggested relationship"
-                        >
-                          Add
-                        </button>
+                        {showRadarCurationActions && (
+                          <button
+                            onClick={() => addSuggestedRelationship(selectedThinker, person, `Shared context: ${getSuggestedLinkReason(candidate)}`)}
+                            className="rounded border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-2 py-1 text-[9px] font-mono text-[#9bdaff] hover:border-[#9bdaff] cursor-pointer"
+                            title="Add a low-confidence suggested relationship"
+                          >
+                            Add
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
