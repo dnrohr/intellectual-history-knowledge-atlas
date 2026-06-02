@@ -215,7 +215,7 @@ Status notation:
 
 ### Major UI Direction: Reduce Screen Clutter And Prioritize The Current Activity
 
-- Reframe the app around an activity-first workspace:
+- [x] Reframe the app around an activity-first workspace:
   - exploration
   - focused thinker inspection
   - relationship/path tracing

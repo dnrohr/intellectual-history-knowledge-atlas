@@ -101,6 +101,8 @@ type LinkReviewItem = {
   createdAt: string;
 };
 
+type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
+
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
 const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
@@ -184,6 +186,7 @@ export default function App() {
   const jsonImportInputRef = useRef<HTMLInputElement | null>(null);
 
   // Layout Controls
+  const [activeActivity, setActiveActivity] = useState<WorkspaceActivity>("explore");
   const [viewMode, setViewMode] = useState<"timeline" | "network" | "split">("split");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -1905,6 +1908,75 @@ export default function App() {
   const selectedThinker = selectedId ? people.find((p) => p.id === selectedId) : null;
   const selectedIncomingCount = selectedId ? edges.filter((e) => e.target === selectedId).length : 0;
   const selectedOutgoingCount = selectedId ? edges.filter((e) => e.source === selectedId).length : 0;
+  const activityOptions: Array<{
+    id: WorkspaceActivity;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { id: "explore", label: "Explore", icon: List },
+    { id: "inspect", label: "Inspect", icon: Info },
+    { id: "trace", label: "Trace", icon: Share2 },
+    { id: "curate", label: "Curate", icon: Eye },
+    { id: "import", label: "Import", icon: Plus },
+    { id: "sources", label: "Sources", icon: Filter },
+  ];
+  const activeActivityLabel = activityOptions.find((activity) => activity.id === activeActivity)?.label || "Explore";
+  const applyActivity = (activity: WorkspaceActivity) => {
+    setActiveActivity(activity);
+
+    if (activity === "explore") {
+      setViewMode("split");
+      setSidebarOpen(true);
+      setExtensionWorkbenchOpen(false);
+      setPathFinderOpen(false);
+      setFilterDrawerOpen(false);
+      return;
+    }
+
+    if (activity === "inspect") {
+      setViewMode("network");
+      setSidebarOpen(false);
+      setExtensionWorkbenchOpen(false);
+      setPathFinderOpen(false);
+      setFilterDrawerOpen(false);
+      return;
+    }
+
+    if (activity === "trace") {
+      setViewMode("split");
+      setSidebarOpen(false);
+      setExtensionWorkbenchOpen(false);
+      setPathFinderOpen(true);
+      setFilterDrawerOpen(false);
+      return;
+    }
+
+    if (activity === "curate") {
+      setViewMode("split");
+      setSidebarOpen(true);
+      setWorkbenchTab("links");
+      setExtensionWorkbenchOpen(true);
+      setPathFinderOpen(false);
+      return;
+    }
+
+    if (activity === "import") {
+      setViewMode("split");
+      setSidebarOpen(false);
+      setWorkbenchTab("imports");
+      setExtensionWorkbenchOpen(true);
+      setPathFinderOpen(false);
+      setFilterDrawerOpen(false);
+      return;
+    }
+
+    setViewMode("network");
+    setSidebarOpen(false);
+    setWorkbenchTab("links");
+    setExtensionWorkbenchOpen(true);
+    setPathFinderOpen(false);
+    setFilterDrawerOpen(false);
+  };
   const formatYear = (year: number | null) => {
     if (year === null) return "present";
     return year < 0 ? `${Math.abs(year)} BCE` : `${year}`;
@@ -2139,41 +2211,28 @@ export default function App() {
           </div>
         </div>
 
-        {/* Dynamic Mode Switcher inside Header (Centered & Spaced) */}
-        <div className="flex items-center bg-[#07080d] p-0.5 border border-[#22273b] rounded-lg">
-          <button
-            onClick={() => setViewMode("split")}
-            className={`px-3.5 py-1 text-[11px] font-mono tracking-wide rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-              viewMode === "split"
-                ? "bg-[#1f2438] text-[#9bdaff] font-bold shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <List className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Explore</span>
-          </button>
-          <button
-            onClick={() => setViewMode("timeline")}
-            className={`px-3.5 py-1 text-[11px] font-mono tracking-wide rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-              viewMode === "timeline"
-                ? "bg-[#1f2438] text-[#9bdaff] font-bold shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Timeline</span>
-          </button>
-          <button
-            onClick={() => setViewMode("network")}
-            className={`px-3.5 py-1 text-[11px] font-mono tracking-wide rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-              viewMode === "network"
-                ? "bg-[#1f2438] text-[#9bdaff] font-bold shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Map</span>
-          </button>
+        {/* Activity switcher keeps the primary workspace intention explicit. */}
+        <div className="flex min-w-0 items-center overflow-x-auto scrollbar-thin bg-[#07080d] p-0.5 border border-[#22273b] rounded-lg">
+          {activityOptions.map((activity) => {
+            const Icon = activity.icon;
+            const isActive = activeActivity === activity.id;
+
+            return (
+              <button
+                key={activity.id}
+                onClick={() => applyActivity(activity.id)}
+                className={`px-2.5 lg:px-3.5 py-1 text-[10px] lg:text-[11px] font-mono tracking-wide rounded-md transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  isActive
+                    ? "bg-[#1f2438] text-[#9bdaff] font-bold shadow-md"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title={`${activity.label} activity`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">{activity.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Header Action Tools */}
@@ -2190,7 +2249,13 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => setExtensionWorkbenchOpen((prev) => !prev)}
+            onClick={() => {
+              const nextOpen = activeActivity === "curate" ? !extensionWorkbenchOpen : true;
+              setActiveActivity("curate");
+              setWorkbenchTab("links");
+              setExtensionWorkbenchOpen(nextOpen);
+              setPathFinderOpen(false);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-md text-xs font-mono transition-all cursor-pointer ${
               extensionWorkbenchOpen
                 ? "bg-emerald-500/10 border-emerald-500 text-emerald-300 font-medium"
@@ -2204,7 +2269,13 @@ export default function App() {
 
           {/* Pathways Trigger */}
           <button
-            onClick={() => setPathFinderOpen((prev) => !prev)}
+            onClick={() => {
+              const nextOpen = activeActivity === "trace" ? !pathFinderOpen : true;
+              setActiveActivity("trace");
+              setViewMode("split");
+              setExtensionWorkbenchOpen(false);
+              setPathFinderOpen(nextOpen);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-md text-xs font-mono transition-all cursor-pointer ${
               pathFinderOpen
                 ? "bg-amber-500/10 border-amber-500 text-amber-400 font-medium"
@@ -2326,7 +2397,31 @@ export default function App() {
       {/* ── COLLAPSIBLE SLIDE-DOWN DRAWER FOR ADVANCED SEARCH FILTERS ── */}
       <div className="shrink-0 min-h-11 px-6 py-1.5 bg-[#0d1018] border-b border-[#22273b] z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">Explore</span>
+          <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">{activeActivityLabel}</span>
+          <div className="hidden lg:flex items-center rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
+            {([
+              ["split", List, "Split"],
+              ["timeline", Clock, "Timeline"],
+              ["network", Globe, "Map"],
+            ] as const).map(([mode, Icon, label]) => (
+              <button
+                key={mode}
+                onClick={() => {
+                  setViewMode(mode);
+                  if (activeActivity === "inspect" && mode !== "network") setActiveActivity("explore");
+                }}
+                className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer flex items-center gap-1 ${
+                  viewMode === mode
+                    ? "bg-[#1f2438] text-[#9bdaff]"
+                    : "text-slate-500 hover:text-slate-200"
+                }`}
+                title={`${label} lens`}
+              >
+                <Icon className="w-3 h-3" />
+                <span className="hidden xl:inline">{label}</span>
+              </button>
+            ))}
+          </div>
           <button
             onClick={showNeighborhood}
             disabled={!selectedId || (selectedIncomingCount + selectedOutgoingCount) === 0}
