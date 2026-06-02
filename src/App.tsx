@@ -1658,7 +1658,10 @@ export default function App() {
 
   const importAtlasJson = async (file: File) => {
     const parsed = JSON.parse(await file.text());
-    if (!Array.isArray(parsed.people) || !Array.isArray(parsed.edges)) return;
+    if (!Array.isArray(parsed.people) || !Array.isArray(parsed.edges)) {
+      window.alert("This JSON file is not an exported atlas state.");
+      return;
+    }
     const nextPeople = parsed.people.filter(Boolean);
     const nextEdges = parsed.edges.filter(Boolean);
     const nextQueue = normalizeStoredImportReviewQueue(parsed.importReviewQueue);
@@ -1666,6 +1669,18 @@ export default function App() {
     const nextThreshold = Number.isFinite(Number(parsed.importConfidenceThreshold))
       ? Math.max(0, Math.min(100, Number(parsed.importConfidenceThreshold)))
       : importConfidenceThreshold;
+    const exportedAt = typeof parsed.exportedAt === "string" ? parsed.exportedAt : "unknown date";
+    const restoreConfirmed = window.confirm(
+      [
+        `Restore exported atlas state from ${exportedAt}?`,
+        "",
+        `Current: ${people.length} thinkers, ${edges.length} edges, ${importReviewQueue.length} queued imports.`,
+        `Incoming: ${nextPeople.length} thinkers, ${nextEdges.length} edges, ${nextQueue.length} queued imports.`,
+        "",
+        "This replaces the current local atlas state.",
+      ].join("\n")
+    );
+    if (!restoreConfirmed) return;
 
     setPeople(nextPeople);
     setEdges(nextEdges);
@@ -3242,7 +3257,7 @@ export default function App() {
                           onClick={() => jsonImportInputRef.current?.click()}
                           className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
                         >
-                          Import JSON
+                          Restore JSON
                         </button>
                         <button
                           type="button"
