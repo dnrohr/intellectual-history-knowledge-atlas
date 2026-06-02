@@ -103,6 +103,7 @@ type LinkReviewItem = {
 };
 
 type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
+type ChromeDensity = "compact" | "comfortable" | "focus" | "curation" | "demo";
 
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
@@ -193,6 +194,7 @@ export default function App() {
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
+  const [chromeDensity, setChromeDensity] = useState<ChromeDensity>("comfortable");
 
   // Panel Resizer states
   const [sidebarWidth, setSidebarWidth] = useState(220);
@@ -1923,10 +1925,20 @@ export default function App() {
     { id: "sources", label: "Sources", icon: Filter },
   ];
   const activeActivityLabel = activityOptions.find((activity) => activity.id === activeActivity)?.label || "Explore";
-  const showRelationshipToolbar = activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace";
-  const showFocusContextBand = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
-  const showConnectionRadar = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
-  const showRadarCurationActions = activeActivity === "curate" || activeActivity === "sources";
+  const chromeDensityOptions: Array<{ id: ChromeDensity; label: string }> = [
+    { id: "comfortable", label: "Comfort" },
+    { id: "compact", label: "Compact" },
+    { id: "focus", label: "Focus" },
+    { id: "curation", label: "Curate" },
+    { id: "demo", label: "Demo" },
+  ];
+  const isCompactChrome = chromeDensity === "compact";
+  const isReducedChrome = chromeDensity === "focus" || chromeDensity === "demo";
+  const showSecondaryChrome = chromeDensity !== "demo";
+  const showRelationshipToolbar = !isReducedChrome && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
+  const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
+  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
+  const showRadarCurationActions = chromeDensity === "curation" || activeActivity === "curate" || activeActivity === "sources";
   const applyActivity = (activity: WorkspaceActivity) => {
     setActiveActivity(activity);
     setCommandMenuOpen(false);
@@ -2200,7 +2212,7 @@ export default function App() {
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
       
       {/* ── CENTRALized HEADER BAR ── */}
-      <header className="flex h-14 shrink-0 items-center justify-between px-6 bg-[#0f111a] border-b border-[#22273b] z-40">
+      <header className={`flex ${isCompactChrome ? "h-12" : "h-14"} shrink-0 items-center justify-between px-6 bg-[#0f111a] border-b border-[#22273b] z-40`}>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <span className="text-amber-500 font-serif text-xl font-semibold italic">◈</span>
@@ -2317,6 +2329,33 @@ export default function App() {
                   Source Audit
                 </button>
                 <div className="my-1 h-px bg-[#22273b]" />
+                <div className="px-2 py-1">
+                  <div className="mb-1 font-mono text-[8.5px] uppercase tracking-wider text-slate-600">Density</div>
+                  <div className="grid grid-cols-5 gap-1">
+                    {chromeDensityOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => {
+                          setChromeDensity(option.id);
+                          if (option.id === "curation") applyActivity("curate");
+                          if (option.id === "demo") {
+                            setFilterDrawerOpen(false);
+                            setExtensionWorkbenchOpen(false);
+                            setPathFinderOpen(false);
+                          }
+                        }}
+                        className={`rounded border px-1 py-1 text-[8.5px] font-mono transition-colors cursor-pointer ${
+                          chromeDensity === option.id
+                            ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]"
+                            : "border-[#22273b] bg-[#090b10] text-slate-500 hover:text-slate-200"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="my-1 h-px bg-[#22273b]" />
                 <button
                   onClick={() => {
                     setCommandMenuOpen(false);
@@ -2334,7 +2373,8 @@ export default function App() {
       </header>
 
       {/* ── MINIMAL CONTROLS & SEARCH BAR sub-header ── */}
-      <div className="flex shrink-0 h-12 items-center justify-between px-6 bg-[#131622] border-b border-[#22273b] z-30">
+      {showSecondaryChrome && (
+      <div className={`flex shrink-0 ${isCompactChrome ? "h-10" : "h-12"} items-center justify-between px-6 bg-[#131622] border-b border-[#22273b] z-30`}>
         
         {/* Toggle Sidebar and Live Search group */}
         <div className="flex items-center gap-4 w-full max-w-md">
@@ -2428,6 +2468,7 @@ export default function App() {
           </button>
         </div>
       </div>
+      )}
 
       {/* Activity relationship toolbar */}
       {showRelationshipToolbar && (

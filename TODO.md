@@ -249,7 +249,7 @@ Status notation:
   - mobile: one main view plus bottom sheets and stacked activity tabs
   - presentation/demo: minimal chrome with focused timeline or graph
   - curation: denser controls, queues, and edit actions visible
-- Add user-controlled chrome density:
+- [x] Add user-controlled chrome density:
   - compact
   - comfortable
   - focus mode
