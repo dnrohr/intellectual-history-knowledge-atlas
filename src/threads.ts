@@ -122,6 +122,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "electromagnetism-to-information",
+    title: "Electromagnetism To Information",
+    field: "Physics / Computing",
+    purpose: "Connect field theory, radio waves, communication limits, and the thermodynamics of information.",
+    people: ["coulomb", "ampere", "faraday", "maxwell", "hertz", "shannon", "landauer"],
+    concepts: ["electrostatics", "electrodynamics", "field lines", "Maxwell equations", "radio waves", "channel capacity", "information thermodynamics"],
+    edgeTypes: ["Influence", "Indirect influence"],
+    confidence: "needs-review",
+  },
+  {
     id: "evolution-to-genomics",
     title: "Evolution To Genomics",
     field: "Biology",
