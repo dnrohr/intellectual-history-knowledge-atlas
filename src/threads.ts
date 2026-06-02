@@ -132,6 +132,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "relativity-to-cosmology",
+    title: "Relativity To Cosmology",
+    field: "Physics / Cosmology",
+    purpose: "Follow general relativity into observational confirmation, expanding-universe cosmology, inflation, and singularity theory.",
+    people: ["einstein", "eddington", "lemaitre", "gamow", "peebles", "guth", "hawking", "penrose"],
+    concepts: ["general relativity", "eclipse verification", "expanding universe", "Big Bang nucleosynthesis", "cosmic microwave background", "inflation", "black hole thermodynamics", "singularity theorems"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration", "Mentorship"],
+    confidence: "needs-review",
+  },
+  {
     id: "evolution-to-genomics",
     title: "Evolution To Genomics",
     field: "Biology",
