@@ -52,6 +52,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "causality-machine-learning",
+    title: "Causality Machine Learning",
+    field: "Mathematics / AI",
+    purpose: "Trace Bayesian inference, statistical inference, axiomatized probability, causal graphs, statistical learning, and causal deep learning.",
+    people: ["bayes", "laplace", "fisher_ronald", "kolmogorov", "pearl_judea", "vapnik", "bengio"],
+    concepts: ["Bayesian updating", "inverse probability", "statistical inference", "probability axioms", "causal graphs", "statistical learning theory", "causal deep learning"],
+    edgeTypes: ["Influence", "Indirect influence", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "geometry-to-topology",
     title: "Geometry To Topology",
     field: "Mathematics",
