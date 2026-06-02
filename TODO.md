@@ -179,7 +179,7 @@ Status notation:
   - [x] people with only metadata-derived edges
   - [x] high bridge-score people with too few explicit edges
   - [x] repeated duplicate edges with conflicting direction/type
-  - [ ] (partial) edges that should be split into mentorship, collaboration, influence, parallel development, or source-context neighbor
+  - [x] edges that should be split into mentorship, collaboration, influence, parallel development, or source-context neighbor
 - [ ] (partial) Add at least one incoming and one outgoing explicit edge for every high bridge-score thinker where historically defensible.
 - [ ] (partial) Add source notes for the top 100 most important thread edges.
 - [x] Create a "canonical threads" seed file separate from raw people/edges.

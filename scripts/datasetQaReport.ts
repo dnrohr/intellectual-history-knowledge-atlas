@@ -15,6 +15,38 @@ const hasExplicitEdge = (personId: string) =>
 const explicitDegree = (personId: string) =>
   explicitEdges.filter((edge) => edge.source === personId || edge.target === personId).length;
 
+const broadEdgeTypes = new Set(["Influence", "Indirect influence", "Recorded influence", "Parallel"]);
+
+const inferRefinedEdgeType = (edge: InfluenceEdge) => {
+  const haystack = `${edge.type} ${edge.note || ""}`.toLowerCase();
+
+  if (/mentor|advisor|supervisor|student|tutor|succeeded as head|direct .*teacher/.test(haystack)) {
+    return "Mentorship";
+  }
+
+  if (/collaboration|collaborat|co-created|co-developed|co-authored|correspondence|friendship|rivalry|worked with/.test(haystack)) {
+    return "Collaboration";
+  }
+
+  if (/parallel|independent|concurrent|rival school|contrast|challenged/.test(haystack)) {
+    return "Parallel development";
+  }
+
+  if (/source-context|context|transmission|translation|translated|preserved|revived|precursor|anticipated|thread bridge|maps to|fed /.test(haystack)) {
+    return "Source-context neighbor";
+  }
+
+  return "Influence";
+};
+
+const isRefinementCandidate = (edge: InfluenceEdge) => {
+  const refinedType = inferRefinedEdgeType(edge);
+  return broadEdgeTypes.has(edge.type) && refinedType !== "Influence" && refinedType !== edge.type;
+};
+
+const edgeTouchesField = (edge: InfluenceEdge, field: string) =>
+  [peopleById.get(edge.source), peopleById.get(edge.target)].some((person) => person?.fields.includes(field));
+
 const hasMetadataInfluence = (person: Thinker) =>
   (person.influenced || []).some((targetId) => !explicitEdgeKeys.has(`${person.id}->${targetId}`));
 
@@ -73,6 +105,9 @@ for (const field of fields) {
   const sparseHighBridge = fieldPeople.filter(
     (person) => (person.bridge_score || 0) >= HIGH_BRIDGE_SCORE && explicitDegree(person.id) < EXPLICIT_EDGE_THRESHOLD
   );
+  const refinementCandidates = explicitEdges
+    .filter((edge) => edgeTouchesField(edge, field))
+    .filter(isRefinementCandidate);
 
   console.log(`### ${field}`);
   console.log(`- People: ${fieldPeople.length}`);
@@ -81,6 +116,11 @@ for (const field of fields) {
   console.log(
     `- High bridge-score people with fewer than ${EXPLICIT_EDGE_THRESHOLD} explicit edges: ${sparseHighBridge.length} (${formatList(
       sparseHighBridge.map((person) => `${person.name}=${person.bridge_score || 0}/${explicitDegree(person.id)}`)
+    )})`
+  );
+  console.log(
+    `- Broad explicit edges with suggested refined type: ${refinementCandidates.length} (${formatList(
+      refinementCandidates.map((edge) => `${edge.source}->${edge.target}:${inferRefinedEdgeType(edge)}`)
     )})`
   );
 }
