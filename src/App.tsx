@@ -76,6 +76,63 @@ type ImportQualityLabel = {
   tone: "strong" | "medium" | "weak" | "warning";
 };
 
+const IMPORT_QUEUE_SCHEMA_VERSION = 2;
+const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
+const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
+const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
+
+type StoredImportReviewQueue = {
+  version: number;
+  updatedAt: string;
+  items: ImportReviewItem[];
+};
+
+const isImportReviewStatus = (status: unknown): status is ImportReviewStatus =>
+  typeof status === "string" && IMPORT_QUEUE_STATUSES.includes(status as ImportReviewStatus);
+
+const normalizeImportReviewQueueItem = (item: Partial<ImportReviewItem> | null | undefined): ImportReviewItem | null => {
+  if (!item || !item.id || !item.candidate?.id || !item.candidate.name) return null;
+  const duplicateId = typeof item.duplicateId === "string" ? item.duplicateId : null;
+  return {
+    id: String(item.id),
+    candidate: item.candidate,
+    confidence: Number.isFinite(Number(item.confidence)) ? Math.max(0, Math.min(100, Math.round(Number(item.confidence)))) : 0,
+    duplicateId,
+    status: isImportReviewStatus(item.status) ? item.status : duplicateId ? "duplicate" : "queued",
+  };
+};
+
+const normalizeImportReviewQueue = (items: unknown): ImportReviewItem[] => {
+  if (!Array.isArray(items)) return [];
+  return items
+    .map((item) => normalizeImportReviewQueueItem(item as Partial<ImportReviewItem>))
+    .filter((item): item is ImportReviewItem => Boolean(item));
+};
+
+const normalizeStoredImportReviewQueue = (storedQueue: unknown): ImportReviewItem[] => {
+  if (Array.isArray(storedQueue)) return normalizeImportReviewQueue(storedQueue);
+  if (storedQueue && typeof storedQueue === "object" && Array.isArray((storedQueue as StoredImportReviewQueue).items)) {
+    return normalizeImportReviewQueue((storedQueue as StoredImportReviewQueue).items);
+  }
+  return [];
+};
+
+const parseStoredImportReviewQueue = (savedQueue: string): ImportReviewItem[] => {
+  return normalizeStoredImportReviewQueue(JSON.parse(savedQueue));
+};
+
+const serializeImportReviewQueue = (items: ImportReviewItem[]) =>
+  JSON.stringify({
+    version: IMPORT_QUEUE_SCHEMA_VERSION,
+    updatedAt: new Date().toISOString(),
+    items: normalizeImportReviewQueue(items),
+  } satisfies StoredImportReviewQueue);
+
+const persistImportReviewQueueToStorage = (items: ImportReviewItem[]) => {
+  localStorage.setItem(IMPORT_QUEUE_STORAGE_KEY, serializeImportReviewQueue(items));
+  localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
+};
+
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
@@ -247,7 +304,9 @@ export default function App() {
   useEffect(() => {
     const savedPeople = localStorage.getItem("atlas_people_v6");
     const savedEdges = localStorage.getItem("atlas_edges_v6");
-    const savedImportQueue = localStorage.getItem("atlas_import_queue_v1");
+    const savedImportQueue =
+      localStorage.getItem(IMPORT_QUEUE_STORAGE_KEY) ||
+      localStorage.getItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
     const savedImportAuditLog = localStorage.getItem("atlas_import_audit_log_v1");
 
     if (savedPeople && savedEdges) {
@@ -274,18 +333,9 @@ export default function App() {
 
     if (savedImportQueue) {
       try {
-        const parsedImportQueue = JSON.parse(savedImportQueue);
-        if (Array.isArray(parsedImportQueue)) {
-          const normalizedQueue = parsedImportQueue
-            .filter(Boolean)
-            .map((item) => ({
-              ...item,
-              status: item.status || (item.duplicateId ? "duplicate" : "queued"),
-            }))
-            .filter((item) => item.candidate && item.id) as ImportReviewItem[];
-          setImportReviewQueue(normalizedQueue);
-          localStorage.setItem("atlas_import_queue_v1", JSON.stringify(normalizedQueue));
-        }
+        const normalizedQueue = parseStoredImportReviewQueue(savedImportQueue);
+        setImportReviewQueue(normalizedQueue);
+        persistImportReviewQueueToStorage(normalizedQueue);
       } catch {
         setImportReviewQueue([]);
       }
@@ -331,7 +381,8 @@ export default function App() {
       setBfsMapNodes([]);
       localStorage.setItem("atlas_people_v6", JSON.stringify(INITIAL_PEOPLE_DATA));
       localStorage.setItem("atlas_edges_v6", JSON.stringify(INITIAL_EDGES_DATA));
-      localStorage.removeItem("atlas_import_queue_v1");
+      localStorage.removeItem(IMPORT_QUEUE_STORAGE_KEY);
+      localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem("atlas_import_audit_log_v1");
       setImportReviewQueue([]);
       setImportAuditLog([]);
@@ -1046,7 +1097,7 @@ export default function App() {
         duplicateId,
         status: duplicateId ? "duplicate" : "queued",
       }];
-      localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
+      persistImportReviewQueueToStorage(next);
       return next;
     });
   };
@@ -1078,7 +1129,7 @@ export default function App() {
     if (itemToRemove) logImportReviewItems([itemToRemove], status, reason);
     setImportReviewQueue((prev) => {
       const next = prev.filter((item) => item.id !== id);
-      localStorage.setItem("atlas_import_queue_v1", JSON.stringify(next));
+      persistImportReviewQueueToStorage(next);
       return next;
     });
     if (draftQueueItemId === id) setDraftQueueItemId(null);
@@ -1267,7 +1318,7 @@ export default function App() {
 
   const persistImportReviewQueue = (nextQueue: ImportReviewItem[]) => {
     setImportReviewQueue(nextQueue);
-    localStorage.setItem("atlas_import_queue_v1", JSON.stringify(nextQueue));
+    persistImportReviewQueueToStorage(nextQueue);
     if (draftQueueItemId && !nextQueue.some((item) => item.id === draftQueueItemId)) {
       setDraftQueueItemId(null);
     }
@@ -1589,6 +1640,7 @@ export default function App() {
     const state = {
       version: 1,
       exportedAt: new Date().toISOString(),
+      importQueueSchemaVersion: IMPORT_QUEUE_SCHEMA_VERSION,
       people,
       edges,
       importReviewQueue,
@@ -1609,7 +1661,7 @@ export default function App() {
     if (!Array.isArray(parsed.people) || !Array.isArray(parsed.edges)) return;
     const nextPeople = parsed.people.filter(Boolean);
     const nextEdges = parsed.edges.filter(Boolean);
-    const nextQueue = Array.isArray(parsed.importReviewQueue) ? parsed.importReviewQueue.filter(Boolean) : [];
+    const nextQueue = normalizeStoredImportReviewQueue(parsed.importReviewQueue);
     const nextAuditLog = Array.isArray(parsed.importAuditLog) ? parsed.importAuditLog.filter(Boolean).slice(0, 100) : [];
     const nextThreshold = Number.isFinite(Number(parsed.importConfidenceThreshold))
       ? Math.max(0, Math.min(100, Number(parsed.importConfidenceThreshold)))
@@ -1622,7 +1674,7 @@ export default function App() {
     setImportConfidenceThreshold(nextThreshold);
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
-    localStorage.setItem("atlas_import_queue_v1", JSON.stringify(nextQueue));
+    persistImportReviewQueueToStorage(nextQueue);
     localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(nextAuditLog));
     localStorage.setItem("atlas_import_confidence_threshold_v1", String(nextThreshold));
   };
