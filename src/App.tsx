@@ -1921,6 +1921,9 @@ export default function App() {
     { id: "sources", label: "Sources", icon: Filter },
   ];
   const activeActivityLabel = activityOptions.find((activity) => activity.id === activeActivity)?.label || "Explore";
+  const showRelationshipToolbar = activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace";
+  const showFocusContextBand = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
+  const showConnectionRadar = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
   const applyActivity = (activity: WorkspaceActivity) => {
     setActiveActivity(activity);
 
@@ -2394,7 +2397,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── COLLAPSIBLE SLIDE-DOWN DRAWER FOR ADVANCED SEARCH FILTERS ── */}
+      {/* Activity relationship toolbar */}
+      {showRelationshipToolbar && (
       <div className="shrink-0 min-h-11 px-6 py-1.5 bg-[#0d1018] border-b border-[#22273b] z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
           <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">{activeActivityLabel}</span>
@@ -2444,7 +2448,10 @@ export default function App() {
             Lineage Out
           </button>
           <button
-            onClick={() => setPathFinderOpen(true)}
+            onClick={() => {
+              setActiveActivity("trace");
+              setPathFinderOpen(true);
+            }}
             disabled={!selectedId}
             className="px-2.5 py-1 text-[10px] font-mono rounded-md border border-[#252a3d] bg-[#141724] text-amber-300 hover:border-amber-400 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer transition-colors"
           >
@@ -2464,9 +2471,11 @@ export default function App() {
           <span className="text-slate-600">Use the current focus to trace, bridge, or compare context.</span>
         </div>
       </div>
+      )}
 
-      {selectedThinker && (
+      {(showFocusContextBand || showConnectionRadar) && selectedThinker && (
         <div className="shrink-0 px-6 py-3 bg-[#10131d] border-b border-[#22273b] z-20">
+          {showFocusContextBand && (
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-start">
             <div className="xl:col-span-3 min-w-0">
               <div className="flex items-center gap-2 min-w-0">
@@ -2513,8 +2522,10 @@ export default function App() {
               </div>
             </div>
           </div>
+          )}
 
-          <div className="mt-3 grid grid-cols-1 xl:grid-cols-[auto_1fr] gap-2 items-center">
+          {showConnectionRadar && (
+          <div className={`${showFocusContextBand ? "mt-3 " : ""}grid grid-cols-1 xl:grid-cols-[auto_1fr] gap-2 items-center`}>
             <div className="flex items-center gap-2 shrink-0">
               <span className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Connection Radar</span>
               <button
@@ -2570,6 +2581,7 @@ export default function App() {
               )}
             </div>
           </div>
+          )}
         </div>
       )}
 

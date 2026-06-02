@@ -222,7 +222,7 @@ Status notation:
   - dataset curation
   - import/review work
   - source/provenance auditing
-- Make each activity own most of the available screen while keeping secondary tools available through drawers, menus, floating panels, or temporary overlays.
+- [x] Make each activity own most of the available screen while keeping secondary tools available through drawers, menus, floating panels, or temporary overlays.
 - Move persistent controls into contextual surfaces:
   - top-level mode switcher for major activities
   - compact command/action menu for less frequent actions
