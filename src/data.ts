@@ -3857,6 +3857,17 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "hebb", target: "hinton", type: "Indirect influence", strength: 4, note: "Neural plasticity principle fed connectionist learning models" },
   { source: "nirenberg_marshall", target: "doudna", type: "Indirect influence", strength: 4, note: "Genetic code as readable program for CRISPR editing" },
   { source: "nirenberg_marshall", target: "venter", type: "Indirect influence", strength: 4, note: "Genetic code decipherment enabled whole-genome sequencing" },
+  { source: "watson_crick", target: "collins_francis", type: "Indirect influence", strength: 4, note: "DNA structure and molecular genetics enabled gene mapping and the Human Genome Project" },
+  { source: "collins_francis", target: "venter", type: "Parallel", strength: 4, note: "Public and private human genome sequencing programs raced and cross-checked draft genomes" },
+  { source: "smith_hamilton", target: "cohen_stanley_n", type: "Indirect influence", strength: 5, note: "Type II restriction enzymes enabled functional recombinant plasmid cloning" },
+  { source: "cohen_stanley_n", target: "boyer_herbert", type: "Collaboration", strength: 5, note: "Cohen and Boyer co-developed biologically functional recombinant DNA cloning methods" },
+  { source: "gurdon_john", target: "yamanaka_shinya", type: "Indirect influence", strength: 5, note: "Nuclear transplantation showed differentiated cells could be reprogrammed, preceding induced pluripotent stem cells" },
+  { source: "yamanaka_shinya", target: "doudna", type: "Source-context neighbor", strength: 3, note: "Cell reprogramming and genome editing form adjacent regenerative-medicine toolchains" },
+  { source: "darwin", target: "edwards_robert", type: "Source-context neighbor", strength: 3, note: "Evolutionary reproductive biology contextualized later experimental fertility medicine" },
+  { source: "edwards_robert", target: "yamanaka_shinya", type: "Source-context neighbor", strength: 3, note: "IVF and induced pluripotent stem-cell work connect reproductive medicine to regenerative cell technologies" },
+  { source: "paracelsus", target: "tu_youyou", type: "Source-context neighbor", strength: 3, note: "Medicinal natural-product traditions form a long pharmacological context for artemisinin discovery" },
+  { source: "tu_youyou", target: "doudna", type: "Source-context neighbor", strength: 3, note: "Artemisinin therapy and CRISPR editing are modern translational medicine breakthroughs from biological mechanism to treatment" },
+  { source: "sabin_albert", target: "tu_youyou", type: "Source-context neighbor", strength: 3, note: "Oral polio vaccination and artemisinin therapy sit in a shared global infectious-disease intervention lineage" },
 
   // --- Cross-domain bridge edges ---
   { source: "noether", target: "witten", type: "Indirect influence", strength: 5, note: "Noether's theorem is foundational to string theory gauge symmetry" },
