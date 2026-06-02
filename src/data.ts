@@ -3757,6 +3757,13 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "sartre", target: "hooks_bell", type: "Indirect influence", strength: 3, note: "Existential freedom and situated identity" },
   { source: "simone_de_beauvoir", target: "hooks_bell", type: "Indirect influence", strength: 4, note: "Feminist existentialism and intersectional oppression" },
   { source: "foucault", target: "bourdieu", type: "Parallel", strength: 4, note: "Power-knowledge and cultural field theory" },
+  { source: "epictetus", target: "marcus_aurelius", type: "Influence", strength: 5, note: "Discourses and Stoic training shaped imperial Meditations" },
+  { source: "lucretius", target: "gassendi", type: "Indirect influence", strength: 5, note: "De Rerum Natura preserved Epicurean atomism for early modern natural philosophy" },
+  { source: "gassendi", target: "locke", type: "Indirect influence", strength: 4, note: "Empirical atomism and anti-scholastic method informed British empiricism" },
+  { source: "aquinas", target: "descartes", type: "Critique", strength: 4, note: "Cartesian rationalism reworked scholastic proofs, substance, and mind-body debates" },
+  { source: "spinoza", target: "hegel", type: "Indirect influence", strength: 4, note: "Absolute monism became a central problem for German Idealist system building" },
+  { source: "james", target: "dewey", type: "Influence", strength: 5, note: "Pragmatic truth and functional psychology shaped Dewey's instrumentalism" },
+  { source: "derrida", target: "butler", type: "Indirect influence", strength: 4, note: "Deconstructive accounts of text and identity informed performativity theory" },
   { source: "williams_raymond", target: "said", type: "Influence", strength: 4, note: "Cultural materialism and colonial representations" },
   { source: "williams_raymond", target: "hooks_bell", type: "Indirect influence", strength: 3, note: "Culture as material social practice" },
 
