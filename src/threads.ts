@@ -82,6 +82,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "medium",
   },
   {
+    id: "symbolic-ai",
+    title: "Symbolic AI",
+    field: "Computing / AI",
+    purpose: "Follow symbolic reasoning from formal logic and computability into Logic Theorist, Lisp-era AI, and early AI institutions.",
+    people: ["leibniz", "boole", "frege", "russell", "turing", "newell", "simon_herbert", "mccarthy", "minsky"],
+    concepts: ["calculus ratiocinator", "Boolean algebra", "predicate logic", "logicism", "computability", "Logic Theorist", "bounded rationality", "Lisp", "symbolic AI"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "neural-networks",
     title: "Neural Networks",
     field: "Computing / Cognitive Science",
