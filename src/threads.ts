@@ -252,6 +252,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "sociology-social-science",
+    title: "Sociology Social Science",
+    field: "Social Science",
+    purpose: "Trace positivist sociology, social facts, bureaucracy, exchange systems, cultural capital, and actor-network theory.",
+    people: ["comte", "durkheim", "weber", "mauss", "bourdieu", "latour"],
+    concepts: ["positivism", "social facts", "bureaucracy", "gift exchange", "habitus", "actor-network theory"],
+    edgeTypes: ["Influence", "Indirect influence", "Mentorship", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "communication-networks",
     title: "Communication Networks",
     field: "Engineering / Computing",
