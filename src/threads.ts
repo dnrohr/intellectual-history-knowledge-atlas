@@ -112,6 +112,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "medium",
   },
   {
+    id: "mechanics-to-relativity",
+    title: "Mechanics To Relativity",
+    field: "Physics / Mathematics",
+    purpose: "Follow mechanics from geometric statics and kinematics into analytical dynamics, field equations, and relativistic spacetime.",
+    people: ["archimedes", "galileo", "newton", "hamilton_wr", "maxwell", "einstein"],
+    concepts: ["statics", "kinematics", "laws of motion", "Hamiltonian dynamics", "field equations", "relativity"],
+    edgeTypes: ["Influence", "Indirect influence"],
+    confidence: "needs-review",
+  },
+  {
     id: "evolution-to-genomics",
     title: "Evolution To Genomics",
     field: "Biology",
