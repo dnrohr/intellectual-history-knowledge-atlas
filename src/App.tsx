@@ -93,6 +93,7 @@ type RelationshipSuggestionCategory =
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
 const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
+const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v1";
 const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
 
 type StoredImportReviewQueue = {
@@ -224,6 +225,14 @@ export default function App() {
     const savedThreshold = localStorage.getItem("atlas_import_confidence_threshold_v1");
     const parsedThreshold = savedThreshold ? Number(savedThreshold) : 80;
     return Number.isFinite(parsedThreshold) ? Math.max(0, Math.min(100, parsedThreshold)) : 80;
+  });
+  const [rejectedLinkSuggestionKeys, setRejectedLinkSuggestionKeys] = useState<Set<string>>(() => {
+    try {
+      const savedKeys = JSON.parse(localStorage.getItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY) || "[]");
+      return new Set(Array.isArray(savedKeys) ? savedKeys.filter((key) => typeof key === "string") : []);
+    } catch {
+      return new Set();
+    }
   });
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
@@ -399,8 +408,10 @@ export default function App() {
       localStorage.removeItem(IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem("atlas_import_audit_log_v1");
+      localStorage.removeItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY);
       setImportReviewQueue([]);
       setImportAuditLog([]);
+      setRejectedLinkSuggestionKeys(new Set());
     }
   };
 
@@ -893,6 +904,17 @@ export default function App() {
   const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
   const externalNameMatches = (values: string[] | undefined, name: string) =>
     (values || []).some((value) => normalizeName(value) === normalizeName(name));
+  const getLinkSuggestionKey = (candidateId: string, personId: string) => `${candidateId}::${personId}`;
+  const rejectCandidateLinkSuggestion = (candidateId: string, personId: string) => {
+    const suggestionKey = getLinkSuggestionKey(candidateId, personId);
+    setRejectedLinkSuggestionKeys((prev) => {
+      const next = new Set(prev);
+      next.add(suggestionKey);
+      localStorage.setItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY, JSON.stringify(Array.from(next)));
+      return next;
+    });
+    setOpenSuggestionDetailKey(null);
+  };
   const tokenizeEvidenceText = (value: string) =>
     Array.from(new Set(value
       .toLowerCase()
@@ -1110,7 +1132,7 @@ export default function App() {
           : "source-context neighbor";
         return { person, score, reasons, confidence, confidenceExplanation, category };
       })
-      .filter((item) => item.score >= 4)
+      .filter((item) => item.score >= 4 && !rejectedLinkSuggestionKeys.has(getLinkSuggestionKey(candidate.id, item.person.id)))
       .sort((a, b) => b.score - a.score)
       .slice(0, 5);
   };
@@ -1700,6 +1722,7 @@ export default function App() {
       importReviewQueue,
       importAuditLog,
       importConfidenceThreshold,
+      rejectedLinkSuggestionKeys: Array.from(rejectedLinkSuggestionKeys),
     };
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -1723,6 +1746,11 @@ export default function App() {
     const nextThreshold = Number.isFinite(Number(parsed.importConfidenceThreshold))
       ? Math.max(0, Math.min(100, Number(parsed.importConfidenceThreshold)))
       : importConfidenceThreshold;
+    const nextRejectedSuggestionKeys = new Set<string>(
+      Array.isArray(parsed.rejectedLinkSuggestionKeys)
+        ? parsed.rejectedLinkSuggestionKeys.filter((key: unknown): key is string => typeof key === "string")
+        : []
+    );
     const exportedAt = typeof parsed.exportedAt === "string" ? parsed.exportedAt : "unknown date";
     const restoreConfirmed = window.confirm(
       [
@@ -1741,11 +1769,13 @@ export default function App() {
     setImportReviewQueue(nextQueue);
     setImportAuditLog(nextAuditLog);
     setImportConfidenceThreshold(nextThreshold);
+    setRejectedLinkSuggestionKeys(nextRejectedSuggestionKeys);
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
     persistImportReviewQueueToStorage(nextQueue);
     localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(nextAuditLog));
     localStorage.setItem("atlas_import_confidence_threshold_v1", String(nextThreshold));
+    localStorage.setItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY, JSON.stringify(Array.from(nextRejectedSuggestionKeys)));
   };
 
   const handleJsonImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -3621,6 +3651,13 @@ export default function App() {
                                               className="rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500 hover:text-slate-200 cursor-pointer"
                                             >
                                               Why
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => rejectCandidateLinkSuggestion(candidate.id, suggestion.person.id)}
+                                              className="rounded border border-rose-500/20 px-1.5 py-0.5 text-[8px] font-mono text-rose-300 hover:bg-rose-500/10 cursor-pointer"
+                                            >
+                                              Reject
                                             </button>
                                           </div>
                                           {detailsOpen && (
