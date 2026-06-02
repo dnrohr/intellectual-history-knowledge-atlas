@@ -46,6 +46,12 @@ type WikidataCandidate = {
   era?: string | null;
   movement?: string | null;
   works?: string[];
+  advisors?: string[];
+  students?: string[];
+  influencedBy?: string[];
+  employers?: string[];
+  educatedAt?: string[];
+  memberOf?: string[];
   sourceUrl: string;
   wikipediaUrl: string | null;
 };
@@ -876,6 +882,8 @@ export default function App() {
   };
 
   const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const externalNameMatches = (values: string[] | undefined, name: string) =>
+    (values || []).some((value) => normalizeName(value) === normalizeName(name));
   const tokenizeEvidenceText = (value: string) =>
     Array.from(new Set(value
       .toLowerCase()
@@ -891,6 +899,12 @@ export default function App() {
       candidate.movement || "",
       ...(candidate.works || []),
       ...(candidate.topics || []),
+      ...(candidate.advisors || []),
+      ...(candidate.students || []),
+      ...(candidate.influencedBy || []),
+      ...(candidate.employers || []),
+      ...(candidate.educatedAt || []),
+      ...(candidate.memberOf || []),
     ].join(" "));
     const personTokens = new Set(tokenizeEvidenceText([
       person.notes || "",
@@ -1034,10 +1048,20 @@ export default function App() {
         const regionBonus = candidate.region && person.region === candidate.region ? 1.5 : 0;
         const workBonus = sharedWorks.length * 5;
         const textBonus = Math.min(textOverlap.length, 3) * 1.5;
+        const wikidataClaimReasons = [
+          externalNameMatches(candidate.influencedBy, person.name) ? "Wikidata influenced by" : "",
+          externalNameMatches(candidate.advisors, person.name) ? "Wikidata advisor" : "",
+          externalNameMatches(candidate.students, person.name) ? "Wikidata student" : "",
+          externalNameMatches(candidate.employers, person.name) ? "Wikidata employer" : "",
+          externalNameMatches(candidate.educatedAt, person.name) ? "Wikidata educated at" : "",
+          externalNameMatches(candidate.memberOf, person.name) ? "Wikidata member of" : "",
+        ].filter(Boolean) as string[];
+        const wikidataClaimBonus = wikidataClaimReasons.length * 8;
         const score =
           sharedFields.length * 4 +
           sharedTopics.length * 3 +
           sharedLensTags.length * 2 +
+          wikidataClaimBonus +
           movementBonus +
           eraBonus +
           regionBonus +
@@ -1045,6 +1069,7 @@ export default function App() {
           textBonus +
           chronologyScore;
         const reasons = [
+          ...wikidataClaimReasons,
           ...sharedFields.slice(0, 2).map((field) => `field: ${field}`),
           ...sharedTopics.slice(0, 2).map((topic) => `topic: ${topic}`),
           ...sharedLensTags.slice(0, 2).map((tag) => `lens: ${getLensOptionLabel(tag)}`),

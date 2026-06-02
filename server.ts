@@ -132,7 +132,14 @@ app.get("/api/import/wikidata/search", async (req, res) => {
         ...claimIds(claims, "P101"),
         ...claimIds(claims, "P27", 3),
         ...claimIds(claims, "P135", 4),
-        ...claimIds(claims, "P800", 6)
+        ...claimIds(claims, "P800", 6),
+        ...claimIds(claims, "P184", 6),
+        ...claimIds(claims, "P185", 6),
+        ...claimIds(claims, "P802", 6),
+        ...claimIds(claims, "P737", 8),
+        ...claimIds(claims, "P108", 6),
+        ...claimIds(claims, "P69", 6),
+        ...claimIds(claims, "P463", 6)
       );
     });
     const labels = await getEntityLabels(labelIds);
@@ -147,6 +154,13 @@ app.get("/api/import/wikidata/search", async (req, res) => {
       const countries = claimIds(claims, "P27", 3).map((claimId) => labels.get(claimId) || claimId);
       const movements = claimIds(claims, "P135", 4).map((claimId) => labels.get(claimId) || claimId);
       const notableWorks = claimIds(claims, "P800", 6).map((claimId) => labels.get(claimId) || claimId);
+      const advisors = claimIds(claims, "P184", 6).map((claimId) => labels.get(claimId) || claimId);
+      const doctoralStudents = claimIds(claims, "P185", 6).map((claimId) => labels.get(claimId) || claimId);
+      const students = claimIds(claims, "P802", 6).map((claimId) => labels.get(claimId) || claimId);
+      const influencedBy = claimIds(claims, "P737", 8).map((claimId) => labels.get(claimId) || claimId);
+      const employers = claimIds(claims, "P108", 6).map((claimId) => labels.get(claimId) || claimId);
+      const educatedAt = claimIds(claims, "P69", 6).map((claimId) => labels.get(claimId) || claimId);
+      const memberOf = claimIds(claims, "P463", 6).map((claimId) => labels.get(claimId) || claimId);
       const text = [
         entity?.descriptions?.en?.value || "",
         ...occupations,
@@ -167,6 +181,12 @@ app.get("/api/import/wikidata/search", async (req, res) => {
         works: notableWorks,
         occupations,
         fieldsOfWork,
+        advisors,
+        students: [...doctoralStudents, ...students],
+        influencedBy,
+        employers,
+        educatedAt,
+        memberOf,
         sourceUrl: `https://www.wikidata.org/wiki/${id}`,
         wikipediaUrl: entity?.sitelinks?.enwiki?.title
           ? `https://en.wikipedia.org/wiki/${encodeURIComponent(entity.sitelinks.enwiki.title.replaceAll(" ", "_"))}`
