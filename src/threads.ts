@@ -292,6 +292,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "aesthetics-romanticism",
+    title: "Aesthetics Romanticism",
+    field: "Philosophy / Arts",
+    purpose: "Trace critical aesthetics, romantic literature, total artwork, perspectival critique, and modern naturalist aesthetics.",
+    people: ["kant", "goethe", "wagner", "nietzsche", "santayana", "croce"],
+    concepts: ["critical aesthetics", "romanticism", "Gesamtkunstwerk", "will to power", "naturalist aesthetics", "aesthetic expression"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "communication-networks",
     title: "Communication Networks",
     field: "Engineering / Computing",
