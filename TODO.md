@@ -223,7 +223,7 @@ Status notation:
   - import/review work
   - source/provenance auditing
 - [x] Make each activity own most of the available screen while keeping secondary tools available through drawers, menus, floating panels, or temporary overlays.
-- Move persistent controls into contextual surfaces:
+- [x] Move persistent controls into contextual surfaces:
   - top-level mode switcher for major activities
   - compact command/action menu for less frequent actions
   - right or bottom drawer for detail/curation tools

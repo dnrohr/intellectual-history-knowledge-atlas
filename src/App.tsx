@@ -29,7 +29,8 @@ import {
   List, 
   Eye, 
   X,
-  Info
+  Info,
+  MoreHorizontal
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -191,6 +192,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
+  const [commandMenuOpen, setCommandMenuOpen] = useState(false);
 
   // Panel Resizer states
   const [sidebarWidth, setSidebarWidth] = useState(220);
@@ -1926,6 +1928,7 @@ export default function App() {
   const showConnectionRadar = Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
   const applyActivity = (activity: WorkspaceActivity) => {
     setActiveActivity(activity);
+    setCommandMenuOpen(false);
 
     if (activity === "explore") {
       setViewMode("split");
@@ -2238,66 +2241,94 @@ export default function App() {
           })}
         </div>
 
-        {/* Header Action Tools */}
-        <div className="flex items-center gap-3">
-          
-          {/* Scriptor Add Button */}
+        {/* Contextual actions stay tucked away until needed. */}
+        <div className="relative flex items-center gap-2">
           <button
-            onClick={() => setAddModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#7b9cf5]/10 border border-[#7b9cf5]/30 text-[#7b9cf5] hover:bg-[#7b9cf5]/20 rounded-md text-xs font-mono transition-all cursor-pointer font-medium"
-            title="Add a thinker"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Add Thinker</span>
-          </button>
-
-          <button
-            onClick={() => {
-              const nextOpen = activeActivity === "curate" ? !extensionWorkbenchOpen : true;
-              setActiveActivity("curate");
-              setWorkbenchTab("links");
-              setExtensionWorkbenchOpen(nextOpen);
-              setPathFinderOpen(false);
-            }}
+            onClick={() => setCommandMenuOpen((prev) => !prev)}
             className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-md text-xs font-mono transition-all cursor-pointer ${
-              extensionWorkbenchOpen
-                ? "bg-emerald-500/10 border-emerald-500 text-emerald-300 font-medium"
-                : "border-[#22273b] bg-[#141724]/40 text-slate-400 hover:text-slate-100"
+              commandMenuOpen
+                ? "bg-[#1f2438] border-[#7b9cf5] text-[#9bdaff]"
+                : "border-[#22273b] bg-[#141724]/40 text-slate-300 hover:text-white"
             }`}
-            title="Review sparse nodes and taxonomy gaps"
+            title="Open activity actions"
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Workbench</span>
+            <MoreHorizontal className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Actions</span>
           </button>
 
-          {/* Pathways Trigger */}
-          <button
-            onClick={() => {
-              const nextOpen = activeActivity === "trace" ? !pathFinderOpen : true;
-              setActiveActivity("trace");
-              setViewMode("split");
-              setExtensionWorkbenchOpen(false);
-              setPathFinderOpen(nextOpen);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-md text-xs font-mono transition-all cursor-pointer ${
-              pathFinderOpen
-                ? "bg-amber-500/10 border-amber-500 text-amber-400 font-medium"
-                : "border-[#22273b] bg-[#141724]/40 text-slate-400 hover:text-slate-100"
-            }`}
-            title="Find a relationship path between two thinkers"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Find Path</span>
-          </button>
-
-          {/* Clean Reset Database Button */}
-          <button
-            onClick={handleResetDatabase}
-            className="p-1.5 border border-[#22273b] bg-[#141724]/40 text-slate-500 hover:text-slate-200 hover:border-slate-700 rounded-md transition-all cursor-pointer"
-            title="Reset Atlas database to original canon defaults"
-          >
-            <RefreshCcw className="w-3.5 h-3.5" />
-          </button>
+          <AnimatePresence>
+            {commandMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                transition={{ duration: 0.14 }}
+                className="absolute right-0 top-10 z-50 w-60 rounded-md border border-[#22273b] bg-[#0d1018] p-1.5 shadow-2xl shadow-black/50"
+              >
+                <button
+                  onClick={() => {
+                    setCommandMenuOpen(false);
+                    setAddModalOpen(true);
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-[#7b9cf5]" />
+                  Add Thinker
+                </button>
+                <button
+                  onClick={() => {
+                    setCommandMenuOpen(false);
+                    applyActivity("curate");
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-emerald-300" />
+                  Open Workbench
+                </button>
+                <button
+                  onClick={() => {
+                    setCommandMenuOpen(false);
+                    applyActivity("trace");
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-amber-300" />
+                  Trace Path
+                </button>
+                <button
+                  onClick={() => {
+                    setCommandMenuOpen(false);
+                    applyActivity("import");
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-cyan-300" />
+                  Import Review
+                </button>
+                <button
+                  onClick={() => {
+                    setCommandMenuOpen(false);
+                    applyActivity("sources");
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Filter className="w-3.5 h-3.5 text-violet-300" />
+                  Source Audit
+                </button>
+                <div className="my-1 h-px bg-[#22273b]" />
+                <button
+                  onClick={() => {
+                    setCommandMenuOpen(false);
+                    handleResetDatabase();
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-400 hover:bg-[#171b29] hover:text-slate-100 cursor-pointer"
+                >
+                  <RefreshCcw className="w-3.5 h-3.5" />
+                  Reset Atlas
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
