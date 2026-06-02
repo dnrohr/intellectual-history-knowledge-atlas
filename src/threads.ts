@@ -112,6 +112,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "human-computer-networks",
+    title: "Human-Computer Networks",
+    field: "Computing / Design",
+    purpose: "Trace computability, stored-program architecture, information theory, interactive computing, object interfaces, and the web.",
+    people: ["turing", "von_neumann", "shannon", "engelbart", "kay", "berners_lee"],
+    concepts: ["universal computation", "stored program", "information entropy", "interactive computing", "personal computing", "hypertext web"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration"],
+    confidence: "needs-review",
+  },
+  {
     id: "quantum-field-thread",
     title: "Quantum Field Thread",
     field: "Physics",
