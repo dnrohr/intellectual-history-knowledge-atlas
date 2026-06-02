@@ -52,6 +52,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "geometry-to-topology",
+    title: "Geometry To Topology",
+    field: "Mathematics",
+    purpose: "Follow geometry from axiomatic constructions through coordinates, manifolds, topology, and 3-manifold geometrization.",
+    people: ["euclid", "descartes", "gauss", "riemann", "poincare", "hilbert", "noether", "atiyah", "thurston", "perelman"],
+    concepts: ["axiomatic geometry", "analytic geometry", "curvature", "Riemannian manifolds", "topology", "axiomatization", "abstract algebra", "K-theory", "geometrization", "Ricci flow"],
+    edgeTypes: ["Influence", "Indirect influence", "Mentorship"],
+    confidence: "needs-review",
+  },
+  {
     id: "neural-networks",
     title: "Neural Networks",
     field: "Computing / Cognitive Science",
