@@ -62,6 +62,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "calculus-to-analysis",
+    title: "Calculus To Analysis",
+    field: "Mathematics",
+    purpose: "Trace infinitesimal methods from ancient exhaustion through calculus, spectral analysis, rigor, and complex analysis.",
+    people: ["archimedes", "newton", "leibniz", "euler", "fourier", "cauchy", "weierstrass", "riemann"],
+    concepts: ["method of exhaustion", "fluxions", "differential notation", "analysis", "Fourier series", "limits", "epsilon-delta rigor", "complex manifolds"],
+    edgeTypes: ["Influence", "Indirect influence", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "neural-networks",
     title: "Neural Networks",
     field: "Computing / Cognitive Science",
