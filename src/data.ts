@@ -3786,8 +3786,13 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   // --- Genetics interconnections ---
   { source: "barbara_mcclintock", target: "doudna", type: "Indirect influence", strength: 4, note: "Transposable genetic elements and targeted editing" },
   { source: "barbara_mcclintock", target: "venter", type: "Indirect influence", strength: 3, note: "Genome dynamics and structural variation" },
+  { source: "mendel", target: "fisher_ronald", type: "Indirect influence", strength: 5, note: "Mendelian inheritance mathematized into statistical population genetics" },
+  { source: "morgan_th", target: "fisher_ronald", type: "Parallel", strength: 4, note: "Chromosomal inheritance and biometric statistics converged in modern synthesis" },
   { source: "watson_crick", target: "monod", type: "Influence", strength: 4, note: "DNA structure enabled operon gene regulation model" },
   { source: "monod", target: "brenner_sydney", type: "Collaboration", strength: 5, note: "mRNA and operon regulation co-research" },
+  { source: "nirenberg_marshall", target: "shannon", type: "Parallel", strength: 4, note: "Genetic code and information code models framed biology as symbolic transmission" },
+  { source: "sanger_fred", target: "knuth", type: "Parallel", strength: 3, note: "Sequence data and algorithm analysis converged in computational genomics" },
+  { source: "hebb", target: "hinton", type: "Indirect influence", strength: 4, note: "Neural plasticity principle fed connectionist learning models" },
   { source: "nirenberg_marshall", target: "doudna", type: "Indirect influence", strength: 4, note: "Genetic code as readable program for CRISPR editing" },
   { source: "nirenberg_marshall", target: "venter", type: "Indirect influence", strength: 4, note: "Genetic code decipherment enabled whole-genome sequencing" },
 
