@@ -72,6 +72,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "computation-foundations",
+    title: "Computation Foundations",
+    field: "Logic / Computing",
+    purpose: "Trace formal calculation from symbolic logic through undecidability, lambda calculus, stored-program architecture, and information theory.",
+    people: ["leibniz", "boole", "frege", "hilbert", "godel", "church", "turing", "von_neumann", "shannon"],
+    concepts: ["binary arithmetic", "Boolean algebra", "predicate logic", "formalism", "incompleteness", "lambda calculus", "universal computation", "stored program", "information entropy"],
+    edgeTypes: ["Influence", "Indirect influence", "Mentorship"],
+    confidence: "medium",
+  },
+  {
     id: "neural-networks",
     title: "Neural Networks",
     field: "Computing / Cognitive Science",
