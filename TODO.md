@@ -243,7 +243,7 @@ Status notation:
   - tap-to-expand cards for dense thinker information
   - floating action button or command palette for add/connect/review actions
   - persistent back/close affordances for overlays and drawers
-- Add responsive workspace modes:
+- [x] Add responsive workspace modes:
   - desktop: split panes with collapsible sidebars and resizable drawers
   - tablet: one main view plus slide-over tools
   - mobile: one main view plus bottom sheets and stacked activity tabs

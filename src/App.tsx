@@ -4183,12 +4183,12 @@ export default function App() {
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.25, ease: "easeInOut" }}
               style={{ width: sidebarWidth }}
-              className="h-full glass-panel border-r border-[#22273b] flex flex-col shrink-0 overflow-hidden select-none relative"
+              className="absolute md:relative inset-y-0 left-0 h-full max-w-[calc(100vw-48px)] glass-panel border-r border-[#22273b] flex flex-col shrink-0 overflow-hidden select-none z-40 md:z-auto"
             >
               {/* Drag resizing handle visual anchor bar */}
               <div
                 onMouseDown={handleLeftResizeStart}
-                className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-colors z-50 select-none"
+                className="hidden md:block absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-colors z-50 select-none"
                 title="Drag sideways to resize Thinker Index sidebar"
               />
 
@@ -4341,7 +4341,7 @@ export default function App() {
  
             {/* SPLIT COMBINED VIEW MODE */}
             <div className={`flex-1 min-h-0 divide-y divide-[#22273b] bg-[#090b10] flex flex-col ${viewMode === "split" ? "block h-full" : "hidden"}`}>
-              <div style={{ height: `${splitHeightRatio}%` }} className="min-h-[100px] overflow-hidden relative">
+              <div style={{ height: `${splitHeightRatio}%` }} className="min-h-[100px] overflow-hidden relative max-md:!h-full">
                 <Timeline
                   people={processedPeople}
                   edges={edges}
@@ -4365,11 +4365,11 @@ export default function App() {
               {/* SPLIT VIEW DRAG RESIZER */}
               <div
                 onMouseDown={handleSplitResizeStart}
-                className="h-[6px] bg-[#141620] border-t border-b border-[#22273b] cursor-row-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-all select-none relative z-40 shrink-0"
+                className="hidden md:block h-[6px] bg-[#141620] border-t border-b border-[#22273b] cursor-row-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-all select-none relative z-40 shrink-0"
                 title="Drag vertically to adjust split panel height"
               />
 
-              <div style={{ height: `${100 - splitHeightRatio}%` }} className="min-h-[150px] p-3 relative">
+              <div style={{ height: `${100 - splitHeightRatio}%` }} className="min-h-[150px] p-3 relative max-md:hidden">
                 <NetworkGraph
                   people={processedPeople}
                   edges={edges}
@@ -4403,12 +4403,12 @@ export default function App() {
               exit={{ x: "100%", opacity: 0.95 }}
               transition={{ type: "spring", damping: 24, stPercentage: 0.4 }}
               style={{ width: detailWidth }}
-              className="absolute md:relative top-0 right-0 h-full shrink-0 border-l border-[#22273b] glass-panel-heavy flex flex-col z-30 shadow-2xl overflow-hidden"
+              className="absolute md:relative top-0 right-0 h-full shrink-0 border-l border-[#22273b] glass-panel-heavy flex flex-col z-30 shadow-2xl overflow-hidden max-md:top-auto max-md:bottom-0 max-md:!h-[72%] max-md:!w-full max-md:border-l-0 max-md:border-t"
             >
               {/* Drag resizing handle visual anchor bar */}
               <div
                 onMouseDown={handleRightResizeStart}
-                className="absolute top-0 left-0 w-1.5 h-full cursor-col-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-colors z-50 select-none"
+                className="hidden md:block absolute top-0 left-0 w-1.5 h-full cursor-col-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-colors z-50 select-none"
                 title="Drag sideways to resize Scholar Dossier drawer"
               />
 
