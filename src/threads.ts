@@ -172,6 +172,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "microbiology-medicine",
+    title: "Microbiology And Medicine",
+    field: "Biology / Medicine",
+    purpose: "Follow circulation, germ theory, bacteriology, antiseptic surgery, and vaccine development into modern clinical medicine.",
+    people: ["harvey", "pasteur", "koch", "lister", "salk_jonas", "sabin_albert"],
+    concepts: ["circulation", "germ theory", "bacteriology", "antisepsis", "inactivated vaccine", "live attenuated vaccine"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration"],
+    confidence: "needs-review",
+  },
+  {
     id: "liberalism-and-capabilities",
     title: "Liberalism And Capabilities",
     field: "Political Thought / Economics",
