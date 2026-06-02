@@ -104,6 +104,7 @@ type LinkReviewItem = {
 
 type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
 type ChromeDensity = "compact" | "comfortable" | "focus" | "curation" | "demo";
+type PanelMode = "closed" | "floating" | "docked" | "pinned" | "fullscreen";
 
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
@@ -195,6 +196,7 @@ export default function App() {
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
   const [chromeDensity, setChromeDensity] = useState<ChromeDensity>("comfortable");
+  const [workbenchPanelMode, setWorkbenchPanelMode] = useState<Exclude<PanelMode, "closed">>("docked");
 
   // Panel Resizer states
   const [sidebarWidth, setSidebarWidth] = useState(220);
@@ -1939,6 +1941,25 @@ export default function App() {
   const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
   const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
   const showRadarCurationActions = chromeDensity === "curation" || activeActivity === "curate" || activeActivity === "sources";
+  const effectiveWorkbenchPanelMode: PanelMode = extensionWorkbenchOpen ? workbenchPanelMode : "closed";
+  const workbenchPanelModes: Array<{ id: Exclude<PanelMode, "closed">; label: string }> = [
+    { id: "floating", label: "Float" },
+    { id: "docked", label: "Dock" },
+    { id: "pinned", label: "Pin" },
+    { id: "fullscreen", label: "Full" },
+  ];
+  const workbenchPanelFrameClass =
+    workbenchPanelMode === "fullscreen"
+      ? "fixed inset-4 rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
+      : workbenchPanelMode === "floating"
+      ? "fixed right-4 top-24 w-[min(920px,calc(100vw-2rem))] max-h-[70vh] rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
+      : "shrink-0 bg-[#0d1018] border-b border-[#22273b] overflow-hidden z-20";
+  const workbenchPanelContentClass =
+    workbenchPanelMode === "fullscreen"
+      ? "h-full overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
+      : workbenchPanelMode === "floating"
+      ? "max-h-[70vh] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
+      : "max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3";
   const applyActivity = (activity: WorkspaceActivity) => {
     setActiveActivity(activity);
     setCommandMenuOpen(false);
@@ -1946,7 +1967,7 @@ export default function App() {
     if (activity === "explore") {
       setViewMode("split");
       setSidebarOpen(true);
-      setExtensionWorkbenchOpen(false);
+      if (workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
       setPathFinderOpen(false);
       setFilterDrawerOpen(false);
       return;
@@ -1955,7 +1976,7 @@ export default function App() {
     if (activity === "inspect") {
       setViewMode("network");
       setSidebarOpen(false);
-      setExtensionWorkbenchOpen(false);
+      if (workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
       setPathFinderOpen(false);
       setFilterDrawerOpen(false);
       return;
@@ -1964,7 +1985,7 @@ export default function App() {
     if (activity === "trace") {
       setViewMode("split");
       setSidebarOpen(false);
-      setExtensionWorkbenchOpen(false);
+      if (workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
       setPathFinderOpen(true);
       setFilterDrawerOpen(false);
       return;
@@ -3088,21 +3109,39 @@ export default function App() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="shrink-0 bg-[#0d1018] border-b border-[#22273b] overflow-hidden z-20"
+            className={workbenchPanelFrameClass}
           >
-            <div className="max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3">
+            <div className={workbenchPanelContentClass}>
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-mono text-[10px] text-emerald-300 uppercase tracking-wider font-bold">Extension Workbench</h4>
-                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">Use this queue to keep new additions connected and consistently tagged.</p>
+                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                    {effectiveWorkbenchPanelMode} panel for keeping additions connected and consistently tagged.
+                  </p>
                 </div>
-                <button
-                  onClick={() => setExtensionWorkbenchOpen(false)}
-                  className="p-1 text-slate-500 hover:text-white cursor-pointer"
-                  title="Close workbench"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center rounded border border-[#22273b] bg-[#080a0f] p-0.5">
+                    {workbenchPanelModes.map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setWorkbenchPanelMode(mode.id)}
+                        className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+                          workbenchPanelMode === mode.id ? "bg-emerald-500/15 text-emerald-200" : "text-slate-500 hover:text-slate-200"
+                        }`}
+                        title={`${mode.label} workbench panel`}
+                      >
+                        {mode.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setExtensionWorkbenchOpen(false)}
+                    className="p-1 text-slate-500 hover:text-white cursor-pointer"
+                    title="Close workbench"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-1">

@@ -255,7 +255,7 @@ Status notation:
   - focus mode
   - curation mode
   - demo mode
-- Add a panel/pane state model:
+- [x] Add a panel/pane state model:
   - closed
   - floating
   - docked
