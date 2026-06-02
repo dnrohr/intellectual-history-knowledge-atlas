@@ -172,6 +172,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "aerospace-flight",
+    title: "Aerospace Flight",
+    field: "Engineering / Aerospace",
+    purpose: "Trace rocket equations, liquid-fueled rocketry, launch vehicles, Soviet spaceflight, and high-altitude aerospace systems engineering.",
+    people: ["tsiolkovsky", "goddard", "von_braun", "korolev_sergei", "johnson_kelly", "rich_ben"],
+    concepts: ["rocket equation", "liquid-fueled rockets", "Saturn V", "R-7", "Skunk Works", "stealth aircraft"],
+    edgeTypes: ["Influence", "Indirect influence", "Mentorship", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "relativity-to-cosmology",
     title: "Relativity To Cosmology",
     field: "Physics / Cosmology",
