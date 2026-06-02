@@ -90,10 +90,22 @@ type RelationshipSuggestionCategory =
   | "source-context neighbor"
   | "needs review";
 
+type LinkReviewItem = {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  sourceName: string;
+  targetName: string;
+  reason: string;
+  score: number;
+  createdAt: string;
+};
+
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
 const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
 const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v1";
+const LINK_REVIEW_QUEUE_STORAGE_KEY = "atlas_link_review_queue_v1";
 const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
 
 type StoredImportReviewQueue = {
@@ -146,6 +158,23 @@ const serializeImportReviewQueue = (items: ImportReviewItem[]) =>
 const persistImportReviewQueueToStorage = (items: ImportReviewItem[]) => {
   localStorage.setItem(IMPORT_QUEUE_STORAGE_KEY, serializeImportReviewQueue(items));
   localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
+};
+
+const normalizeLinkReviewQueue = (items: unknown): LinkReviewItem[] => {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item): item is Partial<LinkReviewItem> => Boolean(item))
+    .filter((item) => item.id && item.sourceId && item.targetId)
+    .map((item) => ({
+      id: String(item.id),
+      sourceId: String(item.sourceId),
+      targetId: String(item.targetId),
+      sourceName: String(item.sourceName || item.sourceId),
+      targetName: String(item.targetName || item.targetId),
+      reason: String(item.reason || "Queued suggested relationship."),
+      score: Number.isFinite(Number(item.score)) ? Number(item.score) : 1,
+      createdAt: String(item.createdAt || new Date().toISOString()),
+    }));
 };
 
 export default function App() {
@@ -221,6 +250,13 @@ export default function App() {
   }>>([]);
   const [importReviewQueue, setImportReviewQueue] = useState<ImportReviewItem[]>([]);
   const [importAuditLog, setImportAuditLog] = useState<ImportAuditLogItem[]>([]);
+  const [linkReviewQueue, setLinkReviewQueue] = useState<LinkReviewItem[]>(() => {
+    try {
+      return normalizeLinkReviewQueue(JSON.parse(localStorage.getItem(LINK_REVIEW_QUEUE_STORAGE_KEY) || "[]"));
+    } catch {
+      return [];
+    }
+  });
   const [importConfidenceThreshold, setImportConfidenceThreshold] = useState(() => {
     const savedThreshold = localStorage.getItem("atlas_import_confidence_threshold_v1");
     const parsedThreshold = savedThreshold ? Number(savedThreshold) : 80;
@@ -409,8 +445,10 @@ export default function App() {
       localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem("atlas_import_audit_log_v1");
       localStorage.removeItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY);
+      localStorage.removeItem(LINK_REVIEW_QUEUE_STORAGE_KEY);
       setImportReviewQueue([]);
       setImportAuditLog([]);
+      setLinkReviewQueue([]);
       setRejectedLinkSuggestionKeys(new Set());
     }
   };
@@ -754,6 +792,49 @@ export default function App() {
     setHighlightPath([source.id, target.id]);
     selectPerson(target.id, { preserveHighlight: true });
     setViewMode("split");
+  };
+
+  const persistLinkReviewQueue = (nextQueue: LinkReviewItem[]) => {
+    setLinkReviewQueue(nextQueue);
+    localStorage.setItem(LINK_REVIEW_QUEUE_STORAGE_KEY, JSON.stringify(nextQueue));
+  };
+
+  const queueLinkReviewItem = (a: Thinker, b: Thinker, reason: string, score: number) => {
+    const source = a.birth <= b.birth ? a : b;
+    const target = source.id === a.id ? b : a;
+    const id = `${source.id}::${target.id}`;
+    if (linkReviewQueue.some((item) => item.id === id)) return;
+    persistLinkReviewQueue([
+      ...linkReviewQueue,
+      {
+        id,
+        sourceId: source.id,
+        targetId: target.id,
+        sourceName: source.name,
+        targetName: target.name,
+        reason,
+        score,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
+  };
+
+  const acceptLinkReviewItem = (item: LinkReviewItem) => {
+    const source = people.find((person) => person.id === item.sourceId);
+    const target = people.find((person) => person.id === item.targetId);
+    if (source && target) addSuggestedRelationship(source, target, item.reason);
+    persistLinkReviewQueue(linkReviewQueue.filter((queuedItem) => queuedItem.id !== item.id));
+  };
+
+  const rejectLinkReviewItem = (item: LinkReviewItem) => {
+    persistLinkReviewQueue(linkReviewQueue.filter((queuedItem) => queuedItem.id !== item.id));
+    setRejectedLinkSuggestionKeys((prev) => {
+      const next = new Set(prev);
+      next.add(getLinkSuggestionKey(item.sourceId, item.targetId));
+      next.add(getLinkSuggestionKey(item.targetId, item.sourceId));
+      localStorage.setItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY, JSON.stringify(Array.from(next)));
+      return next;
+    });
   };
 
   const addManualRelationship = () => {
@@ -1721,6 +1802,7 @@ export default function App() {
       edges,
       importReviewQueue,
       importAuditLog,
+      linkReviewQueue,
       importConfidenceThreshold,
       rejectedLinkSuggestionKeys: Array.from(rejectedLinkSuggestionKeys),
     };
@@ -1743,6 +1825,7 @@ export default function App() {
     const nextEdges = parsed.edges.filter(Boolean);
     const nextQueue = normalizeStoredImportReviewQueue(parsed.importReviewQueue);
     const nextAuditLog = Array.isArray(parsed.importAuditLog) ? parsed.importAuditLog.filter(Boolean).slice(0, 100) : [];
+    const nextLinkQueue = normalizeLinkReviewQueue(parsed.linkReviewQueue);
     const nextThreshold = Number.isFinite(Number(parsed.importConfidenceThreshold))
       ? Math.max(0, Math.min(100, Number(parsed.importConfidenceThreshold)))
       : importConfidenceThreshold;
@@ -1768,12 +1851,14 @@ export default function App() {
     setEdges(nextEdges);
     setImportReviewQueue(nextQueue);
     setImportAuditLog(nextAuditLog);
+    setLinkReviewQueue(nextLinkQueue);
     setImportConfidenceThreshold(nextThreshold);
     setRejectedLinkSuggestionKeys(nextRejectedSuggestionKeys);
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
     persistImportReviewQueueToStorage(nextQueue);
     localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(nextAuditLog));
+    localStorage.setItem(LINK_REVIEW_QUEUE_STORAGE_KEY, JSON.stringify(nextLinkQueue));
     localStorage.setItem("atlas_import_confidence_threshold_v1", String(nextThreshold));
     localStorage.setItem(REJECTED_LINK_SUGGESTIONS_STORAGE_KEY, JSON.stringify(Array.from(nextRejectedSuggestionKeys)));
   };
@@ -1876,6 +1961,10 @@ export default function App() {
   const suggestedLinks = selectedThinker
     ? people
         .filter((p) => p.id !== selectedThinker.id)
+        .filter((p) =>
+          !rejectedLinkSuggestionKeys.has(getLinkSuggestionKey(selectedThinker.id, p.id)) &&
+          !rejectedLinkSuggestionKeys.has(getLinkSuggestionKey(p.id, selectedThinker.id))
+        )
         .filter((p) => !edges.some((edge) =>
           (edge.source === selectedThinker.id && edge.target === p.id) ||
           (edge.target === selectedThinker.id && edge.source === p.id)
@@ -3047,6 +3136,51 @@ export default function App() {
 
                   <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between mb-2">
+                      <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Link Review Queue</span>
+                      <span className="font-mono text-[9px] text-slate-600">{linkReviewQueue.length}</span>
+                    </div>
+                    <div className="space-y-1.5 max-h-[140px] overflow-y-auto scrollbar-thin pr-1">
+                      {linkReviewQueue.length > 0 ? (
+                        linkReviewQueue.map((item) => (
+                          <div key={item.id} className="rounded border border-[#252a3d] bg-[#0b0d14] px-2 py-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <button
+                                onClick={() => {
+                                  setHighlightPath([item.sourceId, item.targetId]);
+                                  selectPerson(item.targetId, { preserveHighlight: true });
+                                  setViewMode("split");
+                                }}
+                                className="min-w-0 flex-1 cursor-pointer text-left"
+                              >
+                                <span className="block truncate text-[9.5px] font-mono text-slate-300">{item.sourceName}{" -> "}{item.targetName}</span>
+                                <span className="block truncate text-[8px] font-mono text-slate-600">{item.reason}</span>
+                              </button>
+                              <span className="shrink-0 text-[8px] font-mono text-emerald-300">{Math.max(1, Math.round(item.score))}</span>
+                            </div>
+                            <div className="mt-1 flex justify-end gap-1">
+                              <button
+                                onClick={() => rejectLinkReviewItem(item)}
+                                className="rounded border border-rose-500/20 px-1.5 py-0.5 text-[8px] font-mono text-rose-300 hover:bg-rose-500/10 cursor-pointer"
+                              >
+                                Reject
+                              </button>
+                              <button
+                                onClick={() => acceptLinkReviewItem(item)}
+                                className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[8px] font-mono text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
+                              >
+                                Accept
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-[10px] text-slate-600 italic font-mono py-2">No links queued for review.</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Link Candidates</span>
                       <span className="font-mono text-[9px] text-slate-600">{suggestedLinks.length}</span>
                     </div>
@@ -3060,6 +3194,10 @@ export default function App() {
                             ...candidate.sharedTopics,
                             ...candidate.sharedLensTags.map(getLensOptionLabel),
                           ].slice(0, 2);
+                          const source = selectedThinker.birth <= person.birth ? selectedThinker : person;
+                          const target = source.id === selectedThinker.id ? person : selectedThinker;
+                          const queued = linkReviewQueue.some((item) => item.id === `${source.id}::${target.id}`);
+                          const reason = shared.length > 0 ? `Shared context: ${shared.join(", ")}` : "Potential contextual match.";
                           return (
                             <div
                               key={`suggested-${person.id}`}
@@ -3083,7 +3221,15 @@ export default function App() {
                                 </span>
                               </button>
                               <button
-                                onClick={() => addSuggestedRelationship(selectedThinker, person, shared.length > 0 ? `Shared context: ${shared.join(", ")}` : "Potential contextual match.")}
+                                onClick={() => queueLinkReviewItem(selectedThinker, person, reason, candidate.score)}
+                                disabled={queued}
+                                className="shrink-0 rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-1.5 py-0.5 text-[8.5px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                                title="Queue this relationship for later review"
+                              >
+                                Queue
+                              </button>
+                              <button
+                                onClick={() => addSuggestedRelationship(selectedThinker, person, reason)}
                                 className="shrink-0 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
                                 title="Add this as a low-confidence suggested relationship"
                               >
