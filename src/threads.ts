@@ -162,6 +162,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "mechanical-to-electrical-systems",
+    title: "Mechanical To Electrical Systems",
+    field: "Engineering / Computing",
+    purpose: "Trace steam power, electromagnetic induction, field theory, electrical power systems, VLSI design, and modern processor architecture.",
+    people: ["watt", "faraday", "maxwell", "tesla", "edison", "mead", "hennessy", "patterson"],
+    concepts: ["steam engine", "electromagnetic induction", "Maxwell equations", "AC grids", "electrical utilities", "VLSI", "RISC architecture"],
+    edgeTypes: ["Influence", "Indirect influence", "Rivalry", "Collaboration"],
+    confidence: "needs-review",
+  },
+  {
     id: "relativity-to-cosmology",
     title: "Relativity To Cosmology",
     field: "Physics / Cosmology",
