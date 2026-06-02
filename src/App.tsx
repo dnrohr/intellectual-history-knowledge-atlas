@@ -2487,7 +2487,7 @@ export default function App() {
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="shrink-0 glass-panel border-b border-[#22273b] overflow-hidden z-20 shadow-xl shadow-black/40"
           >
-            <div className="p-6 space-y-5 select-none text-xs">
+            <div className="max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin p-6 space-y-5 select-none text-xs">
               
               {/* Row 1: Epoch Limits & Timeline Sliders */}
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-4 border-b border-[#22273b]/60">
@@ -2906,7 +2906,7 @@ export default function App() {
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="shrink-0 bg-[#0d1018] border-b border-[#22273b] overflow-hidden z-20"
           >
-            <div className="px-6 py-4 space-y-3">
+            <div className="max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-mono text-[10px] text-emerald-300 uppercase tracking-wider font-bold">Extension Workbench</h4>

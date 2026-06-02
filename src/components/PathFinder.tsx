@@ -121,7 +121,7 @@ export default function PathFinder({
   return (
     <div
       id="path-panel"
-      className={`absolute bottom-3 left-3 z-30 glass-panel rounded-lg p-4 w-[320px] shadow-2xl shadow-black/60 transition-all duration-300 ${
+      className={`absolute bottom-3 left-3 z-30 glass-panel rounded-lg p-4 w-[320px] max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] overflow-y-auto scrollbar-thin shadow-2xl shadow-black/60 transition-all duration-300 ${
         isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
       }`}
     >
