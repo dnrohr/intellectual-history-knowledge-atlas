@@ -262,16 +262,16 @@ Status notation:
   - pinned
   - full-screen
   - remembered per activity where useful
-- Make the timeline usable at large scale:
+- [x] Make the timeline usable at large scale:
   - [x] keep year/axis context sticky and always visible
   - [x] add timeline density modes for sparse, balanced, and compressed views
   - [x] collapse non-focused thinkers into clusters, bands, or heat/rug marks
   - [x] expand only selected neighborhoods, searched results, thread steps, or high-relevance clusters
   - [x] add semantic zoom levels that change what is shown as the user zooms
   - [x] support field/domain lanes that can be toggled or collapsed
-  - let users hide low-bridge, unrelated, or unselected-field people while preserving context markers
+  - [x] let users hide low-bridge, unrelated, or unselected-field people while preserving context markers
   - [x] show labels only for selected, hovered, path/thread, high-bridge, or search-match people
-  - provide a "show nearby context" control instead of rendering everyone equally
+  - [x] provide a "show nearby context" control instead of rendering everyone equally
 - Add timeline navigation aids:
   - sticky BCE/CE year ruler
   - mini overview/range scrubber

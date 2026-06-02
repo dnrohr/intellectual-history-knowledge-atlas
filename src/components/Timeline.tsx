@@ -82,6 +82,7 @@ export default function Timeline({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [timelineDensity, setTimelineDensity] = useState<TimelineDensity>("balanced");
   const [fieldLanesOpen, setFieldLanesOpen] = useState(false);
+  const [nearbyContextOnly, setNearbyContextOnly] = useState(false);
 
   const ROW_H = timelineDensity === "compressed" ? 12 : timelineDensity === "sparse" ? 24 : 18;
   const HDR_H = 52;
@@ -543,7 +544,7 @@ export default function Timeline({
       const by = y0 + (ROW_H - bh) / 2;
 
       ctx.save();
-      if (timelineDensity === "compressed" && isAnySelected && !activeSet.has(p.id) && !isSearchMatch && !isHighBridge) {
+      if ((timelineDensity === "compressed" || nearbyContextOnly) && isAnySelected && !activeSet.has(p.id) && !isSearchMatch && !isHighBridge) {
         const markerX = x1 + barW / 2;
         ctx.globalAlpha = 0.42;
         ctx.fillStyle = col;
@@ -636,7 +637,7 @@ export default function Timeline({
       ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
     });
     ctx.restore();
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen, nearbyContextOnly]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -856,6 +857,16 @@ export default function Timeline({
             title="Toggle field lanes"
           >
             Lanes
+          </button>
+          <button
+            onClick={() => setNearbyContextOnly((prev) => !prev)}
+            disabled={!selectedId && !highlightPath}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
+              nearbyContextOnly ? "border-emerald-400 bg-emerald-400/15 text-emerald-200" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Show nearby context"
+          >
+            Nearby
           </button>
         </div>
         
