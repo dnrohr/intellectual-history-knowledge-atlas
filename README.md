@@ -34,6 +34,18 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The dev server runs the Express backend and Vite frontend from `server.ts`.
 
+## First Use Checklist
+
+1. Start the app with `npm run dev`.
+2. Open [http://localhost:3000](http://localhost:3000).
+3. Use the search box to select a familiar thinker such as Plato, Aristotle, Kant, Darwin, or Turing.
+4. Open **Filters** and narrow by field, topic, era, region, or year range.
+5. Switch between **Explore**, **Timeline**, and **Map** in the header to inspect the same filtered dataset in different views.
+6. Open **Workbench** when you want to review suggested links, tags, imports, or duplicates.
+7. Run `npm run qa:data` after source-data or thread edits to inspect graph coverage and TODO-oriented cleanup targets.
+
+The app is a fixed-height workspace. The browser page itself does not scroll much; instead, the index, filters, workbench, timeline, dossier, path finder, and modal surfaces each have their own internal scroll regions.
+
 ## Run In GitHub Codespaces
 
 1. Open the repository on GitHub.
@@ -105,6 +117,33 @@ The app has three primary exploration surfaces:
 
 Select a thinker from the timeline, graph, index, search results, thread stepper, path finder, or review lists to focus the app.
 
+### Header Controls
+
+The header is the global navigation and action bar:
+
+- **Explore** shows the combined split timeline and network workspace.
+- **Timeline** expands the historical timeline to the main workspace.
+- **Map** expands the relationship network graph to the main workspace.
+- **Add Thinker** opens a local manual-entry modal.
+- **Workbench** opens the curation and review panel.
+- **Find Path** opens the directed relationship path finder.
+- **Reset** restores the bundled dataset and clears local browser-side edits.
+
+The second toolbar includes search, focus context, relationship shortcuts, filters, and quick lineage tools. These actions operate on the currently selected thinker whenever one is focused.
+
+### Screen Layout And Scrolling
+
+The atlas uses nested work areas rather than one long document page:
+
+- The left thinker index scrolls independently.
+- The filter drawer scrolls internally when many facets are visible.
+- The timeline canvas scrolls and pans inside its own viewport.
+- The network map pans and zooms inside its canvas.
+- The right dossier drawer scrolls independently from the rest of the app.
+- The Workbench and Path Finder panels have their own scroll behavior.
+
+If content appears to continue below the visible window, try scrolling inside the active panel itself rather than the outer page. For example, place the pointer over the dossier, Workbench, filter drawer, or index list before scrolling.
+
 ## Search And Filters
 
 Use the top search input to filter people by name, works, notes, field, region, era, and tags.
@@ -120,6 +159,13 @@ The filter drawer supports:
 
 Filtering affects the visible people in the main timeline and graph surfaces.
 
+Recommended filter workflow:
+
+1. Start with a broad search or field filter.
+2. Add one or two topic or lens tags.
+3. Narrow by era or year range only after the result set is already meaningful.
+4. Use **Clear Filters** to reset the current exploration state.
+
 ## Timeline
 
 The timeline is useful for historical placement and lineage inspection.
@@ -132,6 +178,12 @@ Common controls include:
 - Select a person to highlight incoming and outgoing relationship arcs.
 - Follow highlighted relationship paths from Path Finder or curated threads.
 
+Timeline tips:
+
+- Use the view toggles to reduce visual clutter before inspecting a dense period.
+- Use pan and zoom when a period is crowded rather than narrowing the date range too early.
+- Select a person first, then use **Lineage In**, **Lineage Out**, or **Neighborhood** to highlight nearby relationships.
+
 ## Network Graph
 
 The graph focuses on relationship neighborhoods. It highlights:
@@ -142,6 +194,14 @@ The graph focuses on relationship neighborhoods. It highlights:
 - Important bridge figures.
 
 The focus depth control changes how much of the selected thinker's surrounding network is visible.
+
+Network tips:
+
+- **1 hop** is best for auditing immediate predecessors and successors.
+- **2 hop** and **3 hop** reveal intermediate bridges.
+- **All** is useful for global shape, but dense enough that labels and edges are less readable.
+- Use **Re-align** when the simulation has settled awkwardly.
+- Use **Reset View** after heavy panning or zooming.
 
 ## Detail Panel
 
@@ -156,11 +216,21 @@ The detail panel is the main curation surface for a selected thinker. It shows:
 
 From the detail panel and surrounding controls you can add relationships, edit tags, inspect sparse neighborhoods, and jump to related people.
 
+The detail panel has three tabs:
+
+- **Overview**: metadata, notes, works, immediate predecessors, and immediate successors.
+- **Context**: contemporaries, field peers, and era peers.
+- **Influences**: a compact upstream and downstream relationship map, plus three-hop lineage lists.
+
+The bottom actions show contemporaries and downstream successor maps. Those overlays sit over the dossier and can be closed to return to the selected thinker.
+
 ## Path Finder
 
 Open Path Finder to search for a directed relationship path between two thinkers.
 
 Paths follow explicit directed relationship edges from source to target. When a path is found, the timeline and graph highlight each step.
+
+Use Path Finder when you want to test whether the current graph already supports an intellectual lineage. If no path is found, the missing bridge is usually a good candidate for TODO-driven dataset work, provided a historically defensible edge exists.
 
 ## Curated Threads
 
@@ -185,6 +255,14 @@ The thread viewer lets you step through a chain one relationship at a time. Thre
 
 Use this to audit whether an intellectual lineage is well-supported or still needs intermediate figures and better source claims.
 
+Thread maintenance workflow:
+
+1. Add or update people and edges in `src/data.ts`.
+2. Add thread definitions in `src/threads.ts`.
+3. Run `npm run qa:data`.
+4. Fix missing people, weak edges, and thread gaps reported by the QA output.
+5. Run `npm run lint` and `npm run build`.
+
 ## Workbench
 
 The Workbench groups review and curation tasks into tabs.
@@ -201,6 +279,8 @@ Use link review to inspect suggested relationships. Suggestions may be categoriz
 - needs review
 
 You can accept or reject suggestions. Rejected pairs are stored so they are not immediately suggested again.
+
+Accepted relationship suggestions are local browser edits unless you also update `src/data.ts`. Treat the Workbench as a curation aid, then preserve important accepted edges in source data when they should become part of the bundled atlas.
 
 ### Tags
 
@@ -235,6 +315,8 @@ Duplicate detection compares candidates and existing thinkers by:
 
 Duplicate candidates can be inspected and merged into the existing thinker record.
 
+Merge carefully: prefer preserving source URLs, aliases, works, notes, and high-confidence dates. A merge affects local browser state; source-data changes still need to be made in `src/data.ts` if the result should be committed.
+
 ## Wikidata Import
 
 The local backend exposes:
@@ -263,6 +345,15 @@ Imported candidates can include:
 
 Wikidata candidates are not automatically authoritative. Review them before accepting.
 
+Suggested import workflow:
+
+1. Search for one candidate or paste a batch.
+2. Review confidence, duplicate warnings, fields, works, dates, and source links.
+3. Edit sparse records before accepting.
+4. Merge duplicates rather than creating parallel records.
+5. Review suggested links after accepting candidates.
+6. Promote durable, reviewed additions into `src/data.ts` when they belong in the seed dataset.
+
 ## Manual Imports
 
 Manual import supports adding a thinker with:
@@ -278,6 +369,8 @@ Manual import supports adding a thinker with:
 - topic tags
 
 Manual and edited imports infer era from birth year when possible.
+
+Manual import is best for queueing people who are not easy to normalize from Wikidata or who need local curator notes before inclusion. Use source URLs whenever possible, even if the record is still provisional.
 
 ## Batch Paste
 
@@ -318,6 +411,18 @@ Common relationship types include:
 
 Use specific types where possible. Broad influence edges are useful, but mentorship, collaboration, parallel development, and source-context neighbor edges are easier to audit.
 
+Relationship curation guidelines:
+
+- Use `Influence` for direct, well-supported transmission.
+- Use `Indirect influence` when the relationship is mediated through a tradition, school, text, or technology.
+- Use `Mentorship` only for advisor, teacher, student, or close instructional relationships.
+- Use `Collaboration` for co-authors, co-inventors, shared research programs, or close working partnerships.
+- Use `Parallel` for independent or competing developments in a shared historical problem space.
+- Use `Rivalry` for documented opposition, debate, or priority disputes.
+- Use `Source-context neighbor` for cautious contextual links that help navigation but should not be overstated as direct influence.
+
+Prefer a short `note` that explains why the edge exists. For high-confidence or TODO-significant edges, add `sourceClaims` URLs when available.
+
 ## Dataset QA Report
 
 Run:
@@ -341,6 +446,8 @@ The report prints:
 
 This is the best current tool for deciding the next dataset cleanup batch.
 
+When working through `TODO.md`, use the QA report to choose small reviewable batches. The current pattern is to fix one field or one coherent edge/source batch, run validation, commit, and push separately.
+
 ## Source And Review Status
 
 Some edges carry `sourceClaims`, usually source URLs. Edges can also carry a status:
@@ -363,6 +470,36 @@ Primary data and model files:
 - `src/externalSources.ts`: external source definitions.
 - `scripts/datasetQaReport.ts`: dataset audit report.
 
+## Source Data Editing
+
+Most committed atlas changes happen in `src/data.ts` and `src/threads.ts`.
+
+When adding a thinker:
+
+1. Choose a stable lowercase ID.
+2. Include birth/death years when known.
+3. Add fields and subfields that match existing taxonomy terms where possible.
+4. Include region, era, movement, works, notes, and bridge score.
+5. Add explicit incoming and outgoing edges for important bridge figures where historically defensible.
+6. Run QA to make sure the new record is not isolated unless isolation is intentional.
+
+When adding an edge:
+
+1. Check that both IDs exist.
+2. Check for duplicate or reciprocal conflict edges.
+3. Choose the most specific relationship type.
+4. Set a strength that reflects confidence and importance.
+5. Add a concise note.
+6. Add source claims when the edge is part of a high-priority thread or audit item.
+
+When adding a canonical thread:
+
+1. Keep the `people` sequence ordered.
+2. Make sure every referenced ID exists.
+3. Use edge types that match the intended relationship chain.
+4. Run QA to identify missing or weak edges.
+5. Add supporting edges or notes before treating the thread as complete.
+
 ## Development Notes
 
 - Keep data changes small and reviewable.
@@ -371,6 +508,41 @@ Primary data and model files:
 - Prefer adding explicit edges with meaningful notes over relying only on `influenced` metadata.
 - If a thread references a person ID, make sure that person exists in `src/data.ts`.
 - Use `TODO.md` status markers to keep roadmap progress visible.
+
+## Troubleshooting
+
+### The App Opens But Shows Old Data
+
+The browser may still have local edits in `localStorage`. Use the reset control in the app, or clear the atlas storage keys listed in **Data Persistence**.
+
+### A Wikidata Search Fails
+
+Confirm the dev server is running and that the browser can reach:
+
+```text
+http://localhost:3000/api/import/wikidata/search?q=Plato
+```
+
+The Wikidata flow needs network access. No credentials are required.
+
+### A Panel Looks Cut Off
+
+The outer app intentionally uses a fixed viewport. Scroll the active panel, not the whole browser page. The most common scroll targets are the left index, filter drawer, Workbench, Path Finder, timeline viewport, and right dossier.
+
+### The Build Warns About Chunk Size
+
+The current Vite warning about large chunks is expected. It does not mean the build failed. Future work can split the frontend bundle into smaller chunks.
+
+### PowerShell Cannot Run npm
+
+Use `npm.cmd`:
+
+```powershell
+npm.cmd run dev
+npm.cmd run qa:data
+npm.cmd run lint
+npm.cmd run build
+```
 
 ## Known Gaps
 
