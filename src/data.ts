@@ -3680,6 +3680,7 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "ampere", target: "maxwell", type: "Influence", strength: 5, note: "Ampere's circuital law is a Maxwell equation" },
   { source: "germain", target: "cauchy", type: "Influence", strength: 3, note: "Elasticity boundary conditions informed analysis" },
   { source: "germain", target: "gauss", type: "Collaboration", strength: 4, note: "Fermat's Last Theorem correspondence" },
+  { source: "pythagoras", target: "mersenne", type: "Source-context neighbor", strength: 3, note: "Ancient harmonic-ratio mathematics forms the deep acoustics tradition Mersenne formalized in Harmonie Universelle" },
   { source: "legendre", target: "gauss", type: "Influence", strength: 4, note: "Number theory methods and quadratic reciprocity" },
   { source: "legendre", target: "abel", type: "Influence", strength: 4, note: "Elliptic integral work completed by Abel and Jacobi" },
   { source: "monge", target: "cauchy", type: "Mentorship", strength: 5, note: "Polytechnique mentor and geometric analysis guide" },
