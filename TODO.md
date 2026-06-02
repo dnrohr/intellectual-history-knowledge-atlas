@@ -265,7 +265,7 @@ Status notation:
 - Make the timeline usable at large scale:
   - [x] keep year/axis context sticky and always visible
   - [x] add timeline density modes for sparse, balanced, and compressed views
-  - collapse non-focused thinkers into clusters, bands, or heat/rug marks
+  - [x] collapse non-focused thinkers into clusters, bands, or heat/rug marks
   - expand only selected neighborhoods, searched results, thread steps, or high-relevance clusters
   - add semantic zoom levels that change what is shown as the user zooms
   - support field/domain lanes that can be toggled or collapsed

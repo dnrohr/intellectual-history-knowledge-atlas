@@ -465,6 +465,15 @@ export default function Timeline({
       const by = y0 + (ROW_H - bh) / 2;
 
       ctx.save();
+      if (timelineDensity === "compressed" && isAnySelected && !activeSet.has(p.id) && !isSearchMatch) {
+        const markerX = x1 + barW / 2;
+        ctx.globalAlpha = 0.42;
+        ctx.fillStyle = col;
+        ctx.fillRect(markerX, y0 + ROW_H / 2 - 2, 1.5, 4);
+        ctx.restore();
+        return;
+      }
+
       // Fade out timeline bar if a selection is active and this node is inactive
       if (isAnySelected && !activeSet.has(p.id)) {
         ctx.globalAlpha = 0.32;
