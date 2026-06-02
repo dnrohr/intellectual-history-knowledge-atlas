@@ -1914,7 +1914,20 @@ export default function App() {
     ...thread,
     resolvedPeople: thread.people.map((id) => peopleById.get(id)).filter(Boolean) as Thinker[],
     missingPeople: thread.people.filter((id) => !peopleById.has(id)),
-  })).filter((thread) => thread.resolvedPeople.length >= 2);
+  })).map((thread) => {
+    const adjacentPairs = thread.resolvedPeople.slice(0, -1).map((person, index) => [person, thread.resolvedPeople[index + 1]]);
+    const pairEdges = adjacentPairs.map(([left, right]) =>
+      edges.find((edge) =>
+        (edge.source === left.id && edge.target === right.id) ||
+        (edge.source === right.id && edge.target === left.id)
+      )
+    );
+    return {
+      ...thread,
+      edgeGapCount: pairEdges.filter((edge) => !edge).length,
+      weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || (edge.sourceClaims || []).length === 0)).length,
+    };
+  }).filter((thread) => thread.resolvedPeople.length >= 2);
   const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
   const focusCanonicalThreadStep = (thread: (typeof canonicalThreads)[number], step: number) => {
     const path = thread.resolvedPeople.map((person) => person.id);
@@ -2979,6 +2992,16 @@ export default function App() {
                             {thread.missingPeople.length > 0 && (
                               <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
                                 {thread.missingPeople.length} gaps
+                              </span>
+                            )}
+                            {thread.edgeGapCount > 0 && (
+                              <span className="rounded border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[8px] font-mono text-rose-300">
+                                {thread.edgeGapCount} edge gaps
+                              </span>
+                            )}
+                            {thread.weakEdgeCount > 0 && (
+                              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                                {thread.weakEdgeCount} weak edges
                               </span>
                             )}
                           </div>
