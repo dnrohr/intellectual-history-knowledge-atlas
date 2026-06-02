@@ -82,6 +82,14 @@ type ImportQualityLabel = {
   tone: "strong" | "medium" | "weak" | "warning";
 };
 
+type RelationshipSuggestionCategory =
+  | "likely influence"
+  | "direct mentorship"
+  | "collaboration"
+  | "parallel development"
+  | "source-context neighbor"
+  | "needs review";
+
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
 const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
@@ -1081,7 +1089,18 @@ export default function App() {
           chronologyScore > 0 ? `chronology: ${chronologicalDirection}` : "",
         ].filter(Boolean) as string[];
         const confidence = score >= 12 ? "strong" : score >= 7 ? "medium" : "weak";
-        return { person, score, reasons, confidence };
+        const category: RelationshipSuggestionCategory = wikidataClaimReasons.some((reason) => reason.includes("advisor") || reason.includes("student"))
+          ? "direct mentorship"
+          : wikidataClaimReasons.some((reason) => reason.includes("influenced by"))
+          ? "likely influence"
+          : sharedWorks.length > 0 || wikidataClaimReasons.some((reason) => reason.includes("employer") || reason.includes("member of") || reason.includes("educated at"))
+          ? "collaboration"
+          : confidence === "weak"
+          ? "needs review"
+          : timeGap <= 40 && (sharedFields.length > 0 || sharedTopics.length > 0 || sharedLensTags.length > 0)
+          ? "parallel development"
+          : "source-context neighbor";
+        return { person, score, reasons, confidence, category };
       })
       .filter((item) => item.score >= 4)
       .sort((a, b) => b.score - a.score)
@@ -1285,7 +1304,7 @@ export default function App() {
         {
           source: source.id,
           target: target.id,
-          type: "Suggested relationship",
+          type: topSuggestion.category,
           strength: 2,
           confidence: 0.35,
           note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
@@ -1411,7 +1430,7 @@ export default function App() {
         nextEdges.push({
           source: source.id,
           target: target.id,
-          type: "Suggested relationship",
+          type: topSuggestion.category,
           strength: 2,
           confidence: 0.35,
           note: `Imported with suggested context: ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
@@ -2922,7 +2941,20 @@ export default function App() {
                     </div>
 
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {["Influence", "Critique", "Transmission", "Collaboration", "Conceptual parallel", "Suggested relationship"].map((type) => (
+                      {[
+                        "Influence",
+                        "Critique",
+                        "Transmission",
+                        "Collaboration",
+                        "Conceptual parallel",
+                        "likely influence",
+                        "direct mentorship",
+                        "collaboration",
+                        "parallel development",
+                        "source-context neighbor",
+                        "needs review",
+                        "Suggested relationship",
+                      ].map((type) => (
                         <button
                           key={type}
                           onClick={() => setRelationshipDraft((prev) => ({ ...prev, type }))}
@@ -3552,15 +3584,20 @@ export default function App() {
                                       >
                                         <div className="flex items-center justify-between gap-2">
                                           <span className="truncate text-[9px] font-mono text-slate-300">{suggestion.person.name}</span>
-                                          <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${
-                                            suggestion.confidence === "strong"
-                                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                                              : suggestion.confidence === "medium"
-                                              ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
-                                              : "border-slate-700 bg-slate-700/20 text-slate-500"
-                                          }`}>
-                                            {suggestion.confidence} {Math.max(1, Math.round(suggestion.score))}
-                                          </span>
+                                          <div className="flex shrink-0 items-center gap-1">
+                                            <span className="max-w-28 truncate rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-1.5 py-0.5 text-[8px] font-mono text-[#9bdaff]">
+                                              {suggestion.category}
+                                            </span>
+                                            <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                                              suggestion.confidence === "strong"
+                                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                                : suggestion.confidence === "medium"
+                                                ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+                                                : "border-slate-700 bg-slate-700/20 text-slate-500"
+                                            }`}>
+                                              {suggestion.confidence} {Math.max(1, Math.round(suggestion.score))}
+                                            </span>
+                                          </div>
                                         </div>
                                         <div className="truncate text-[8px] font-mono text-slate-600">
                                           {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
