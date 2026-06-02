@@ -288,6 +288,8 @@ export default function App() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [pathFinderOpen, setPathFinderOpen] = useState(false);
   const [highlightPath, setHighlightPath] = useState<string[] | null>(null);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [selectedThreadStep, setSelectedThreadStep] = useState(0);
 
   // Extra details rendering (from detail action modifiers)
   const [overlapContemps, setOverlapContemps] = useState<Thinker[]>([]);
@@ -1913,11 +1915,19 @@ export default function App() {
     resolvedPeople: thread.people.map((id) => peopleById.get(id)).filter(Boolean) as Thinker[],
     missingPeople: thread.people.filter((id) => !peopleById.has(id)),
   })).filter((thread) => thread.resolvedPeople.length >= 2);
-  const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
+  const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
+  const focusCanonicalThreadStep = (thread: (typeof canonicalThreads)[number], step: number) => {
     const path = thread.resolvedPeople.map((person) => person.id);
-    setHighlightPath(path);
-    selectPerson(path[0], { preserveHighlight: true });
+    const nextStep = Math.max(0, Math.min(thread.resolvedPeople.length - 1, step));
+    const contextPath = path.slice(Math.max(0, nextStep - 1), Math.min(path.length, nextStep + 2));
+    setSelectedThreadId(thread.id);
+    setSelectedThreadStep(nextStep);
+    setHighlightPath(contextPath);
+    selectPerson(path[nextStep], { preserveHighlight: true });
     setViewMode("split");
+  };
+  const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
+    focusCanonicalThreadStep(thread, 0);
   };
   const selectedLensLabels = selectedThinker
     ? Array.from(new Set(Object.values(inferLensTags(selectedThinker)).flat())).map(getLensOptionLabel).slice(0, 8)
@@ -2975,6 +2985,49 @@ export default function App() {
                         </button>
                       ))}
                     </div>
+                    {activeCanonicalThread && (
+                      <div className="mt-3 rounded-md border border-[#252a3d] bg-[#0b0d14] p-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="truncate font-mono text-[9px] uppercase tracking-wider text-slate-500">{activeCanonicalThread.title}</div>
+                            <div className="mt-0.5 truncate text-[10px] font-mono text-slate-300">
+                              {activeCanonicalThread.resolvedPeople[selectedThreadStep]?.name}
+                            </div>
+                          </div>
+                          <span className="shrink-0 rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500">
+                            {selectedThreadStep + 1} / {activeCanonicalThread.resolvedPeople.length}
+                          </span>
+                        </div>
+                        <div className="mt-2 grid grid-cols-3 gap-1.5">
+                          <button
+                            onClick={() => focusCanonicalThreadStep(activeCanonicalThread, selectedThreadStep - 1)}
+                            disabled={selectedThreadStep === 0}
+                            className="rounded border border-[#252a3d] px-2 py-1 text-[8.5px] font-mono text-slate-400 hover:text-slate-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            Prev
+                          </button>
+                          <button
+                            onClick={() => setHighlightPath(activeCanonicalThread.resolvedPeople.map((person) => person.id))}
+                            className="rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-2 py-1 text-[8.5px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+                          >
+                            Full Thread
+                          </button>
+                          <button
+                            onClick={() => focusCanonicalThreadStep(activeCanonicalThread, selectedThreadStep + 1)}
+                            disabled={selectedThreadStep >= activeCanonicalThread.resolvedPeople.length - 1}
+                            className="rounded border border-[#252a3d] px-2 py-1 text-[8.5px] font-mono text-slate-400 hover:text-slate-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            Next
+                          </button>
+                        </div>
+                        <div className="mt-2 truncate text-[8.5px] font-mono text-slate-600">
+                          {activeCanonicalThread.resolvedPeople
+                            .slice(Math.max(0, selectedThreadStep - 1), Math.min(activeCanonicalThread.resolvedPeople.length, selectedThreadStep + 2))
+                            .map((person) => person.name)
+                            .join(" -> ")}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
