@@ -242,6 +242,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "political-economy",
+    title: "Political Economy",
+    field: "Economics / Political Thought",
+    purpose: "Trace classical political economy through population limits, labor value, macroeconomic management, market order, embedded markets, and capabilities.",
+    people: ["smith", "ricardo", "malthus", "marx", "keynes", "hayek", "polanyi", "sen"],
+    concepts: ["invisible hand", "comparative advantage", "population limits", "historical materialism", "macroeconomics", "spontaneous order", "double movement", "capabilities"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "communication-networks",
     title: "Communication Networks",
     field: "Engineering / Computing",
