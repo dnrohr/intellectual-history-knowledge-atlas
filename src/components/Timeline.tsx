@@ -28,6 +28,8 @@ interface CriticalEvent {
   color: string;
 }
 
+type TimelineDensity = "sparse" | "balanced" | "compressed";
+
 const CRITICAL_EVENTS: CriticalEvent[] = [
   { year: -399, name: "Trial of Socrates", desc: "Socrates drank hemlock, establishing the ultimate ideal of free critical inquiry and philosophical martyrdom.", color: "#f87171" },
   { year: -323, name: "Death of Alexander", desc: "Alexander's demise ushered in the Hellenistic period, blending Greek philosophy with ancient Near Eastern science.", color: "#fb923c" },
@@ -78,6 +80,15 @@ export default function Timeline({
   const [showEvents, setShowEvents] = useState(true);
   const [isPanning, setIsPanning] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [timelineDensity, setTimelineDensity] = useState<TimelineDensity>("balanced");
+
+  const ROW_H = timelineDensity === "compressed" ? 12 : timelineDensity === "sparse" ? 24 : 18;
+  const HDR_H = 52;
+  const densityButtonLabel: Record<TimelineDensity, string> = {
+    sparse: "S",
+    balanced: "B",
+    compressed: "C",
+  };
 
   // Drag scrolling state
   const isDraggingRef = useRef(false);
@@ -87,8 +98,6 @@ export default function Timeline({
   const startScrollTopRef = useRef(0);
 
   const getWorldSize = () => {
-    const ROW_H = 18;
-    const HDR_H = 52;
     const paddingBottom = 40;
     const maxRow = packedPeople.reduce((max, p) => Math.max(max, p.row), 0);
     const latestPersonYear = people.reduce((max, p) => Math.max(max, p.birth, p.death ?? 2026), YEAR_MAX);
@@ -124,15 +133,13 @@ export default function Timeline({
 
   useEffect(() => {
     setPan((prev) => clampPan(prev));
-  }, [dimensions.width, dimensions.height, packedPeople.length, zoom, minYear, maxYear]);
+  }, [dimensions.width, dimensions.height, packedPeople.length, zoom, minYear, maxYear, timelineDensity]);
 
   useEffect(() => {
     if (!selectedId || dimensions.width <= 0 || dimensions.height <= 0) return;
     const selectedPerson = packedPeople.find((person) => person.id === selectedId);
     if (!selectedPerson) return;
 
-    const ROW_H = 18;
-    const HDR_H = 52;
     const birthX = yearToX(selectedPerson.birth);
     const deathX = yearToX(selectedPerson.death ?? 2024);
     const centerX = birthX + Math.max(deathX - birthX, 8) / 2;
@@ -142,7 +149,7 @@ export default function Timeline({
       x: centerX - dimensions.width / 2,
       y: centerY - dimensions.height / 2,
     }));
-  }, [selectedId, packedPeople, dimensions.width, dimensions.height, zoom, minYear, maxYear]);
+  }, [selectedId, packedPeople, dimensions.width, dimensions.height, zoom, minYear, maxYear, timelineDensity]);
 
   // Swimlane packing algorithm
   useEffect(() => {
@@ -422,6 +429,13 @@ export default function Timeline({
     }
 
     // ── 4. Lifespan timelines ──
+    const relationCounts = new Map<string, number>();
+    edges.forEach((edge) => {
+      relationCounts.set(edge.source, (relationCounts.get(edge.source) || 0) + 1);
+      relationCounts.set(edge.target, (relationCounts.get(edge.target) || 0) + 1);
+    });
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+
     packedPeople.forEach((p) => {
       const birthYr = Math.max(p.birth, YEAR_MIN);
       const deathYr = Math.min(p.death ?? 2024, YEAR_MAX);
@@ -440,6 +454,12 @@ export default function Timeline({
       const isSel = p.id === selectedId;
       const isHover = hoveredPerson?.id === p.id;
       const inPath = highlightPath && highlightPath.includes(p.id);
+      const isSearchMatch = normalizedSearch.length > 0 && (
+        p.name.toLowerCase().includes(normalizedSearch) ||
+        (p.works || []).some((work) => work.toLowerCase().includes(normalizedSearch)) ||
+        (p.topics || []).some((topic) => topic.toLowerCase().includes(normalizedSearch))
+      );
+      const isHighBridge = (relationCounts.get(p.id) || 0) >= 5;
 
       const bh = isSel ? ROW_H - 1 : ROW_H - 5;
       const by = y0 + (ROW_H - bh) / 2;
@@ -491,7 +511,14 @@ export default function Timeline({
       }
 
       // Text Labels
-      if ((showLabels || zoom > 1.8) && barW > 35) {
+      const shouldShowLabel =
+        timelineDensity === "compressed"
+          ? (isSel || isHover || inPath || isSearchMatch || isHighBridge) && barW > 42
+          : timelineDensity === "sparse"
+          ? (showLabels || zoom > 1.2 || isSel || isHover || inPath || isSearchMatch) && barW > 24
+          : (showLabels || zoom > 1.8 || isSel || isHover || inPath || isSearchMatch || isHighBridge) && barW > 35;
+
+      if (shouldShowLabel) {
         ctx.fillStyle = isSel ? "#ffffff" : "rgba(255, 255, 255, 0.95)";
         ctx.font = `600 ${zoom > 2.5 ? "9" : "8"}px 'IBM Plex Mono', monospace`;
         ctx.textAlign = "left";
@@ -501,7 +528,7 @@ export default function Timeline({
       ctx.restore();
     });
     ctx.restore();
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -512,8 +539,6 @@ export default function Timeline({
     const cx = clientX - rect.left + pan.x;
     const cy = clientY - rect.top + pan.y;
 
-    const ROW_H = 18;
-    const HDR_H = 52;
     const idx = Math.floor((cy - HDR_H) / ROW_H);
 
     return packedPeople.find((p) => {
@@ -691,6 +716,20 @@ export default function Timeline({
       <div className="flex items-center justify-between px-4 py-2 border-b border-[#252a3d] bg-[#10121a]">
         <div className="flex items-center gap-3">
           <span className="font-serif text-xs italic text-amber-500 font-bold">Timeline</span>
+          <div className="flex items-center rounded border border-[#252a3d] bg-[#080a0f] p-0.5">
+            {(["sparse", "balanced", "compressed"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setTimelineDensity(mode)}
+                className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+                  timelineDensity === mode ? "bg-[#1f2438] text-[#9bdaff]" : "text-slate-500 hover:text-slate-200"
+                }`}
+                title={`${mode} timeline density`}
+              >
+                {densityButtonLabel[mode]}
+              </button>
+            ))}
+          </div>
           
           <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-400 select-none hover:text-slate-200">
             <input
@@ -703,7 +742,7 @@ export default function Timeline({
           </label>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-thin">
           <div className="flex items-center gap-1 font-mono text-[10px]">
             <button
               onClick={() => panTimeline(-1)}
@@ -723,12 +762,12 @@ export default function Timeline({
 
           <button
             onClick={onToggleLogScale}
-            className={`px-3 py-1 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+            className={`px-2.5 py-1 text-[10px] font-mono rounded border transition-all cursor-pointer ${
               logScale ? "bg-[#7b9cf5]/15 border-[#7b9cf5] text-[#7b9cf5]" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
             }`}
             title="Adjusts represented density in ancient epochs relative to modern eras"
           >
-            {logScale ? "Balanced Time Scale" : "Linear Time Scale"}
+            {logScale ? "Scale" : "Linear"}
           </button>
           
           <div className="flex items-center gap-1 font-mono text-[10px]">
