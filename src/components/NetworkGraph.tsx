@@ -214,8 +214,10 @@ export default function NetworkGraph({
     }
 
     const focusSet = new Set<string>();
+    const focusDepthById = new Map<string, number>();
     if (selectedId && focusDepth !== "all") {
       focusSet.add(selectedId);
+      focusDepthById.set(selectedId, 0);
       const queue: { id: string; depth: number }[] = [{ id: selectedId, depth: 0 }];
       const visited = new Set<string>([selectedId]);
 
@@ -234,7 +236,9 @@ export default function NetworkGraph({
           if (neighbor && !visited.has(neighbor)) {
             visited.add(neighbor);
             focusSet.add(neighbor);
-            queue.push({ id: neighbor, depth: current.depth + 1 });
+            const nextDepth = current.depth + 1;
+            focusDepthById.set(neighbor, nextDepth);
+            queue.push({ id: neighbor, depth: nextDepth });
           }
         });
       }
@@ -271,6 +275,18 @@ export default function NetworkGraph({
       const isTargetSelected = l.target.id === selectedId;
       const isEdgeActive = isSourceSelected || isTargetSelected;
       const inHighlightPath = highlightedEdgeKeys.has(`${l.source.id}->${l.target.id}`);
+      const sourceDepth = focusDepthById.get(l.source.id);
+      const targetDepth = focusDepthById.get(l.target.id);
+      const focusEdgeDepth = Math.max(sourceDepth ?? 0, targetDepth ?? 0);
+      const isFocusedContextEdge =
+        Boolean(selectedId) &&
+        focusDepth !== "all" &&
+        focusDepth !== 1 &&
+        shouldLimitFocus &&
+        !isEdgeActive &&
+        sourceDepth !== undefined &&
+        targetDepth !== undefined &&
+        focusEdgeDepth > 0;
 
       ctx.save();
       // Faint out inactive lines if there's a selection
@@ -292,6 +308,9 @@ export default function NetworkGraph({
       } else if (isEdgeActive) {
         ctx.strokeStyle = isSourceSelected ? "rgba(123, 156, 245, 0.9)" : "rgba(167, 139, 250, 0.9)";
         ctx.lineWidth = 1.8;
+      } else if (isFocusedContextEdge) {
+        ctx.strokeStyle = "rgba(123, 156, 245, 0.42)";
+        ctx.lineWidth = 0.9;
       } else {
         ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
         ctx.lineWidth = 0.6;
@@ -299,10 +318,14 @@ export default function NetworkGraph({
       ctx.stroke();
 
       // Indicator arrow flow
-      if (isEdgeActive || inHighlightPath) {
+      if (isEdgeActive || inHighlightPath || isFocusedContextEdge) {
         const angle = Math.atan2(l.target.y! - my, l.target.x! - mx);
-        const arrowLength = 6;
-        ctx.fillStyle = inHighlightPath ? "rgba(232, 184, 75, 0.95)" : "rgba(123, 156, 245, 0.95)";
+        const arrowLength = isFocusedContextEdge ? 4.5 : 6;
+        ctx.fillStyle = inHighlightPath
+          ? "rgba(232, 184, 75, 0.95)"
+          : isFocusedContextEdge
+          ? "rgba(123, 156, 245, 0.45)"
+          : "rgba(123, 156, 245, 0.95)";
         ctx.beginPath();
         const startX = l.target.x! - l.target.r * Math.cos(angle);
         const startY = l.target.y! - l.target.r * Math.sin(angle);
@@ -315,19 +338,22 @@ export default function NetworkGraph({
       ctx.restore();
 
       // ── Directional Flow Particles Animation ──
-      if (isAnySelected && (isEdgeActive || inHighlightPath)) {
-        const numParticles = 2;
+      if (isAnySelected && (isEdgeActive || inHighlightPath || isFocusedContextEdge)) {
+        const numParticles = isFocusedContextEdge ? 1 : 2;
         const col = FIELD_COLOR[l.source.fields?.[0]] || "#7b9cf5";
         for (let i = 0; i < numParticles; i++) {
           const pT = (animTimeRef.current + (i / numParticles)) % 1.0;
           const pt = getQuadraticPoint(pT, l.source.x!, l.source.y!, mx, my, l.target.x!, l.target.y!);
           
           ctx.save();
+          if (isFocusedContextEdge && !inHighlightPath) {
+            ctx.globalAlpha = focusEdgeDepth > 2 ? 0.28 : 0.42;
+          }
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 2.2, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, isFocusedContextEdge ? 1.5 : 2.2, 0, Math.PI * 2);
           ctx.fillStyle = "#ffffff";
           ctx.shadowColor = col;
-          ctx.shadowBlur = 6;
+          ctx.shadowBlur = isFocusedContextEdge ? 3 : 6;
           ctx.fill();
           ctx.restore();
         }
