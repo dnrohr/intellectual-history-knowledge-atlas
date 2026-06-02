@@ -262,6 +262,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "feminist-thought",
+    title: "Feminist Thought",
+    field: "Political Thought / Philosophy",
+    purpose: "Trace feminist liberty, gender equality, existential feminism, intersectionality, and gender performativity.",
+    people: ["wollstonecraft", "harriet_mill", "simone_de_beauvoir", "hooks_bell", "butler"],
+    concepts: ["women's rights", "feminist liberty", "gender equality", "existential feminism", "intersectionality", "gender performativity"],
+    edgeTypes: ["Influence", "Indirect influence", "Collaboration"],
+    confidence: "needs-review",
+  },
+  {
     id: "communication-networks",
     title: "Communication Networks",
     field: "Engineering / Computing",
