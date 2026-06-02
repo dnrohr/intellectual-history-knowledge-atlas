@@ -2204,7 +2204,7 @@ export default function App() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <span className="text-amber-500 font-serif text-xl font-semibold italic">◈</span>
-            <div className="font-serif text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+            <div className="hidden sm:flex font-serif text-base font-bold tracking-tight text-white items-center gap-1.5">
               Intellectual <span className="italic text-amber-400 font-normal">History</span>
               <span className="text-[10px] uppercase font-mono tracking-wider border border-slate-800 bg-[#161926] text-[#8c9bbb] rounded px-1.5 py-0.5 ml-2.5">Atlas</span>
             </div>
@@ -2219,7 +2219,7 @@ export default function App() {
         </div>
 
         {/* Activity switcher keeps the primary workspace intention explicit. */}
-        <div className="flex min-w-0 items-center overflow-x-auto scrollbar-thin bg-[#07080d] p-0.5 border border-[#22273b] rounded-lg">
+        <div className="hidden md:flex min-w-0 items-center overflow-x-auto scrollbar-thin bg-[#07080d] p-0.5 border border-[#22273b] rounded-lg">
           {activityOptions.map((activity) => {
             const Icon = activity.icon;
             const isActive = activeActivity === activity.id;
@@ -4537,6 +4537,27 @@ export default function App() {
       </div>
 
       {/* ── MODALS ── */}
+      <nav className="md:hidden shrink-0 h-14 grid grid-cols-6 border-t border-[#22273b] bg-[#0f111a] z-40">
+        {activityOptions.map((activity) => {
+          const Icon = activity.icon;
+          const isActive = activeActivity === activity.id;
+
+          return (
+            <button
+              key={`mobile-${activity.id}`}
+              onClick={() => applyActivity(activity.id)}
+              className={`flex flex-col items-center justify-center gap-0.5 text-[9px] font-mono transition-colors cursor-pointer ${
+                isActive ? "text-[#9bdaff] bg-[#1f2438]" : "text-slate-500 hover:text-slate-200"
+              }`}
+              title={`${activity.label} activity`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{activity.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
       <AddThinkerModal
         isOpen={addModalOpen}
         onClose={() => setAddModalOpen(false)}

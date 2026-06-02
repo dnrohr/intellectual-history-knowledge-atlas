@@ -236,7 +236,7 @@ Status notation:
   - hide Workbench/review tools outside curation mode
   - hide relationship editing controls behind selected-person actions
   - make source/provenance tools available from edge/person inspectors rather than permanently visible
-- Design the layout with mobile-app intuition even on desktop:
+- [x] Design the layout with mobile-app intuition even on desktop:
   - bottom sheets for details and filters on narrow screens
   - swipe/segmented navigation between timeline, graph, dossier, and workbench
   - single-primary-pane mode for small screens
