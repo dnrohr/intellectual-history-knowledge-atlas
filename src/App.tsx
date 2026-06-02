@@ -783,6 +783,7 @@ export default function App() {
         type: "Suggested relationship",
         strength: 2,
         confidence: 0.35,
+        status: "suggested",
         note: reason || "Added from Workbench candidate review.",
       },
     ];
@@ -863,6 +864,7 @@ export default function App() {
         type: relationshipDraft.type.trim() || "Influence",
         strength: relationshipDraft.strength,
         confidence: relationshipDraft.confidence,
+        status: "accepted",
         note: relationshipDraft.note.trim() || null,
       },
     ];
@@ -1418,6 +1420,7 @@ export default function App() {
           type: topSuggestion.category,
           strength: 2,
           confidence: 0.35,
+          status: "suggested",
           note: `Imported with suggested context: ${topSuggestion.confidenceExplanation}; ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
           sourceClaims: [getCandidateSourceUrl(candidate)].filter(Boolean),
         },
@@ -1544,6 +1547,7 @@ export default function App() {
           type: topSuggestion.category,
           strength: 2,
           confidence: 0.35,
+          status: "suggested",
           note: `Imported with suggested context: ${topSuggestion.confidenceExplanation}; ${topSuggestion.reasons.join(", ") || "nearby chronology"}`,
           sourceClaims: [getCandidateSourceUrl(candidate)].filter(Boolean),
         });

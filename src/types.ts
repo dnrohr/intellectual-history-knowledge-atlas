@@ -22,6 +22,7 @@ export interface InfluenceEdge {
   note?: string | null;
   confidence?: number;
   sourceClaims?: string[];
+  status?: "suggested" | "accepted" | "rejected" | "needs_source";
 }
 
 export interface CanonicalThread {
