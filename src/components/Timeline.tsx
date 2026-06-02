@@ -89,6 +89,7 @@ export default function Timeline({
     balanced: "B",
     compressed: "C",
   };
+  const semanticZoomTier = zoom < 0.75 ? "overview" : zoom > 2.25 ? "detail" : "balanced";
 
   // Drag scrolling state
   const isDraggingRef = useRef(false);
@@ -335,6 +336,8 @@ export default function Timeline({
         ctx.arc(evX, HDR_H, 4, 0, Math.PI * 2);
         ctx.fill();
 
+        if (semanticZoomTier === "overview") return;
+
         // Label flag tag card
         ctx.fillStyle = "#10121a";
         ctx.strokeStyle = `${ev.color}80`;
@@ -507,7 +510,7 @@ export default function Timeline({
       }
 
       // Major works indicators
-      if (showWorks && p.works && p.works.length > 0) {
+      if (showWorks && semanticZoomTier !== "overview" && p.works && p.works.length > 0) {
         p.works.slice(0, 3).forEach((_, wi) => {
           const dotX = x1 + 8 + wi * 8;
           if (dotX < x2 - 4) {
@@ -522,10 +525,10 @@ export default function Timeline({
       // Text Labels
       const shouldShowLabel =
         timelineDensity === "compressed"
-          ? (isSel || isHover || inPath || isSearchMatch || isHighBridge) && barW > 42
+          ? (isSel || isHover || inPath || isSearchMatch || isHighBridge) && barW > (semanticZoomTier === "detail" ? 30 : 42)
           : timelineDensity === "sparse"
-          ? (showLabels || zoom > 1.2 || isSel || isHover || inPath || isSearchMatch) && barW > 24
-          : (showLabels || zoom > 1.8 || isSel || isHover || inPath || isSearchMatch || isHighBridge) && barW > 35;
+          ? (showLabels || semanticZoomTier !== "overview" || isSel || isHover || inPath || isSearchMatch) && barW > (semanticZoomTier === "detail" ? 18 : 24)
+          : (showLabels || semanticZoomTier === "detail" || isSel || isHover || inPath || isSearchMatch || isHighBridge) && barW > (semanticZoomTier === "detail" ? 26 : 35);
 
       if (shouldShowLabel) {
         ctx.fillStyle = isSel ? "#ffffff" : "rgba(255, 255, 255, 0.95)";
@@ -558,7 +561,7 @@ export default function Timeline({
       ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
     });
     ctx.restore();
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;

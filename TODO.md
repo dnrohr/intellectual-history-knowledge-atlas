@@ -267,7 +267,7 @@ Status notation:
   - [x] add timeline density modes for sparse, balanced, and compressed views
   - [x] collapse non-focused thinkers into clusters, bands, or heat/rug marks
   - [x] expand only selected neighborhoods, searched results, thread steps, or high-relevance clusters
-  - add semantic zoom levels that change what is shown as the user zooms
+  - [x] add semantic zoom levels that change what is shown as the user zooms
   - support field/domain lanes that can be toggled or collapsed
   - let users hide low-bridge, unrelated, or unselected-field people while preserving context markers
   - [x] show labels only for selected, hovered, path/thread, high-bridge, or search-match people
