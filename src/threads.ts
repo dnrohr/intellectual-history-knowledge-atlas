@@ -142,6 +142,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "matter-to-particles",
+    title: "Matter To Particles",
+    field: "Physics",
+    purpose: "Trace atomic structure from electron and nucleus discoveries into neutrons, nuclear reactions, quarks, and electroweak theory.",
+    people: ["thomson_jj", "rutherford", "bohr", "chadwick", "fermi_enrico", "gell_mann", "weinberg"],
+    concepts: ["electron", "nuclear atom", "quantized atom", "neutron", "nuclear reactions", "quarks", "electroweak unification"],
+    edgeTypes: ["Mentorship", "Influence", "Indirect influence"],
+    confidence: "needs-review",
+  },
+  {
     id: "evolution-to-genomics",
     title: "Evolution To Genomics",
     field: "Biology",
