@@ -213,6 +213,96 @@ Status notation:
 
 ## UI And Navigation
 
+### Major UI Direction: Reduce Screen Clutter And Prioritize The Current Activity
+
+- Reframe the app around an activity-first workspace:
+  - exploration
+  - focused thinker inspection
+  - relationship/path tracing
+  - dataset curation
+  - import/review work
+  - source/provenance auditing
+- Make each activity own most of the available screen while keeping secondary tools available through drawers, menus, floating panels, or temporary overlays.
+- Move persistent controls into contextual surfaces:
+  - top-level mode switcher for major activities
+  - compact command/action menu for less frequent actions
+  - right or bottom drawer for detail/curation tools
+  - floating quick actions for the current selection
+  - collapsible filter and lens controls
+  - transient inspector panels that can be closed or pinned
+- Distinguish always-visible navigation from optional modification tools:
+  - keep search, current focus, and primary mode visible
+  - hide advanced filters until requested
+  - hide Workbench/review tools outside curation mode
+  - hide relationship editing controls behind selected-person actions
+  - make source/provenance tools available from edge/person inspectors rather than permanently visible
+- Design the layout with mobile-app intuition even on desktop:
+  - bottom sheets for details and filters on narrow screens
+  - swipe/segmented navigation between timeline, graph, dossier, and workbench
+  - single-primary-pane mode for small screens
+  - tap-to-expand cards for dense thinker information
+  - floating action button or command palette for add/connect/review actions
+  - persistent back/close affordances for overlays and drawers
+- Add responsive workspace modes:
+  - desktop: split panes with collapsible sidebars and resizable drawers
+  - tablet: one main view plus slide-over tools
+  - mobile: one main view plus bottom sheets and stacked activity tabs
+  - presentation/demo: minimal chrome with focused timeline or graph
+  - curation: denser controls, queues, and edit actions visible
+- Add user-controlled chrome density:
+  - compact
+  - comfortable
+  - focus mode
+  - curation mode
+  - demo mode
+- Add a panel/pane state model:
+  - closed
+  - floating
+  - docked
+  - pinned
+  - full-screen
+  - remembered per activity where useful
+- Make the timeline usable at large scale:
+  - keep year/axis context sticky and always visible
+  - add timeline density modes for sparse, balanced, and compressed views
+  - collapse non-focused thinkers into clusters, bands, or heat/rug marks
+  - expand only selected neighborhoods, searched results, thread steps, or high-relevance clusters
+  - add semantic zoom levels that change what is shown as the user zooms
+  - support field/domain lanes that can be toggled or collapsed
+  - let users hide low-bridge, unrelated, or unselected-field people while preserving context markers
+  - show labels only for selected, hovered, path/thread, high-bridge, or search-match people
+  - provide a "show nearby context" control instead of rendering everyone equally
+- Add timeline navigation aids:
+  - sticky BCE/CE year ruler
+  - mini overview/range scrubber
+  - jump-to-selected control
+  - bookmarks for eras, threads, and saved views
+  - visible "current window" date range indicator
+  - quick reset to full range or selected-person lifespan
+- Improve filtering as a primary interaction, not just a drawer:
+  - saved filter presets
+  - current-activity filter chips
+  - quick toggles for selected field, selected era, selected thread, and selected neighborhood
+  - relevance ranking for visible people
+  - "only show connected to current focus"
+  - "only show this thread"
+  - "only show review gaps"
+- Treat graph and timeline as coordinated lenses:
+  - timeline can show compressed context while graph shows active neighborhood detail
+  - graph can show relationship structure while timeline shows chronology for selected nodes
+  - selection, path, thread, and filter state should move cleanly between views
+- Add clear overlay behavior:
+  - only one major drawer open by default
+  - overlays should be dismissible, pinnable, and not trap critical controls
+  - floating panels should avoid covering the selected node/timeline axis when possible
+  - panels should remember whether the user prefers them docked or floating
+- Add a UI audit pass for every major screen:
+  - what is the user's current activity?
+  - what must remain visible?
+  - what can be hidden until requested?
+  - what should be one tap/click away?
+  - what can move into a drawer, menu, command palette, or bottom sheet?
+
 - Add saved views/collections.
 - Add default curated views:
   - Ancient foundations
