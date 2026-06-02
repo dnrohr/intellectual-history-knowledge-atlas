@@ -263,7 +263,7 @@ Status notation:
   - full-screen
   - remembered per activity where useful
 - Make the timeline usable at large scale:
-  - keep year/axis context sticky and always visible
+  - [x] keep year/axis context sticky and always visible
   - [x] add timeline density modes for sparse, balanced, and compressed views
   - collapse non-focused thinkers into clusters, bands, or heat/rug marks
   - expand only selected neighborhoods, searched results, thread steps, or high-relevance clusters

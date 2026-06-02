@@ -528,6 +528,27 @@ export default function Timeline({
       ctx.restore();
     });
     ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = "rgba(16, 18, 26, 0.92)";
+    ctx.fillRect(0, 0, canvasW, 28);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 27.5);
+    ctx.lineTo(canvasW, 27.5);
+    ctx.stroke();
+
+    ticks.forEach((year) => {
+      const x = yearToX(year) - pan.x;
+      if (x < -80 || x > canvasW + 80) return;
+      const isMajor = majorTimelineInterval ? majorTimelineInterval.has(year) : year % 500 === 0 || year % 100 === 0;
+      ctx.fillStyle = isMajor ? "rgba(255, 255, 255, 0.72)" : "rgba(255, 255, 255, 0.32)";
+      ctx.font = `${isMajor ? "600" : "400"} ${isMajor ? "10" : "8"}px 'IBM Plex Mono', monospace`;
+      ctx.textAlign = "left";
+      ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
+    });
+    ctx.restore();
   }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
