@@ -225,6 +225,7 @@ export default function App() {
     const parsedThreshold = savedThreshold ? Number(savedThreshold) : 80;
     return Number.isFinite(parsedThreshold) ? Math.max(0, Math.min(100, parsedThreshold)) : 80;
   });
+  const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
 
   const [sortMode, setSortMode] = useState<"birth" | "field" | "bridge" | "name">("birth");
@@ -3580,37 +3581,57 @@ export default function App() {
                                 ) : (
                                   <div className="mt-2 space-y-1">
                                     <div className="font-mono text-[8.5px] uppercase tracking-wider text-slate-600">Suggested Links</div>
-                                    {linkSuggestions.length > 0 ? linkSuggestions.map((suggestion) => (
-                                      <button
-                                        key={`${item.id}-${suggestion.person.id}`}
-                                        onClick={() => {
-                                          setHighlightPath([suggestion.person.id]);
-                                          selectPerson(suggestion.person.id, { preserveHighlight: true });
-                                        }}
-                                        className="w-full rounded border border-[#252a3d] bg-[#0b0d14] px-2 py-1 text-left hover:border-[#7b9cf5] cursor-pointer"
-                                      >
-                                        <div className="flex items-center justify-between gap-2">
-                                          <span className="truncate text-[9px] font-mono text-slate-300">{suggestion.person.name}</span>
-                                          <div className="flex shrink-0 items-center gap-1">
-                                            <span className="max-w-28 truncate rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-1.5 py-0.5 text-[8px] font-mono text-[#9bdaff]">
-                                              {suggestion.category}
-                                            </span>
-                                            <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${
-                                              suggestion.confidence === "strong"
-                                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                                                : suggestion.confidence === "medium"
-                                                ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
-                                                : "border-slate-700 bg-slate-700/20 text-slate-500"
-                                            }`}>
-                                              {suggestion.confidence} {Math.max(1, Math.round(suggestion.score))}
-                                            </span>
+                                    {linkSuggestions.length > 0 ? linkSuggestions.map((suggestion) => {
+                                      const suggestionKey = `${item.id}-${suggestion.person.id}`;
+                                      const detailsOpen = openSuggestionDetailKey === suggestionKey;
+                                      return (
+                                        <div key={suggestionKey} className="rounded border border-[#252a3d] bg-[#0b0d14] px-2 py-1 hover:border-[#7b9cf5]">
+                                          <button
+                                            onClick={() => {
+                                              setHighlightPath([suggestion.person.id]);
+                                              selectPerson(suggestion.person.id, { preserveHighlight: true });
+                                            }}
+                                            className="w-full text-left cursor-pointer"
+                                          >
+                                            <div className="flex items-center justify-between gap-2">
+                                              <span className="truncate text-[9px] font-mono text-slate-300">{suggestion.person.name}</span>
+                                              <div className="flex shrink-0 items-center gap-1">
+                                                <span className="max-w-28 truncate rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-1.5 py-0.5 text-[8px] font-mono text-[#9bdaff]">
+                                                  {suggestion.category}
+                                                </span>
+                                                <span className={`rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                                                  suggestion.confidence === "strong"
+                                                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                                    : suggestion.confidence === "medium"
+                                                    ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+                                                    : "border-slate-700 bg-slate-700/20 text-slate-500"
+                                                }`}>
+                                                  {suggestion.confidence} {Math.max(1, Math.round(suggestion.score))}
+                                                </span>
+                                              </div>
+                                            </div>
+                                            <div className="truncate text-[8px] font-mono text-slate-600">
+                                              {suggestion.confidenceExplanation} - {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
+                                            </div>
+                                          </button>
+                                          <div className="mt-1 flex items-center justify-between gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => setOpenSuggestionDetailKey(detailsOpen ? null : suggestionKey)}
+                                              className="rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500 hover:text-slate-200 cursor-pointer"
+                                            >
+                                              Why
+                                            </button>
                                           </div>
+                                          {detailsOpen && (
+                                            <div className="mt-1 rounded border border-[#1d2232] bg-[#090a0f] px-2 py-1.5 font-mono text-[8px] text-slate-500">
+                                              <div>{suggestion.category} / {suggestion.confidenceExplanation} / score {Math.max(1, Math.round(suggestion.score))}</div>
+                                              <div className="mt-1 text-slate-600">{suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}</div>
+                                            </div>
+                                          )}
                                         </div>
-                                        <div className="truncate text-[8px] font-mono text-slate-600">
-                                          {suggestion.confidenceExplanation} - {suggestion.reasons.length > 0 ? suggestion.reasons.join(" / ") : "nearby chronology"}
-                                        </div>
-                                      </button>
-                                    )) : (
+                                      );
+                                    }) : (
                                       <div className="text-[9px] font-mono text-slate-600 italic">No strong link suggestions yet.</div>
                                     )}
                                   </div>
