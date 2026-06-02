@@ -162,6 +162,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "evolutionary-theory",
+    title: "Evolutionary Theory",
+    field: "Biology",
+    purpose: "Trace biological classification and evolutionary explanation into genetics, population synthesis, and modern debates over selection.",
+    people: ["aristotle", "linnaeus", "lamarck", "darwin", "mendel", "fisher_ronald", "haldane", "wright_sewall", "gould", "dawkins"],
+    concepts: ["classification", "taxonomy", "acquired inheritance", "natural selection", "inheritance", "population genetics", "modern synthesis", "genetic drift", "punctuated equilibrium", "gene-centric selection"],
+    edgeTypes: ["Influence", "Indirect influence", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "liberalism-and-capabilities",
     title: "Liberalism And Capabilities",
     field: "Political Thought / Economics",
