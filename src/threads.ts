@@ -32,6 +32,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "existentialism-to-poststructuralism",
+    title: "Existentialism To Poststructuralism",
+    field: "Philosophy / Critical Theory",
+    purpose: "Trace existential freedom, genealogy, deconstruction, and performativity across modern continental philosophy.",
+    people: ["kierkegaard", "nietzsche", "heidegger", "sartre", "simone_de_beauvoir", "foucault", "derrida", "butler"],
+    concepts: ["anxiety", "nihilism", "Dasein", "existence precedes essence", "existential feminism", "power-knowledge", "deconstruction", "performativity"],
+    edgeTypes: ["Influence", "Indirect influence", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "probability-to-causality",
     title: "Probability To Causality",
     field: "Mathematics / AI",
