@@ -282,6 +282,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "literary-modernity",
+    title: "Literary Modernity",
+    field: "Literature / Theory",
+    purpose: "Trace romantic world-literature, psychological existential fiction, bureaucratic modernism, labyrinthine metafiction, and postmodern textual theory.",
+    people: ["goethe", "dostoevsky", "kafka", "borges", "derrida"],
+    concepts: ["world literature", "psychological existentialism", "bureaucratic alienation", "metafiction", "deconstruction"],
+    edgeTypes: ["Influence", "Indirect influence", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "communication-networks",
     title: "Communication Networks",
     field: "Engineering / Computing",
