@@ -465,7 +465,7 @@ export default function Timeline({
       const by = y0 + (ROW_H - bh) / 2;
 
       ctx.save();
-      if (timelineDensity === "compressed" && isAnySelected && !activeSet.has(p.id) && !isSearchMatch) {
+      if (timelineDensity === "compressed" && isAnySelected && !activeSet.has(p.id) && !isSearchMatch && !isHighBridge) {
         const markerX = x1 + barW / 2;
         ctx.globalAlpha = 0.42;
         ctx.fillStyle = col;
