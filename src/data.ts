@@ -3776,6 +3776,16 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "tansley", target: "odum_howard", type: "Indirect influence", strength: 3, note: "Ecosystem energy accounting" },
 
   // --- Social science interconnections ---
+  { source: "ricardo", target: "engels", type: "Indirect influence", strength: 4, note: "Classical political economy and labor-value debates framed Engels' critique of industrial capitalism" },
+  { source: "laplace", target: "cournot", type: "Indirect influence", strength: 4, note: "Probability and mathematical expectation methods shaped Cournot's mathematical economics" },
+  { source: "smith", target: "menger", type: "Indirect influence", strength: 4, note: "Classical value and market-order problems became the backdrop for Menger's marginal utility theory" },
+  { source: "darwin", target: "veblen", type: "Indirect influence", strength: 4, note: "Evolutionary social explanation informed Veblen's institutional economics" },
+  { source: "veblen", target: "polanyi", type: "Source-context neighbor", strength: 3, note: "Institutionalist critiques of self-regulating markets form a shared context for Veblen and Polanyi" },
+  { source: "menger", target: "schumpeter", type: "Indirect influence", strength: 4, note: "Austrian marginal utility and entrepreneurial market theory formed part of Schumpeter's intellectual setting" },
+  { source: "schumpeter", target: "hayek", type: "Source-context neighbor", strength: 3, note: "Austrian debates over innovation, entrepreneurship, and market order contextualize Schumpeter and Hayek" },
+  { source: "polanyi", target: "hayek", type: "Parallel", strength: 4, note: "The Great Transformation and The Road to Serfdom offer opposed diagnoses of market society and state planning" },
+  { source: "keynes", target: "hayek", type: "Rivalry", strength: 5, note: "Interwar macroeconomic debates contrasted Keynesian demand management with Hayekian price coordination" },
+  { source: "kahneman", target: "sen", type: "Source-context neighbor", strength: 3, note: "Behavioral decision research and welfare economics intersect around bounded rationality, choice, and human well-being" },
   { source: "tarde", target: "durkheim", type: "Parallel", strength: 4, note: "Micro vs macro sociology debate shaped both" },
   { source: "tarde", target: "deleuze", type: "Indirect influence", strength: 4, note: "Imitation and difference as social ontology" },
   { source: "bourdieu", target: "latour", type: "Indirect influence", strength: 4, note: "Field theory and social construction of science" },
