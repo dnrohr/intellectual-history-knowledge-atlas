@@ -1173,6 +1173,7 @@ export default function App() {
   };
 
   const getImportQualityLabels = (candidate: WikidataCandidate, confidence: number): ImportQualityLabel[] => {
+    const candidateSourceUrl = getCandidateSourceUrl(candidate);
     const structuredSignalCount = [
       candidate.birth !== null,
       (candidate.fields || []).length > 0,
@@ -1195,6 +1196,7 @@ export default function App() {
         ? { label: "Auto-ready", tone: "strong" }
         : { label: "Needs review", tone: "weak" },
     ];
+    if (!candidateSourceUrl) labels.push({ label: "Source gap", tone: "warning" });
     if (candidate.birth === null) labels.push({ label: "Missing dates", tone: "warning" });
     if ((candidate.works || []).length > 0) labels.push({ label: "Works found", tone: "medium" });
     return labels.slice(0, 4);
