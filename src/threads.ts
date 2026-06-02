@@ -272,6 +272,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "postcolonial-cultural-theory",
+    title: "Postcolonial Cultural Theory",
+    field: "Political Thought / Cultural Theory",
+    purpose: "Trace materialist critique, cultural hegemony, cultural materialism, postcolonial representation, and intersectional cultural critique.",
+    people: ["marx", "gramsci", "williams_raymond", "said", "hooks_bell"],
+    concepts: ["historical materialism", "cultural hegemony", "cultural materialism", "Orientalism", "intersectionality"],
+    edgeTypes: ["Influence", "Indirect influence"],
+    confidence: "needs-review",
+  },
+  {
     id: "communication-networks",
     title: "Communication Networks",
     field: "Engineering / Computing",
