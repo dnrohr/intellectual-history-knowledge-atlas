@@ -192,6 +192,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "ecology-systems",
+    title: "Ecology Systems",
+    field: "Biology / Environment",
+    purpose: "Connect biogeography, ecosystem ecology, ecological niches, systems ecology, planetary ecology, biodiversity, and environmental warning.",
+    people: ["humboldt", "tansley", "hutchinson_ge", "odum_howard", "lovelock_james", "wilson_eo", "carson_rachel"],
+    concepts: ["biogeography", "ecosystem", "ecological niche", "energy flows", "Gaia hypothesis", "biodiversity", "environmental warning"],
+    edgeTypes: ["Influence", "Indirect influence", "Mentorship", "Parallel"],
+    confidence: "needs-review",
+  },
+  {
     id: "liberalism-and-capabilities",
     title: "Liberalism And Capabilities",
     field: "Political Thought / Economics",
