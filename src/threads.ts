@@ -182,6 +182,16 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "needs-review",
   },
   {
+    id: "energy-materials-storage",
+    title: "Energy Materials Storage",
+    field: "Chemistry / Engineering",
+    purpose: "Trace electrochemical batteries, electrolysis, electromagnetic induction, intercalation chemistry, lithium cathodes, and commercial storage technologies.",
+    people: ["volta", "davy", "faraday", "whittingham_stanley", "goodenough_john", "yoshino_akira"],
+    concepts: ["voltaic pile", "electrolysis", "electromagnetic induction", "lithium intercalation", "lithium-cobalt-oxide cathodes", "lithium-ion batteries"],
+    edgeTypes: ["Influence", "Indirect influence", "Mentorship"],
+    confidence: "needs-review",
+  },
+  {
     id: "relativity-to-cosmology",
     title: "Relativity To Cosmology",
     field: "Physics / Cosmology",
