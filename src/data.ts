@@ -3773,6 +3773,15 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "williams_raymond", target: "said", type: "Influence", strength: 4, note: "Cultural materialism and colonial representations" },
   { source: "williams_raymond", target: "hooks_bell", type: "Indirect influence", strength: 3, note: "Culture as material social practice" },
 
+  // --- Literary concept bridges ---
+  { source: "goethe", target: "hegel", type: "Indirect influence", strength: 4, note: "Faustian striving and organic development fed idealist historicism" },
+  { source: "goethe", target: "nietzsche", type: "Indirect influence", strength: 4, note: "Romantic self-formation and tragic creativity shaped aesthetic philosophy" },
+  { source: "dostoevsky", target: "freud", type: "Indirect influence", strength: 4, note: "Psychological fiction prefigured unconscious conflict and guilt analysis" },
+  { source: "kafka", target: "weber", type: "Parallel", strength: 4, note: "Bureaucratic rationalization appears as literary and sociological diagnosis" },
+  { source: "kafka", target: "foucault", type: "Indirect influence", strength: 3, note: "Institutional enclosure and anonymous judgment anticipate disciplinary power themes" },
+  { source: "borges", target: "hofstadter", type: "Indirect influence", strength: 4, note: "Recursive labyrinths and self-reference shaped strange-loop imagination" },
+  { source: "borges", target: "derrida", type: "Parallel", strength: 4, note: "Textual infinity and authorship games converge with deconstructive reading" },
+
   // --- Physics interconnections ---
   { source: "landauer", target: "bennett", type: "Influence", strength: 5, note: "Irreversibility and reversible computing answer Landauer" },
   { source: "landauer", target: "feynman", type: "Parallel", strength: 4, note: "Thermodynamics of computation debates" },
