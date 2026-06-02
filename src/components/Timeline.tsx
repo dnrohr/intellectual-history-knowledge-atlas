@@ -81,6 +81,7 @@ export default function Timeline({
   const [isPanning, setIsPanning] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [timelineDensity, setTimelineDensity] = useState<TimelineDensity>("balanced");
+  const [fieldLanesOpen, setFieldLanesOpen] = useState(false);
 
   const ROW_H = timelineDensity === "compressed" ? 12 : timelineDensity === "sparse" ? 24 : 18;
   const HDR_H = 52;
@@ -157,6 +158,49 @@ export default function Timeline({
     const rows: number[] = [];
     const minGap = 20; // safe horizontal years buffer count
 
+    if (fieldLanesOpen) {
+      const byField = new Map<string, Thinker[]>();
+      people.forEach((person) => {
+        const field = person.fields?.[0] || "Unclassified";
+        byField.set(field, [...(byField.get(field) || []), person]);
+      });
+
+      const packedByField: (Thinker & { row: number })[] = [];
+      let baseRow = 0;
+      Array.from(byField.entries())
+        .sort(([left], [right]) => left.localeCompare(right))
+        .forEach(([, fieldPeople]) => {
+          const fieldRows: number[] = [];
+          fieldPeople
+            .sort((a, b) => a.birth - b.birth)
+            .forEach((p) => {
+              const birthWithBuffer = p.birth - minGap;
+              const deathVal = p.death ?? 2024;
+              const deathWithBuffer = deathVal + minGap;
+              let placedRow = -1;
+
+              for (let r = 0; r < fieldRows.length; r++) {
+                if (birthWithBuffer >= fieldRows[r]) {
+                  placedRow = r;
+                  fieldRows[r] = deathWithBuffer;
+                  break;
+                }
+              }
+
+              if (placedRow === -1) {
+                placedRow = fieldRows.length;
+                fieldRows.push(deathWithBuffer);
+              }
+
+              packedByField.push({ ...p, row: baseRow + placedRow });
+            });
+          baseRow += fieldRows.length + 1;
+        });
+
+      setPackedPeople(packedByField);
+      return;
+    }
+
     const sortedByBirth = [...people].sort((a, b) => a.birth - b.birth);
     const packed = sortedByBirth.map((p) => {
       const birthWithBuffer = p.birth - minGap;
@@ -184,7 +228,7 @@ export default function Timeline({
     });
 
     setPackedPeople(packed);
-  }, [people]);
+  }, [people, fieldLanesOpen]);
 
   // Scaler formulas
   const getLinearWidth = () => (YEAR_MAX - YEAR_MIN) * BASE_PX_YR * zoom;
@@ -263,6 +307,37 @@ export default function Timeline({
         const x2 = yearToX(b.e);
         ctx.fillStyle = b.fill;
         ctx.fillRect(x1, 0, x2 - x1, world.height);
+      });
+    }
+
+    if (fieldLanesOpen) {
+      const laneMap = new Map<string, { minRow: number; maxRow: number; color: string }>();
+      packedPeople.forEach((person) => {
+        const field = person.fields?.[0] || "Unclassified";
+        const current = laneMap.get(field);
+        const color = FIELD_COLOR[field] || "#94a3b8";
+        laneMap.set(field, {
+          minRow: current ? Math.min(current.minRow, person.row) : person.row,
+          maxRow: current ? Math.max(current.maxRow, person.row) : person.row,
+          color,
+        });
+      });
+
+      Array.from(laneMap.entries()).forEach(([field, lane]) => {
+        const y = HDR_H + lane.minRow * ROW_H;
+        const height = (lane.maxRow - lane.minRow + 1) * ROW_H;
+        ctx.fillStyle = `${lane.color}12`;
+        ctx.fillRect(0, y, world.width, height);
+        ctx.strokeStyle = `${lane.color}35`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(world.width, y);
+        ctx.stroke();
+        ctx.fillStyle = `${lane.color}cc`;
+        ctx.font = "600 8px 'IBM Plex Mono', monospace";
+        ctx.textAlign = "left";
+        ctx.fillText(field, pan.x + 8, y + 11);
       });
     }
 
@@ -561,7 +636,7 @@ export default function Timeline({
       ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
     });
     ctx.restore();
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -773,6 +848,15 @@ export default function Timeline({
             />
             <span className="font-mono">Critical Event Overlays</span>
           </label>
+          <button
+            onClick={() => setFieldLanesOpen((prev) => !prev)}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+              fieldLanesOpen ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Toggle field lanes"
+          >
+            Lanes
+          </button>
         </div>
         
         <div className="flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-thin">
