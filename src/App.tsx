@@ -111,7 +111,9 @@ const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
 const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
 const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v1";
 const LINK_REVIEW_QUEUE_STORAGE_KEY = "atlas_link_review_queue_v1";
+const WORKBENCH_PANEL_MODE_STORAGE_KEY = "atlas_workbench_panel_mode_v1";
 const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
+const WORKBENCH_PANEL_MODES: Array<Exclude<PanelMode, "closed">> = ["floating", "docked", "pinned", "fullscreen"];
 
 type StoredImportReviewQueue = {
   version: number;
@@ -121,6 +123,9 @@ type StoredImportReviewQueue = {
 
 const isImportReviewStatus = (status: unknown): status is ImportReviewStatus =>
   typeof status === "string" && IMPORT_QUEUE_STATUSES.includes(status as ImportReviewStatus);
+
+const isWorkbenchPanelMode = (mode: unknown): mode is Exclude<PanelMode, "closed"> =>
+  typeof mode === "string" && WORKBENCH_PANEL_MODES.includes(mode as Exclude<PanelMode, "closed">);
 
 const normalizeImportReviewQueueItem = (item: Partial<ImportReviewItem> | null | undefined): ImportReviewItem | null => {
   if (!item || !item.id || !item.candidate?.id || !item.candidate.name) return null;
@@ -196,7 +201,10 @@ export default function App() {
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
   const [chromeDensity, setChromeDensity] = useState<ChromeDensity>("comfortable");
-  const [workbenchPanelMode, setWorkbenchPanelMode] = useState<Exclude<PanelMode, "closed">>("docked");
+  const [workbenchPanelMode, setWorkbenchPanelMode] = useState<Exclude<PanelMode, "closed">>(() => {
+    const savedMode = localStorage.getItem(WORKBENCH_PANEL_MODE_STORAGE_KEY);
+    return isWorkbenchPanelMode(savedMode) ? savedMode : "docked";
+  });
   const [coordinatedLenses, setCoordinatedLenses] = useState(true);
 
   // Panel Resizer states
@@ -427,6 +435,10 @@ export default function App() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(WORKBENCH_PANEL_MODE_STORAGE_KEY, workbenchPanelMode);
+  }, [workbenchPanelMode]);
 
   // Database additions
   const handleAddThinker = (newThinker: Thinker) => {
@@ -2030,14 +2042,53 @@ export default function App() {
     workbenchPanelMode === "fullscreen"
       ? "fixed inset-4 rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
       : workbenchPanelMode === "floating"
-      ? "fixed right-4 top-24 w-[min(920px,calc(100vw-2rem))] max-h-[70vh] rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
+      ? "fixed right-4 top-[7.5rem] w-[min(920px,calc(100vw-2rem))] max-h-[calc(100vh-9rem)] rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
       : "shrink-0 bg-[#0d1018] border-b border-[#22273b] overflow-hidden z-20";
   const workbenchPanelContentClass =
     workbenchPanelMode === "fullscreen"
       ? "h-full overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
       : workbenchPanelMode === "floating"
-      ? "max-h-[70vh] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
+      ? "max-h-[calc(100vh-9rem)] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
       : "max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3";
+
+  const closeMajorOverlays = (except?: "filters" | "workbench" | "path") => {
+    if (except !== "filters") setFilterDrawerOpen(false);
+    if (except !== "path") setPathFinderOpen(false);
+    if (except !== "workbench" && workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
+  };
+
+  const openFilterDrawer = () => {
+    closeMajorOverlays("filters");
+    setFilterDrawerOpen(true);
+  };
+
+  const toggleFilterDrawer = () => {
+    if (filterDrawerOpen) {
+      setFilterDrawerOpen(false);
+      return;
+    }
+    openFilterDrawer();
+  };
+
+  const openWorkbenchPanel = (tab?: typeof workbenchTab) => {
+    closeMajorOverlays("workbench");
+    if (tab) setWorkbenchTab(tab);
+    setExtensionWorkbenchOpen(true);
+  };
+
+  const openPathFinder = () => {
+    closeMajorOverlays("path");
+    setPathFinderOpen(true);
+  };
+
+  const togglePathFinder = () => {
+    if (pathFinderOpen) {
+      setPathFinderOpen(false);
+      return;
+    }
+    openPathFinder();
+  };
+
   const applyActivity = (activity: WorkspaceActivity) => {
     setActiveActivity(activity);
     setCommandMenuOpen(false);
@@ -2045,55 +2096,41 @@ export default function App() {
     if (activity === "explore") {
       setViewMode("split");
       setSidebarOpen(true);
-      if (workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
-      setPathFinderOpen(false);
-      setFilterDrawerOpen(false);
+      closeMajorOverlays();
       return;
     }
 
     if (activity === "inspect") {
       setViewMode("network");
       setSidebarOpen(false);
-      if (workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
-      setPathFinderOpen(false);
-      setFilterDrawerOpen(false);
+      closeMajorOverlays();
       return;
     }
 
     if (activity === "trace") {
       setViewMode("split");
       setSidebarOpen(false);
-      if (workbenchPanelMode !== "pinned") setExtensionWorkbenchOpen(false);
-      setPathFinderOpen(true);
-      setFilterDrawerOpen(false);
+      openPathFinder();
       return;
     }
 
     if (activity === "curate") {
       setViewMode("split");
       setSidebarOpen(true);
-      setWorkbenchTab("links");
-      setExtensionWorkbenchOpen(true);
-      setPathFinderOpen(false);
+      openWorkbenchPanel("links");
       return;
     }
 
     if (activity === "import") {
       setViewMode("split");
       setSidebarOpen(false);
-      setWorkbenchTab("imports");
-      setExtensionWorkbenchOpen(true);
-      setPathFinderOpen(false);
-      setFilterDrawerOpen(false);
+      openWorkbenchPanel("imports");
       return;
     }
 
     setViewMode("network");
     setSidebarOpen(false);
-    setWorkbenchTab("links");
-    setExtensionWorkbenchOpen(true);
-    setPathFinderOpen(false);
-    setFilterDrawerOpen(false);
+    openWorkbenchPanel("links");
   };
   const formatYear = (year: number | null) => {
     if (year === null) return "present";
@@ -2523,7 +2560,7 @@ export default function App() {
           <div className="hidden lg:flex items-center gap-2 mx-4 min-w-0 text-[10px] font-mono text-slate-500">
             <span className="uppercase tracking-wider text-[#5a6480]">Focus</span>
             <button
-              onClick={() => setPathFinderOpen(true)}
+              onClick={openPathFinder}
               className="max-w-[220px] truncate px-2 py-1 rounded border border-[#252a3d] bg-[#0d0f17] text-slate-200 hover:border-[#7b9cf5] transition-colors cursor-pointer"
               title="Open path finder from the current thinker"
             >
@@ -2634,7 +2671,7 @@ export default function App() {
           )}
 
           <button
-            onClick={() => setFilterDrawerOpen((prev) => !prev)}
+            onClick={toggleFilterDrawer}
             className={`px-4 py-1.5 rounded-md text-[11px] font-semibold font-mono border transition-all cursor-pointer flex items-center gap-2 ${
               filterDrawerOpen
                 ? "bg-[#7b9cf5]/15 border-[#7b9cf5] text-[#9bdaff] shadow-[0_0_12px_rgba(123,156,245,0.15)]"
@@ -2702,7 +2739,7 @@ export default function App() {
           <button
             onClick={() => {
               setActiveActivity("trace");
-              setPathFinderOpen(true);
+              openPathFinder();
             }}
             disabled={!selectedId}
             className="px-2.5 py-1 text-[10px] font-mono rounded-md border border-[#252a3d] bg-[#141724] text-amber-300 hover:border-amber-400 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer transition-colors"
@@ -2797,8 +2834,7 @@ export default function App() {
               {showRadarCurationActions && (
                 <button
                   onClick={() => {
-                    setExtensionWorkbenchOpen(true);
-                    setWorkbenchTab("links");
+                    openWorkbenchPanel("links");
                   }}
                   className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
                 >
@@ -4495,7 +4531,7 @@ export default function App() {
                                     onClick={(event) => {
                                       event.stopPropagation();
                                       setSelectedFields((prev) => prev.includes(field) ? prev : [...prev, field]);
-                                      setFilterDrawerOpen(true);
+                                      openFilterDrawer();
                                     }}
                                     className="rounded border border-[#252a3d] bg-[#0b0d14] px-1.5 py-0.5 text-[8.5px] font-mono text-slate-500 hover:text-slate-200 hover:border-slate-600 cursor-pointer"
                                     title={`Filter to ${field}`}
@@ -4647,7 +4683,7 @@ export default function App() {
             onFindPath={setHighlightPath}
             onSelect={(id) => selectPerson(id, { preserveHighlight: true })}
             isOpen={pathFinderOpen}
-            onToggle={() => setPathFinderOpen((prev) => !prev)}
+            onToggle={togglePathFinder}
             highlightPath={highlightPath}
           />
         </main>

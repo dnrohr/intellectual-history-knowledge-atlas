@@ -291,11 +291,11 @@ Status notation:
   - [x] timeline can show compressed context while graph shows active neighborhood detail
   - [x] graph can show relationship structure while timeline shows chronology for selected nodes
   - [x] selection, path, thread, and filter state should move cleanly between views
-- Add clear overlay behavior:
-  - only one major drawer open by default
-  - overlays should be dismissible, pinnable, and not trap critical controls
-  - floating panels should avoid covering the selected node/timeline axis when possible
-  - panels should remember whether the user prefers them docked or floating
+- [x] Add clear overlay behavior:
+  - [x] only one major drawer open by default
+  - [x] overlays should be dismissible, pinnable, and not trap critical controls
+  - [x] floating panels should avoid covering the selected node/timeline axis when possible
+  - [x] panels should remember whether the user prefers them docked or floating
 - Add a UI audit pass for every major screen:
   - what is the user's current activity?
   - what must remain visible?
