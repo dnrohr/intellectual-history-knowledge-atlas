@@ -9,6 +9,7 @@ interface NetworkGraphProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   highlightPath: string[] | null;
+  coordinatedFocusDepth?: "all" | 1 | 2 | 3;
 }
 
 interface SimulatedNode extends d3.SimulationNodeDatum, Thinker {
@@ -28,6 +29,7 @@ export default function NetworkGraph({
   selectedId,
   onSelect,
   highlightPath,
+  coordinatedFocusDepth,
 }: NetworkGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,9 +44,10 @@ export default function NetworkGraph({
   const [hoveredNode, setHoveredNode] = useState<SimulatedNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [focusDepth, setFocusDepth] = useState<"all" | 1 | 2 | 3>(1);
+  const effectiveFocusDepth = coordinatedFocusDepth ?? focusDepth;
 
   const { graphPeople, graphEdges, visibleTotal } = useMemo(() => {
-    if (!selectedId || focusDepth === "all") {
+    if (!selectedId || effectiveFocusDepth === "all") {
       return { graphPeople: people, graphEdges: edges, visibleTotal: people.length };
     }
 
@@ -53,7 +56,7 @@ export default function NetworkGraph({
 
     while (queue.length > 0) {
       const current = queue.shift()!;
-      if (current.depth >= focusDepth) continue;
+      if (current.depth >= effectiveFocusDepth) continue;
 
       edges.forEach((edge) => {
         const neighbor =
@@ -77,7 +80,7 @@ export default function NetworkGraph({
     const graphPeople = people.filter((person) => visibleIds.has(person.id));
     const graphEdges = edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
     return { graphPeople, graphEdges, visibleTotal: graphPeople.length };
-  }, [edges, focusDepth, highlightPath, people, selectedId]);
+  }, [edges, effectiveFocusDepth, highlightPath, people, selectedId]);
 
   // Init & update nodes/links
   useEffect(() => {
@@ -215,7 +218,7 @@ export default function NetworkGraph({
 
     const focusSet = new Set<string>();
     const focusDepthById = new Map<string, number>();
-    if (selectedId && focusDepth !== "all") {
+    if (selectedId && effectiveFocusDepth !== "all") {
       focusSet.add(selectedId);
       focusDepthById.set(selectedId, 0);
       const queue: { id: string; depth: number }[] = [{ id: selectedId, depth: 0 }];
@@ -223,7 +226,7 @@ export default function NetworkGraph({
 
       while (queue.length > 0) {
         const current = queue.shift()!;
-        if (current.depth >= focusDepth) continue;
+        if (current.depth >= effectiveFocusDepth) continue;
 
         linksRef.current.forEach((link) => {
           const neighbor =
@@ -443,7 +446,7 @@ export default function NetworkGraph({
         requestRef.current = null;
       }
     };
-  }, [selectedId, highlightPath, focusDepth]);
+  }, [selectedId, highlightPath, effectiveFocusDepth]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -614,7 +617,7 @@ export default function NetworkGraph({
               requestAnimationFrame(draw);
             }}
             className={`px-2 py-0.5 text-[9px] font-mono rounded cursor-pointer transition-colors ${
-              focusDepth === depth
+              effectiveFocusDepth === depth
                 ? "bg-[#7b9cf5]/20 text-[#9bdaff]"
                 : "text-slate-500 hover:text-slate-200"
             }`}

@@ -287,10 +287,10 @@ Status notation:
   - [x] "only show connected to current focus"
   - [x] "only show this thread"
   - [x] "only show review gaps"
-- Treat graph and timeline as coordinated lenses:
-  - timeline can show compressed context while graph shows active neighborhood detail
-  - graph can show relationship structure while timeline shows chronology for selected nodes
-  - selection, path, thread, and filter state should move cleanly between views
+- [x] Treat graph and timeline as coordinated lenses:
+  - [x] timeline can show compressed context while graph shows active neighborhood detail
+  - [x] graph can show relationship structure while timeline shows chronology for selected nodes
+  - [x] selection, path, thread, and filter state should move cleanly between views
 - Add clear overlay behavior:
   - only one major drawer open by default
   - overlays should be dismissible, pinnable, and not trap critical controls

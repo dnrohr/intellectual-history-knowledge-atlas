@@ -20,6 +20,7 @@ interface TimelineProps {
   minYear: number;
   maxYear: number;
   timelineBookmarks?: TimelineBookmark[];
+  coordinatedNearbyContext?: boolean;
 }
 
 interface TimelineBookmark {
@@ -74,6 +75,7 @@ export default function Timeline({
   minYear,
   maxYear,
   timelineBookmarks = [],
+  coordinatedNearbyContext = false,
 }: TimelineProps) {
   const YEAR_MIN = minYear;
   const YEAR_MAX = maxYear;
@@ -587,7 +589,7 @@ export default function Timeline({
       const by = y0 + (ROW_H - bh) / 2;
 
       ctx.save();
-      if ((timelineDensity === "compressed" || nearbyContextOnly) && isAnySelected && !activeSet.has(p.id) && !isSearchMatch && !isHighBridge) {
+      if ((timelineDensity === "compressed" || nearbyContextOnly || coordinatedNearbyContext) && isAnySelected && !activeSet.has(p.id) && !isSearchMatch && !isHighBridge) {
         const markerX = x1 + barW / 2;
         ctx.globalAlpha = 0.42;
         ctx.fillStyle = col;
@@ -680,7 +682,7 @@ export default function Timeline({
       ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
     });
     ctx.restore();
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen, nearbyContextOnly]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen, nearbyContextOnly, coordinatedNearbyContext]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -905,7 +907,7 @@ export default function Timeline({
             onClick={() => setNearbyContextOnly((prev) => !prev)}
             disabled={!selectedId && !highlightPath}
             className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
-              nearbyContextOnly ? "border-emerald-400 bg-emerald-400/15 text-emerald-200" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
+              nearbyContextOnly || coordinatedNearbyContext ? "border-emerald-400 bg-emerald-400/15 text-emerald-200" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
             }`}
             title="Show nearby context"
           >

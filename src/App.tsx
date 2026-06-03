@@ -197,6 +197,7 @@ export default function App() {
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
   const [chromeDensity, setChromeDensity] = useState<ChromeDensity>("comfortable");
   const [workbenchPanelMode, setWorkbenchPanelMode] = useState<Exclude<PanelMode, "closed">>("docked");
+  const [coordinatedLenses, setCoordinatedLenses] = useState(true);
 
   // Panel Resizer states
   const [sidebarWidth, setSidebarWidth] = useState(220);
@@ -2715,6 +2716,20 @@ export default function App() {
           >
             Contemporaries
           </button>
+          <button
+            onClick={() => {
+              setCoordinatedLenses((prev) => !prev);
+              setViewMode("split");
+            }}
+            className={`px-2.5 py-1 text-[10px] font-mono rounded-md border transition-colors cursor-pointer ${
+              coordinatedLenses
+                ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]"
+                : "border-[#252a3d] bg-[#141724] text-slate-400 hover:border-slate-500"
+            }`}
+            title="Coordinate graph and timeline lenses"
+          >
+            Sync Lenses
+          </button>
         </div>
 
         <div className="hidden xl:flex items-center gap-2 min-w-0 text-[10px] font-mono text-slate-500">
@@ -4563,6 +4578,7 @@ export default function App() {
                 minYear={minYear}
                 maxYear={maxYear}
                 timelineBookmarks={timelineBookmarks}
+                coordinatedNearbyContext={coordinatedLenses}
               />
             </div>
  
@@ -4574,6 +4590,7 @@ export default function App() {
                 selectedId={selectedId}
                 onSelect={selectPerson}
                 highlightPath={highlightPath}
+                coordinatedFocusDepth={coordinatedLenses ? 2 : undefined}
               />
             </div>
  
@@ -4598,6 +4615,7 @@ export default function App() {
                   minYear={minYear}
                   maxYear={maxYear}
                   timelineBookmarks={timelineBookmarks}
+                  coordinatedNearbyContext={coordinatedLenses}
                 />
               </div>
 
@@ -4615,6 +4633,7 @@ export default function App() {
                   selectedId={selectedId}
                   onSelect={selectPerson}
                   highlightPath={highlightPath}
+                  coordinatedFocusDepth={coordinatedLenses ? 2 : undefined}
                 />
               </div>
             </div>
