@@ -2428,6 +2428,36 @@ export default function App() {
     applySavedAtlasView(view);
   };
 
+  const openNeedsReviewView = () => {
+    const collectionIds = needsReviewThinkers.map((person) => person.id);
+    const view: SavedAtlasView = {
+      id: "dynamic-needs-review",
+      name: "Needs review",
+      createdAt: new Date().toISOString(),
+      activity: "curate",
+      viewMode: "split",
+      chromeDensity: "curation",
+      selectedId: collectionIds[0] || null,
+      selectedFields: [],
+      selectedSubfields: [],
+      selectedLensTags: [],
+      selectedEras: [],
+      selectedRegions: [],
+      selectedThreadId: null,
+      minYear: -650,
+      maxYear: 2030,
+      searchQuery: "",
+      sortMode: "relevance",
+      onlyConnectedToFocus: false,
+      onlyCurrentThread: false,
+      onlyReviewGaps: true,
+      collectionIds,
+    };
+
+    setSavedAtlasViews((prev) => [view, ...prev.filter((item) => item.id !== view.id)].slice(0, 20));
+    applySavedAtlasView(view);
+  };
+
   const deleteSavedAtlasView = (id: string) => {
     setSavedAtlasViews((prev) => prev.filter((view) => view.id !== id));
     if (activeSavedViewId === id) setActiveSavedViewId(null);
@@ -2543,6 +2573,10 @@ export default function App() {
     const isImported = person.movement === "Imported" || person.notes?.includes("Imported from");
     const hasEdges = edges.some((edge) => edge.source === person.id || edge.target === person.id);
     return isImported && !hasEdges;
+  });
+  const needsReviewThinkers = people.filter((person) => {
+    const degree = edges.filter((edge) => edge.source === person.id || edge.target === person.id).length;
+    return degree <= 1 || !person.subfields || person.subfields.length === 0;
   });
   const sparseThinkers = people
     .filter((p) => {
@@ -2819,6 +2853,14 @@ export default function App() {
                   <Bookmark className="w-3.5 h-3.5 text-cyan-300" />
                   <span className="flex-1">Unlinked Imports</span>
                   <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-[8.5px] text-cyan-200">{unlinkedImportedThinkers.length}</span>
+                </button>
+                <button
+                  onClick={openNeedsReviewView}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-amber-300" />
+                  <span className="flex-1">Needs Review</span>
+                  <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-[8.5px] text-amber-200">{needsReviewThinkers.length}</span>
                 </button>
                 <button
                   onClick={() => {

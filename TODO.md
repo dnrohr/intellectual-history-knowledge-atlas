@@ -353,7 +353,7 @@ Status notation:
   - [x] AI lineage
   - [x] Critical theory and postmodernism
 - [x] Add "unlinked imports" view.
-- Add "needs review" view.
+- [x] Add "needs review" view.
 - Add "high-confidence suggestions" view.
 - Add "source gaps" view.
 - Add compact relationship inspector.
