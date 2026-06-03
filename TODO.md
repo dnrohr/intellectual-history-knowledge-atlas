@@ -355,7 +355,7 @@ Status notation:
 - [x] Add "unlinked imports" view.
 - [x] Add "needs review" view.
 - [x] Add "high-confidence suggestions" view.
-- Add "source gaps" view.
+- [x] Add "source gaps" view.
 - Add compact relationship inspector.
 - Add graph clustering by domain, movement, era, and institution.
 - Add graph layout modes:

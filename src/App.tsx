@@ -2491,6 +2491,36 @@ export default function App() {
     applySavedAtlasView(view);
   };
 
+  const openSourceGapsView = () => {
+    const collectionIds = sourceGapThinkers.map((person) => person.id);
+    const view: SavedAtlasView = {
+      id: "dynamic-source-gaps",
+      name: "Source gaps",
+      createdAt: new Date().toISOString(),
+      activity: "sources",
+      viewMode: "network",
+      chromeDensity: "curation",
+      selectedId: collectionIds[0] || selectedId,
+      selectedFields: [],
+      selectedSubfields: [],
+      selectedLensTags: [],
+      selectedEras: [],
+      selectedRegions: [],
+      selectedThreadId: null,
+      minYear: -650,
+      maxYear: 2030,
+      searchQuery: "",
+      sortMode: "relevance",
+      onlyConnectedToFocus: false,
+      onlyCurrentThread: false,
+      onlyReviewGaps: false,
+      collectionIds,
+    };
+
+    setSavedAtlasViews((prev) => [view, ...prev.filter((item) => item.id !== view.id)].slice(0, 20));
+    applySavedAtlasView(view);
+  };
+
   const deleteSavedAtlasView = (id: string) => {
     setSavedAtlasViews((prev) => prev.filter((view) => view.id !== id));
     if (activeSavedViewId === id) setActiveSavedViewId(null);
@@ -2611,6 +2641,12 @@ export default function App() {
     const degree = edges.filter((edge) => edge.source === person.id || edge.target === person.id).length;
     return degree <= 1 || !person.subfields || person.subfields.length === 0;
   });
+  const sourceGapEdges = edges.filter((edge) =>
+    edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !edge.sourceClaims || edge.sourceClaims.length === 0
+  );
+  const sourceGapThinkers = Array.from(new Set(sourceGapEdges.flatMap((edge) => [edge.source, edge.target])))
+    .map((id) => people.find((person) => person.id === id))
+    .filter((person): person is Thinker => Boolean(person));
   const sparseThinkers = people
     .filter((p) => {
       const degree = edges.filter((e) => e.source === p.id || e.target === p.id).length;
@@ -2905,6 +2941,14 @@ export default function App() {
                   <Share2 className="w-3.5 h-3.5 text-emerald-300" />
                   <span className="flex-1">High-Confidence Suggestions</span>
                   <span className="rounded bg-emerald-400/10 px-1.5 py-0.5 text-[8.5px] text-emerald-200">{highConfidenceSuggestions.length}</span>
+                </button>
+                <button
+                  onClick={openSourceGapsView}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Filter className="w-3.5 h-3.5 text-violet-300" />
+                  <span className="flex-1">Source Gaps</span>
+                  <span className="rounded bg-violet-400/10 px-1.5 py-0.5 text-[8.5px] text-violet-200">{sourceGapEdges.length}</span>
                 </button>
                 <button
                   onClick={() => {
