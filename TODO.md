@@ -296,12 +296,50 @@ Status notation:
   - [x] overlays should be dismissible, pinnable, and not trap critical controls
   - [x] floating panels should avoid covering the selected node/timeline axis when possible
   - [x] panels should remember whether the user prefers them docked or floating
-- Add a UI audit pass for every major screen:
-  - what is the user's current activity?
-  - what must remain visible?
-  - what can be hidden until requested?
-  - what should be one tap/click away?
-  - what can move into a drawer, menu, command palette, or bottom sheet?
+- [x] Add a UI audit pass for every major screen:
+  - [x] what is the user's current activity?
+  - [x] what must remain visible?
+  - [x] what can be hidden until requested?
+  - [x] what should be one tap/click away?
+  - [x] what can move into a drawer, menu, command palette, or bottom sheet?
+
+  UI activity audit:
+  - Explore:
+    - Current activity: broad browsing, searching, filtering, and selecting thinkers.
+    - Must remain visible: search, active focus, current filters count, primary timeline/graph lens, selected dossier affordance.
+    - Hide until requested: detailed filter facets, curation queues, import forms, source-audit controls, dense relationship metadata.
+    - One tap/click away: filters, activity switcher, saved views, current-focus actions, relationship path finding.
+    - Drawer/menu/bottom sheet: filter drawer, command menu, compact mobile activity switcher, optional bottom-sheet dossier.
+  - Inspect:
+    - Current activity: close reading one selected thinker and their immediate neighborhood.
+    - Must remain visible: selected thinker, incoming/outgoing counts, graph lens, immediate relationships, dossier close/resize.
+    - Hide until requested: global index, full filter taxonomy, import/review queues, non-selected relationship suggestions.
+    - One tap/click away: neighborhood reset, lineage in/out, field/era filter chips, source review for selected thinker.
+    - Drawer/menu/bottom sheet: selected thinker dossier, relationship inspector, source/details subpanels.
+  - Trace:
+    - Current activity: finding bridges, paths, lineage chains, and thread chronology.
+    - Must remain visible: path finder, highlighted path/thread state, selected focus, split timeline/graph lenses.
+    - Hide until requested: broad curation workbench, import tools, full index groups, unrelated suggestions.
+    - One tap/click away: path clear, selected thinker as start/end, canonical threads, synchronized lens toggle.
+    - Drawer/menu/bottom sheet: path finder overlay, thread picker, compact path summary sheet.
+  - Curate:
+    - Current activity: accepting, rejecting, and repairing relationship/tag suggestions.
+    - Must remain visible: review queue, selected focus, suggestion confidence/reason, add/reject actions.
+    - Hide until requested: full timeline controls, unrelated import search, broad field filters, demo chrome.
+    - One tap/click away: workbench tabs, source audit, selected-person context, undo/recent actions.
+    - Drawer/menu/bottom sheet: docked/pinned workbench, suggestion detail drawer, command menu actions.
+  - Import:
+    - Current activity: bringing in external candidates and triaging duplicates.
+    - Must remain visible: import queue, candidate confidence, duplicate state, accept/edit/skip controls.
+    - Hide until requested: graph layout controls, relationship radar, full taxonomy unless editing tags.
+    - One tap/click away: batch lookup, queue filters, duplicate review, source links, import audit.
+    - Drawer/menu/bottom sheet: import workbench, candidate editor, duplicate detail panel.
+  - Sources:
+    - Current activity: checking evidence coverage and source gaps.
+    - Must remain visible: source gaps/review targets, selected thinker, relationship/source status, audit actions.
+    - Hide until requested: import drafting, broad layout controls, dense graph labels.
+    - One tap/click away: high-confidence suggestions, source-gap view, selected edge/source details.
+    - Drawer/menu/bottom sheet: source audit workbench, relationship inspector, command menu.
 
 - Add saved views/collections.
 - Add default curated views:
