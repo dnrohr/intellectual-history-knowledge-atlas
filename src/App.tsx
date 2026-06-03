@@ -2458,6 +2458,39 @@ export default function App() {
     applySavedAtlasView(view);
   };
 
+  const openHighConfidenceSuggestionsView = () => {
+    const collectionIds = [
+      ...(selectedId ? [selectedId] : []),
+      ...highConfidenceSuggestionThinkers.map((person) => person.id),
+    ];
+    const view: SavedAtlasView = {
+      id: "dynamic-high-confidence-suggestions",
+      name: "High-confidence suggestions",
+      createdAt: new Date().toISOString(),
+      activity: "curate",
+      viewMode: "split",
+      chromeDensity: "curation",
+      selectedId: selectedId || collectionIds[0] || null,
+      selectedFields: [],
+      selectedSubfields: [],
+      selectedLensTags: [],
+      selectedEras: [],
+      selectedRegions: [],
+      selectedThreadId: null,
+      minYear: -650,
+      maxYear: 2030,
+      searchQuery: "",
+      sortMode: "relevance",
+      onlyConnectedToFocus: false,
+      onlyCurrentThread: false,
+      onlyReviewGaps: false,
+      collectionIds,
+    };
+
+    setSavedAtlasViews((prev) => [view, ...prev.filter((item) => item.id !== view.id)].slice(0, 20));
+    applySavedAtlasView(view);
+  };
+
   const deleteSavedAtlasView = (id: string) => {
     setSavedAtlasViews((prev) => prev.filter((view) => view.id !== id));
     if (activeSavedViewId === id) setActiveSavedViewId(null);
@@ -2641,6 +2674,8 @@ export default function App() {
     ];
     return reasons.length > 0 ? reasons.join(", ") : "nearby context";
   };
+  const highConfidenceSuggestions = suggestedLinks.filter((candidate) => candidate.score >= 4);
+  const highConfidenceSuggestionThinkers = highConfidenceSuggestions.map((candidate) => candidate.person);
   const focusLinkQueue = suggestedLinks.slice(0, 4);
   const connectedIndexPeople = selectedNearestRelations
     .map((item) => item.other)
@@ -2861,6 +2896,15 @@ export default function App() {
                   <Eye className="w-3.5 h-3.5 text-amber-300" />
                   <span className="flex-1">Needs Review</span>
                   <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-[8.5px] text-amber-200">{needsReviewThinkers.length}</span>
+                </button>
+                <button
+                  onClick={openHighConfidenceSuggestionsView}
+                  disabled={!selectedId}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-emerald-300" />
+                  <span className="flex-1">High-Confidence Suggestions</span>
+                  <span className="rounded bg-emerald-400/10 px-1.5 py-0.5 text-[8.5px] text-emerald-200">{highConfidenceSuggestions.length}</span>
                 </button>
                 <button
                   onClick={() => {
