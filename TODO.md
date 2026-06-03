@@ -279,14 +279,14 @@ Status notation:
   - [x] bookmarks for eras, threads, and saved views
   - [x] visible "current window" date range indicator
   - [x] quick reset to full range or selected-person lifespan
-- Improve filtering as a primary interaction, not just a drawer:
-  - saved filter presets
-  - current-activity filter chips
-  - quick toggles for selected field, selected era, selected thread, and selected neighborhood
-  - relevance ranking for visible people
-  - "only show connected to current focus"
-  - "only show this thread"
-  - "only show review gaps"
+- [x] Improve filtering as a primary interaction, not just a drawer:
+  - [x] saved filter presets
+  - [x] current-activity filter chips
+  - [x] quick toggles for selected field, selected era, selected thread, and selected neighborhood
+  - [x] relevance ranking for visible people
+  - [x] "only show connected to current focus"
+  - [x] "only show this thread"
+  - [x] "only show review gaps"
 - Treat graph and timeline as coordinated lenses:
   - timeline can show compressed context while graph shows active neighborhood detail
   - graph can show relationship structure while timeline shows chronology for selected nodes

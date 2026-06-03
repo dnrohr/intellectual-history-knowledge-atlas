@@ -282,7 +282,10 @@ export default function App() {
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
 
-  const [sortMode, setSortMode] = useState<"birth" | "field" | "bridge" | "name">("birth");
+  const [sortMode, setSortMode] = useState<"birth" | "field" | "bridge" | "name" | "relevance">("birth");
+  const [onlyConnectedToFocus, setOnlyConnectedToFocus] = useState(false);
+  const [onlyCurrentThread, setOnlyCurrentThread] = useState(false);
+  const [onlyReviewGaps, setOnlyReviewGaps] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Layer toggles
@@ -563,12 +566,48 @@ export default function App() {
       );
     }
 
+    if (onlyConnectedToFocus && selectedId) {
+      const connectedIds = new Set<string>([selectedId]);
+      edges.forEach((edge) => {
+        if (edge.source === selectedId) connectedIds.add(edge.target);
+        if (edge.target === selectedId) connectedIds.add(edge.source);
+      });
+      list = list.filter((p) => connectedIds.has(p.id));
+    }
+
+    if (onlyCurrentThread && selectedThreadId) {
+      const thread = CANONICAL_THREADS.find((item) => item.id === selectedThreadId);
+      const threadIds = new Set(
+        (thread?.people || [])
+          .map((name) => people.find((person) => person.name === name)?.id)
+          .filter(Boolean)
+      );
+      list = list.filter((p) => threadIds.has(p.id));
+    }
+
+    if (onlyReviewGaps) {
+      list = list.filter((p) => {
+        const degree = edges.filter((edge) => edge.source === p.id || edge.target === p.id).length;
+        return degree <= 1 || !p.subfields || p.subfields.length === 0;
+      });
+    }
+
     // Sorting logic
+    const relevanceScore = (p: Thinker) => {
+      let score = p.bridge_score ?? 1;
+      if (selectedId && edges.some((edge) => edge.source === selectedId && edge.target === p.id || edge.target === selectedId && edge.source === p.id)) score += 8;
+      if (selectedId === p.id) score += 12;
+      if (searchQuery.trim() !== "" && p.name.toLowerCase().includes(searchQuery.toLowerCase().trim())) score += 6;
+      if (selectedFields.some((field) => p.fields?.includes(field))) score += 3;
+      if (selectedEras.includes(p.era || "")) score += 2;
+      return score;
+    };
     const sorters = {
       birth: (a: Thinker, b: Thinker) => a.birth - b.birth,
       field: (a: Thinker, b: Thinker) => (a.fields?.[0] || "").localeCompare(b.fields?.[0] || "") || a.birth - b.birth,
       bridge: (a: Thinker, b: Thinker) => (b.bridge_score ?? 1) - (a.bridge_score ?? 1),
       name: (a: Thinker, b: Thinker) => a.name.localeCompare(b.name),
+      relevance: (a: Thinker, b: Thinker) => relevanceScore(b) - relevanceScore(a) || a.birth - b.birth,
     };
 
     return list.sort(sorters[sortMode]);
@@ -1909,11 +1948,49 @@ export default function App() {
     setDraftQueueItemId(queueItemId);
   };
 
-  const hasActiveFilters = selectedFields.length > 0 || selectedSubfields.length > 0 || selectedLensTags.length > 0 || selectedEras.length > 0 || selectedRegions.length > 0 || minYear !== -650 || maxYear !== 2030;
-  const activeFiltersCount = selectedFields.length + selectedSubfields.length + selectedLensTags.length + selectedEras.length + selectedRegions.length + (minYear !== -650 || maxYear !== 2030 ? 1 : 0);
+  const hasActiveFilters = selectedFields.length > 0 || selectedSubfields.length > 0 || selectedLensTags.length > 0 || selectedEras.length > 0 || selectedRegions.length > 0 || minYear !== -650 || maxYear !== 2030 || onlyConnectedToFocus || onlyCurrentThread || onlyReviewGaps;
+  const activeFiltersCount = selectedFields.length + selectedSubfields.length + selectedLensTags.length + selectedEras.length + selectedRegions.length + (minYear !== -650 || maxYear !== 2030 ? 1 : 0) + (onlyConnectedToFocus ? 1 : 0) + (onlyCurrentThread ? 1 : 0) + (onlyReviewGaps ? 1 : 0);
   const selectedThinker = selectedId ? people.find((p) => p.id === selectedId) : null;
   const selectedIncomingCount = selectedId ? edges.filter((e) => e.target === selectedId).length : 0;
   const selectedOutgoingCount = selectedId ? edges.filter((e) => e.source === selectedId).length : 0;
+  const resetFilters = () => {
+    setSelectedFields([]);
+    setSelectedSubfields([]);
+    setSelectedLensTags([]);
+    setSelectedEras([]);
+    setSelectedRegions([]);
+    setOnlyConnectedToFocus(false);
+    setOnlyCurrentThread(false);
+    setOnlyReviewGaps(false);
+    setMinYear(-650);
+    setMaxYear(2030);
+  };
+  const applyFilterPreset = (preset: "ancient" | "science" | "review" | "focus") => {
+    resetFilters();
+    setFilterDrawerOpen(false);
+
+    if (preset === "ancient") {
+      setSelectedEras(["Ancient"]);
+      setMinYear(-650);
+      setMaxYear(500);
+      return;
+    }
+
+    if (preset === "science") {
+      setSelectedFields(["Physics", "Astronomy", "Mathematics", "Biology", "Chemistry"]);
+      setSortMode("relevance");
+      return;
+    }
+
+    if (preset === "review") {
+      setOnlyReviewGaps(true);
+      setSortMode("relevance");
+      return;
+    }
+
+    setOnlyConnectedToFocus(true);
+    setSortMode("relevance");
+  };
   const activityOptions: Array<{
     id: WorkspaceActivity;
     label: string;
@@ -2465,15 +2542,7 @@ export default function App() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                onClick={() => {
-                  setSelectedFields([]);
-                  setSelectedSubfields([]);
-                  setSelectedLensTags([]);
-                  setSelectedEras([]);
-                  setSelectedRegions([]);
-                  setMinYear(-650);
-                  setMaxYear(2030);
-                }}
+                onClick={resetFilters}
                 className="text-amber-500 hover:text-amber-400 text-[10px] font-mono uppercase tracking-wider cursor-pointer border border-[#c27829]/40 bg-[#c27829]/10 px-2 py-0.5 rounded transition-all flex items-center gap-1"
               >
                 <span>Clear Filters</span>
@@ -2483,6 +2552,85 @@ export default function App() {
               </motion.button>
             )}
           </AnimatePresence>
+
+          <div className="hidden lg:flex items-center gap-1">
+            {([
+              ["ancient", "Ancient"],
+              ["science", "Science"],
+              ["review", "Review"],
+              ["focus", "Focus"],
+            ] as const).map(([preset, label]) => (
+              <button
+                key={preset}
+                onClick={() => applyFilterPreset(preset)}
+                disabled={preset === "focus" && !selectedId}
+                className="rounded border border-[#252a3d] bg-[#090b10] px-2 py-1 text-[9px] font-mono text-slate-500 hover:border-[#7b9cf5] hover:text-slate-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                title={`${label} filter preset`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setOnlyConnectedToFocus((prev) => !prev)}
+            disabled={!selectedId}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
+              onlyConnectedToFocus ? "border-emerald-400 bg-emerald-400/15 text-emerald-200" : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Only show connected to current focus"
+          >
+            Connected
+          </button>
+
+          <button
+            onClick={() => setOnlyCurrentThread((prev) => !prev)}
+            disabled={!activeCanonicalThread}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
+              onlyCurrentThread ? "border-cyan-400 bg-cyan-400/15 text-cyan-200" : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Only show current canonical thread"
+          >
+            Thread
+          </button>
+
+          <button
+            onClick={() => setOnlyReviewGaps((prev) => !prev)}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+              onlyReviewGaps ? "border-amber-400 bg-amber-400/15 text-amber-200" : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Only show review gaps"
+          >
+            Gaps
+          </button>
+
+          {selectedThinker?.fields?.[0] && (
+            <button
+              onClick={() => handleToggleField(selectedThinker.fields[0])}
+              className={`hidden xl:inline-flex rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+                selectedFields.includes(selectedThinker.fields[0])
+                  ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]"
+                  : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
+              }`}
+              title="Toggle selected thinker field"
+            >
+              {selectedThinker.fields[0]}
+            </button>
+          )}
+
+          {selectedThinker?.era && (
+            <button
+              onClick={() => setSelectedEras((prev) => prev.includes(selectedThinker.era!) ? prev.filter((era) => era !== selectedThinker.era) : [...prev, selectedThinker.era!])}
+              className={`hidden xl:inline-flex rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+                selectedEras.includes(selectedThinker.era)
+                  ? "border-purple-400 bg-purple-400/15 text-purple-200"
+                  : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
+              }`}
+              title="Toggle selected thinker era"
+            >
+              {selectedThinker.era}
+            </button>
+          )}
 
           <button
             onClick={() => setFilterDrawerOpen((prev) => !prev)}
@@ -3046,7 +3194,7 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-[10px] text-[#5a6480] uppercase tracking-wider font-bold">Sort Index:</span>
                   <div className="flex items-center bg-[#090a0f] border border-[#22273b] p-0.5 rounded-md">
-                    {(["birth", "field", "bridge", "name"] as const).map((mode) => (
+                    {(["birth", "field", "bridge", "relevance", "name"] as const).map((mode) => (
                       <button
                         key={mode}
                         onClick={() => setSortMode(mode)}
