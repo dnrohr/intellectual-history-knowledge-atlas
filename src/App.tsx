@@ -133,6 +133,17 @@ type SavedAtlasView = {
   collectionIds: string[];
 };
 
+type DefaultCuratedAtlasViewDefinition = {
+  id: string;
+  name: string;
+  minYear: number;
+  maxYear: number;
+  selectedFields?: string[];
+  selectedEras?: string[];
+  searchQuery?: string;
+  match: (person: Thinker) => boolean;
+};
+
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
 const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
@@ -142,6 +153,118 @@ const WORKBENCH_PANEL_MODE_STORAGE_KEY = "atlas_workbench_panel_mode_v1";
 const SAVED_ATLAS_VIEWS_STORAGE_KEY = "atlas_saved_views_v1";
 const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
 const WORKBENCH_PANEL_MODES: Array<Exclude<PanelMode, "closed">> = ["floating", "docked", "pinned", "fullscreen"];
+
+const personSearchText = (person: Thinker) =>
+  [
+    person.name,
+    person.era,
+    person.movement,
+    person.region,
+    ...(person.fields || []),
+    ...(person.subfields || []),
+    ...(person.works || []),
+    person.notes,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+const DEFAULT_CURATED_ATLAS_VIEW_DEFINITIONS: DefaultCuratedAtlasViewDefinition[] = [
+  {
+    id: "ancient-foundations",
+    name: "Ancient foundations",
+    minYear: -650,
+    maxYear: 500,
+    selectedEras: ["Ancient"],
+    match: (person) => person.era === "Ancient",
+  },
+  {
+    id: "scientific-revolution",
+    name: "Scientific Revolution",
+    minYear: 1450,
+    maxYear: 1700,
+    selectedFields: ["Physics", "Astronomy", "Mathematics", "Biology", "Chemistry", "Philosophy"],
+    selectedEras: ["Renaissance", "Scientific Revolution"],
+    searchQuery: "scientific",
+    match: (person) => {
+      const text = personSearchText(person);
+      return person.movement === "Scientific Revolution" || person.era === "Scientific Revolution" || text.includes("scientific revolution");
+    },
+  },
+  {
+    id: "enlightenment-political-thought",
+    name: "Enlightenment political thought",
+    minYear: 1630,
+    maxYear: 1800,
+    selectedFields: ["Political Thought", "Economics", "Philosophy"],
+    selectedEras: ["Enlightenment"],
+    match: (person) =>
+      person.era === "Enlightenment" &&
+      person.fields.some((field) => ["Political Thought", "Economics", "Philosophy"].includes(field)),
+  },
+  {
+    id: "german-idealism",
+    name: "German Idealism",
+    minYear: 1720,
+    maxYear: 1860,
+    selectedFields: ["Philosophy"],
+    selectedEras: ["Enlightenment", "19th Century"],
+    searchQuery: "idealism",
+    match: (person) => {
+      const text = personSearchText(person);
+      return person.movement === "German Idealism" || text.includes("idealism") || ["kant", "hegel"].includes(person.id);
+    },
+  },
+  {
+    id: "evolution-and-biology",
+    name: "Evolution and biology",
+    minYear: 1750,
+    maxYear: 1950,
+    selectedFields: ["Biology"],
+    searchQuery: "evolution",
+    match: (person) => {
+      const text = personSearchText(person);
+      return person.fields.includes("Biology") && /evolution|darwin|genetic|selection|taxonomy|anatomy|naturalist/.test(text);
+    },
+  },
+  {
+    id: "logic-to-computation",
+    name: "Logic to computation",
+    minYear: 1600,
+    maxYear: 2026,
+    selectedFields: ["Logic", "Computing", "Mathematics"],
+    searchQuery: "comput",
+    match: (person) => {
+      const text = personSearchText(person);
+      return person.fields.some((field) => ["Logic", "Computing"].includes(field)) || /comput|lambda|formal system|algorithm|turing|program/.test(text);
+    },
+  },
+  {
+    id: "quantum-physics",
+    name: "Quantum physics",
+    minYear: 1850,
+    maxYear: 2026,
+    selectedFields: ["Physics", "Cosmology"],
+    searchQuery: "quantum",
+    match: (person) => /quantum|relativity|qed|uncertainty|atomic|field symmetries/.test(personSearchText(person)),
+  },
+  {
+    id: "ai-lineage",
+    name: "AI lineage",
+    minYear: 1900,
+    maxYear: 2026,
+    selectedFields: ["Computing", "Mathematics", "Logic", "Psychology", "Linguistics"],
+    searchQuery: "AI",
+    match: (person) => /artificial intelligence|\bai\b|symbolic ai|lisp|transformer|machine learning|neural|cognitive/.test(personSearchText(person)),
+  },
+  {
+    id: "critical-theory-postmodernism",
+    name: "Critical theory and postmodernism",
+    minYear: 1850,
+    maxYear: 2026,
+    selectedFields: ["Philosophy", "Political Thought", "Literature"],
+    selectedEras: ["Modernism", "Postwar", "Contemporary"],
+    searchQuery: "critical",
+    match: (person) => /critical|postmodern|structural|power-knowledge|gender|genealogical|ideology|alienation/.test(personSearchText(person)),
+  },
+];
 
 type StoredImportReviewQueue = {
   version: number;
@@ -254,6 +377,46 @@ const normalizeSavedAtlasViews = (items: unknown): SavedAtlasView[] => {
     .slice(0, 20);
 };
 
+const buildDefaultCuratedAtlasViews = (people: Thinker[]): SavedAtlasView[] =>
+  DEFAULT_CURATED_ATLAS_VIEW_DEFINITIONS.map((definition) => {
+    const collectionIds = people.filter(definition.match).map((person) => person.id);
+    const view: SavedAtlasView = {
+      id: `default-${definition.id}`,
+      name: definition.name,
+      createdAt: "default",
+      activity: "explore",
+      viewMode: "split",
+      chromeDensity: "comfortable",
+      selectedId: collectionIds[0] || null,
+      selectedFields: definition.selectedFields || [],
+      selectedSubfields: [],
+      selectedLensTags: [],
+      selectedEras: definition.selectedEras || [],
+      selectedRegions: [],
+      selectedThreadId: null,
+      minYear: definition.minYear,
+      maxYear: definition.maxYear,
+      searchQuery: "",
+      sortMode: "relevance",
+      onlyConnectedToFocus: false,
+      onlyCurrentThread: false,
+      onlyReviewGaps: false,
+      collectionIds,
+    };
+    return view;
+  }).filter((view) => view.collectionIds.length > 0);
+
+const getInitialSavedAtlasViews = (): SavedAtlasView[] => {
+  const defaults = buildDefaultCuratedAtlasViews(INITIAL_PEOPLE_DATA);
+  try {
+    const savedViews = normalizeSavedAtlasViews(JSON.parse(localStorage.getItem(SAVED_ATLAS_VIEWS_STORAGE_KEY) || "[]"));
+    const missingDefaults = defaults.filter((defaultView) => !savedViews.some((view) => view.id === defaultView.id));
+    return [...savedViews, ...missingDefaults].slice(0, 20);
+  } catch {
+    return defaults;
+  }
+};
+
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
@@ -355,13 +518,7 @@ export default function App() {
       return new Set();
     }
   });
-  const [savedAtlasViews, setSavedAtlasViews] = useState<SavedAtlasView[]>(() => {
-    try {
-      return normalizeSavedAtlasViews(JSON.parse(localStorage.getItem(SAVED_ATLAS_VIEWS_STORAGE_KEY) || "[]"));
-    } catch {
-      return [];
-    }
-  });
+  const [savedAtlasViews, setSavedAtlasViews] = useState<SavedAtlasView[]>(getInitialSavedAtlasViews);
   const [activeSavedViewId, setActiveSavedViewId] = useState<string | null>(null);
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);

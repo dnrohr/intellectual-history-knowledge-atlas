@@ -342,16 +342,16 @@ Status notation:
     - Drawer/menu/bottom sheet: source audit workbench, relationship inspector, command menu.
 
 - [x] Add saved views/collections.
-- Add default curated views:
-  - Ancient foundations
-  - Scientific Revolution
-  - Enlightenment political thought
-  - German Idealism
-  - Evolution and biology
-  - Logic to computation
-  - Quantum physics
-  - AI lineage
-  - Critical theory and postmodernism
+- [x] Add default curated views:
+  - [x] Ancient foundations
+  - [x] Scientific Revolution
+  - [x] Enlightenment political thought
+  - [x] German Idealism
+  - [x] Evolution and biology
+  - [x] Logic to computation
+  - [x] Quantum physics
+  - [x] AI lineage
+  - [x] Critical theory and postmodernism
 - Add "unlinked imports" view.
 - Add "needs review" view.
 - Add "high-confidence suggestions" view.
