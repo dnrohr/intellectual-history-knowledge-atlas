@@ -843,7 +843,7 @@ export default function App() {
 
     if (activeSavedViewId) {
       const activeSavedView = savedAtlasViews.find((view) => view.id === activeSavedViewId);
-      if (activeSavedView?.collectionIds.length) {
+      if (activeSavedView) {
         const collectionIds = new Set(activeSavedView.collectionIds);
         list = list.filter((p) => collectionIds.has(p.id));
       }
@@ -2398,6 +2398,36 @@ export default function App() {
     closeMajorOverlays();
   };
 
+  const openUnlinkedImportsView = () => {
+    const collectionIds = unlinkedImportedThinkers.map((person) => person.id);
+    const view: SavedAtlasView = {
+      id: "dynamic-unlinked-imports",
+      name: "Unlinked imports",
+      createdAt: new Date().toISOString(),
+      activity: "import",
+      viewMode: "split",
+      chromeDensity: "curation",
+      selectedId: collectionIds[0] || null,
+      selectedFields: [],
+      selectedSubfields: [],
+      selectedLensTags: [],
+      selectedEras: [],
+      selectedRegions: [],
+      selectedThreadId: null,
+      minYear: -650,
+      maxYear: 2030,
+      searchQuery: "",
+      sortMode: "relevance",
+      onlyConnectedToFocus: false,
+      onlyCurrentThread: false,
+      onlyReviewGaps: false,
+      collectionIds,
+    };
+
+    setSavedAtlasViews((prev) => [view, ...prev.filter((item) => item.id !== view.id)].slice(0, 20));
+    applySavedAtlasView(view);
+  };
+
   const deleteSavedAtlasView = (id: string) => {
     setSavedAtlasViews((prev) => prev.filter((view) => view.id !== id));
     if (activeSavedViewId === id) setActiveSavedViewId(null);
@@ -2509,6 +2539,11 @@ export default function App() {
   const unlinkedThinkers = people
     .filter((p) => !edges.some((e) => e.source === p.id || e.target === p.id))
     .slice(0, 20);
+  const unlinkedImportedThinkers = people.filter((person) => {
+    const isImported = person.movement === "Imported" || person.notes?.includes("Imported from");
+    const hasEdges = edges.some((edge) => edge.source === person.id || edge.target === person.id);
+    return isImported && !hasEdges;
+  });
   const sparseThinkers = people
     .filter((p) => {
       const degree = edges.filter((e) => e.source === p.id || e.target === p.id).length;
@@ -2776,6 +2811,14 @@ export default function App() {
                 >
                   <Plus className="w-3.5 h-3.5 text-cyan-300" />
                   Import Review
+                </button>
+                <button
+                  onClick={openUnlinkedImportsView}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Bookmark className="w-3.5 h-3.5 text-cyan-300" />
+                  <span className="flex-1">Unlinked Imports</span>
+                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-[8.5px] text-cyan-200">{unlinkedImportedThinkers.length}</span>
                 </button>
                 <button
                   onClick={() => {

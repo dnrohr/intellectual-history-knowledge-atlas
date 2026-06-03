@@ -352,7 +352,7 @@ Status notation:
   - [x] Quantum physics
   - [x] AI lineage
   - [x] Critical theory and postmodernism
-- Add "unlinked imports" view.
+- [x] Add "unlinked imports" view.
 - Add "needs review" view.
 - Add "high-confidence suggestions" view.
 - Add "source gaps" view.
