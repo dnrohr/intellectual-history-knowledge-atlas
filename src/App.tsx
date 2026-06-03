@@ -2041,6 +2041,15 @@ export default function App() {
     };
   }).filter((thread) => thread.resolvedPeople.length >= 2);
   const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
+  const timelineBookmarks = [
+    ...(selectedThinker ? [{ id: `focus-${selectedThinker.id}`, label: "Saved: Focus", year: selectedThinker.birth, kind: "saved" as const }] : []),
+    ...canonicalThreads.slice(0, 6).map((thread) => ({
+      id: thread.id,
+      label: `Thread: ${thread.title}`,
+      year: thread.resolvedPeople[0]?.birth ?? -650,
+      kind: "thread" as const,
+    })),
+  ];
   const focusCanonicalThreadStep = (thread: (typeof canonicalThreads)[number], step: number) => {
     const path = thread.resolvedPeople.map((person) => person.id);
     const nextStep = Math.max(0, Math.min(thread.resolvedPeople.length - 1, step));
@@ -4405,6 +4414,7 @@ export default function App() {
                 searchQuery={searchQuery}
                 minYear={minYear}
                 maxYear={maxYear}
+                timelineBookmarks={timelineBookmarks}
               />
             </div>
  
@@ -4439,6 +4449,7 @@ export default function App() {
                   searchQuery={searchQuery}
                   minYear={minYear}
                   maxYear={maxYear}
+                  timelineBookmarks={timelineBookmarks}
                 />
               </div>
 

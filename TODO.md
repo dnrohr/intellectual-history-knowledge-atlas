@@ -272,13 +272,13 @@ Status notation:
   - [x] let users hide low-bridge, unrelated, or unselected-field people while preserving context markers
   - [x] show labels only for selected, hovered, path/thread, high-bridge, or search-match people
   - [x] provide a "show nearby context" control instead of rendering everyone equally
-- Add timeline navigation aids:
-  - sticky BCE/CE year ruler
-  - mini overview/range scrubber
-  - jump-to-selected control
-  - bookmarks for eras, threads, and saved views
-  - visible "current window" date range indicator
-  - quick reset to full range or selected-person lifespan
+- [x] Add timeline navigation aids:
+  - [x] sticky BCE/CE year ruler
+  - [x] mini overview/range scrubber
+  - [x] jump-to-selected control
+  - [x] bookmarks for eras, threads, and saved views
+  - [x] visible "current window" date range indicator
+  - [x] quick reset to full range or selected-person lifespan
 - Improve filtering as a primary interaction, not just a drawer:
   - saved filter presets
   - current-activity filter chips

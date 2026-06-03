@@ -19,6 +19,14 @@ interface TimelineProps {
   searchQuery: string;
   minYear: number;
   maxYear: number;
+  timelineBookmarks?: TimelineBookmark[];
+}
+
+interface TimelineBookmark {
+  id: string;
+  label: string;
+  year: number;
+  kind: "thread" | "saved";
 }
 
 interface CriticalEvent {
@@ -65,6 +73,7 @@ export default function Timeline({
   searchQuery,
   minYear,
   maxYear,
+  timelineBookmarks = [],
 }: TimelineProps) {
   const YEAR_MIN = minYear;
   const YEAR_MAX = maxYear;
@@ -92,6 +101,9 @@ export default function Timeline({
     compressed: "C",
   };
   const semanticZoomTier = zoom < 0.75 ? "overview" : zoom > 2.25 ? "detail" : "balanced";
+  const formatYearLabel = (year: number) => year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
+  const selectedPerson = selectedId ? packedPeople.find((person) => person.id === selectedId) : null;
+  const eraBookmarks = ERA_BANDS.filter((band) => band.e >= YEAR_MIN && band.s <= YEAR_MAX).slice(0, 8);
 
   // Drag scrolling state
   const isDraggingRef = useRef(false);
@@ -115,6 +127,37 @@ export default function Timeline({
       x: Math.max(0, Math.min(next.x, Math.max(0, world.width - dimensions.width))),
       y: Math.max(0, Math.min(next.y, Math.max(0, world.height - dimensions.height))),
     };
+  };
+
+  const centerOnPerson = (person: Thinker & { row: number }) => {
+    const birthX = yearToX(person.birth);
+    const deathX = yearToX(person.death ?? 2024);
+    const centerX = birthX + Math.max(deathX - birthX, 8) / 2;
+    const centerY = HDR_H + person.row * ROW_H + ROW_H / 2;
+    setPan(clampPan({
+      x: centerX - dimensions.width / 2,
+      y: centerY - dimensions.height / 2,
+    }));
+  };
+
+  const jumpToYear = (year: number) => {
+    setPan((current) => clampPan({
+      ...current,
+      x: yearToX(year) - dimensions.width * 0.18,
+    }));
+  };
+
+  const resetToFullRange = () => {
+    setZoom(1);
+    setPan(clampPan({ x: 0, y: 0 }));
+  };
+
+  const frameSelectedLifespan = () => {
+    if (!selectedPerson) return;
+    const span = Math.max(80, (selectedPerson.death ?? 2024) - selectedPerson.birth);
+    const targetZoom = Math.max(0.45, Math.min(5, dimensions.width / (span * BASE_PX_YR * 2.2)));
+    setZoom(targetZoom);
+    window.setTimeout(() => centerOnPerson(selectedPerson), 0);
   };
 
   useEffect(() => {
@@ -275,6 +318,9 @@ export default function Timeline({
     return ((baseVal - 895) / 1.75) + 1800;
   };
 
+  const visibleStartYear = Math.round(Math.max(YEAR_MIN, xToYear(pan.x)));
+  const visibleEndYear = Math.round(Math.min(YEAR_MAX, xToYear(pan.x + dimensions.width)));
+
   // Redraw hook
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -282,9 +328,6 @@ export default function Timeline({
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const ROW_H = 18;
-    const HDR_H = 52;
 
     const canvasW = dimensions.width;
     const canvasH = dimensions.height;
@@ -913,6 +956,83 @@ export default function Timeline({
               +
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="shrink-0 border-b border-[#252a3d] bg-[#0d1018] px-3 py-2 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2 font-mono text-[9px] text-slate-500">
+            <span className="uppercase tracking-wider text-[#5a6480]">Window</span>
+            <span className="rounded border border-[#252a3d] bg-[#080a0f] px-2 py-1 text-slate-300">
+              {formatYearLabel(visibleStartYear)} to {formatYearLabel(visibleEndYear)}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              onClick={() => selectedPerson && centerOnPerson(selectedPerson)}
+              disabled={!selectedPerson}
+              className="rounded border border-[#252a3d] bg-[#10121a] px-2 py-1 text-[9px] font-mono text-slate-400 hover:text-slate-100 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Jump to selected thinker"
+            >
+              Selected
+            </button>
+            <button
+              onClick={frameSelectedLifespan}
+              disabled={!selectedPerson}
+              className="rounded border border-[#252a3d] bg-[#10121a] px-2 py-1 text-[9px] font-mono text-slate-400 hover:text-slate-100 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Frame selected thinker lifespan"
+            >
+              Lifespan
+            </button>
+            <button
+              onClick={resetToFullRange}
+              className="rounded border border-[#252a3d] bg-[#10121a] px-2 py-1 text-[9px] font-mono text-slate-400 hover:text-slate-100 cursor-pointer"
+              title="Reset timeline to full range"
+            >
+              Full
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+          <span className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Scrub</span>
+          <input
+            type="range"
+            min={0}
+            max={Math.max(0, getWorldSize().width - dimensions.width)}
+            value={Math.min(pan.x, Math.max(0, getWorldSize().width - dimensions.width))}
+            onChange={(event) => setPan((current) => clampPan({ ...current, x: Number(event.target.value) }))}
+            className="w-full accent-[#7b9cf5]"
+            title="Mini timeline range scrubber"
+          />
+        </div>
+
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-thin pb-0.5">
+          {eraBookmarks.map((era) => (
+            <button
+              key={`${era.label}-${era.s}-${era.e}`}
+              onClick={() => jumpToYear(era.s)}
+              className="shrink-0 rounded border border-[#252a3d] bg-[#090b10] px-2 py-1 text-[9px] font-mono text-slate-500 hover:border-[#7b9cf5] hover:text-slate-200 cursor-pointer"
+              title={`Jump to ${era.label}`}
+            >
+              {era.label}
+            </button>
+          ))}
+          {timelineBookmarks.map((bookmark) => (
+            <button
+              key={`${bookmark.kind}-${bookmark.id}`}
+              onClick={() => jumpToYear(bookmark.year)}
+              className={`shrink-0 rounded border px-2 py-1 text-[9px] font-mono cursor-pointer ${
+                bookmark.kind === "thread"
+                  ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200 hover:border-cyan-300"
+                  : "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:border-emerald-300"
+              }`}
+              title={`Jump to ${bookmark.label}`}
+            >
+              {bookmark.label}
+            </button>
+          ))}
         </div>
       </div>
 
