@@ -341,7 +341,7 @@ Status notation:
     - One tap/click away: high-confidence suggestions, source-gap view, selected edge/source details.
     - Drawer/menu/bottom sheet: source audit workbench, relationship inspector, command menu.
 
-- Add saved views/collections.
+- [x] Add saved views/collections.
 - Add default curated views:
   - Ancient foundations
   - Scientific Revolution

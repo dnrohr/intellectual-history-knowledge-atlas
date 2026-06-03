@@ -30,7 +30,9 @@ import {
   Eye, 
   X,
   Info,
-  MoreHorizontal
+  MoreHorizontal,
+  Bookmark,
+  Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -105,6 +107,31 @@ type LinkReviewItem = {
 type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
 type ChromeDensity = "compact" | "comfortable" | "focus" | "curation" | "demo";
 type PanelMode = "closed" | "floating" | "docked" | "pinned" | "fullscreen";
+type SortMode = "birth" | "field" | "bridge" | "name" | "relevance";
+
+type SavedAtlasView = {
+  id: string;
+  name: string;
+  createdAt: string;
+  activity: WorkspaceActivity;
+  viewMode: "timeline" | "network" | "split";
+  chromeDensity: ChromeDensity;
+  selectedId: string | null;
+  selectedFields: string[];
+  selectedSubfields: string[];
+  selectedLensTags: string[];
+  selectedEras: string[];
+  selectedRegions: string[];
+  selectedThreadId: string | null;
+  minYear: number;
+  maxYear: number;
+  searchQuery: string;
+  sortMode: SortMode;
+  onlyConnectedToFocus: boolean;
+  onlyCurrentThread: boolean;
+  onlyReviewGaps: boolean;
+  collectionIds: string[];
+};
 
 const IMPORT_QUEUE_SCHEMA_VERSION = 2;
 const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
@@ -112,6 +139,7 @@ const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
 const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v1";
 const LINK_REVIEW_QUEUE_STORAGE_KEY = "atlas_link_review_queue_v1";
 const WORKBENCH_PANEL_MODE_STORAGE_KEY = "atlas_workbench_panel_mode_v1";
+const SAVED_ATLAS_VIEWS_STORAGE_KEY = "atlas_saved_views_v1";
 const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
 const WORKBENCH_PANEL_MODES: Array<Exclude<PanelMode, "closed">> = ["floating", "docked", "pinned", "fullscreen"];
 
@@ -185,6 +213,45 @@ const normalizeLinkReviewQueue = (items: unknown): LinkReviewItem[] => {
       score: Number.isFinite(Number(item.score)) ? Number(item.score) : 1,
       createdAt: String(item.createdAt || new Date().toISOString()),
     }));
+};
+
+const normalizeSavedAtlasViews = (items: unknown): SavedAtlasView[] => {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item): item is Partial<SavedAtlasView> => Boolean(item))
+    .filter((item) => item.id && item.name)
+    .map((item) => ({
+      id: String(item.id),
+      name: String(item.name),
+      createdAt: String(item.createdAt || new Date().toISOString()),
+      activity: (["explore", "inspect", "trace", "curate", "import", "sources"] as WorkspaceActivity[]).includes(item.activity as WorkspaceActivity)
+        ? item.activity as WorkspaceActivity
+        : "explore",
+      viewMode: (["timeline", "network", "split"] as const).includes(item.viewMode as "timeline" | "network" | "split")
+        ? item.viewMode as "timeline" | "network" | "split"
+        : "split",
+      chromeDensity: (["compact", "comfortable", "focus", "curation", "demo"] as ChromeDensity[]).includes(item.chromeDensity as ChromeDensity)
+        ? item.chromeDensity as ChromeDensity
+        : "comfortable",
+      selectedId: typeof item.selectedId === "string" ? item.selectedId : null,
+      selectedFields: Array.isArray(item.selectedFields) ? item.selectedFields.filter((value): value is string => typeof value === "string") : [],
+      selectedSubfields: Array.isArray(item.selectedSubfields) ? item.selectedSubfields.filter((value): value is string => typeof value === "string") : [],
+      selectedLensTags: Array.isArray(item.selectedLensTags) ? item.selectedLensTags.filter((value): value is string => typeof value === "string") : [],
+      selectedEras: Array.isArray(item.selectedEras) ? item.selectedEras.filter((value): value is string => typeof value === "string") : [],
+      selectedRegions: Array.isArray(item.selectedRegions) ? item.selectedRegions.filter((value): value is string => typeof value === "string") : [],
+      selectedThreadId: typeof item.selectedThreadId === "string" ? item.selectedThreadId : null,
+      minYear: Number.isFinite(Number(item.minYear)) ? Number(item.minYear) : -650,
+      maxYear: Number.isFinite(Number(item.maxYear)) ? Number(item.maxYear) : 2030,
+      searchQuery: typeof item.searchQuery === "string" ? item.searchQuery : "",
+      sortMode: (["birth", "field", "bridge", "name", "relevance"] as SortMode[]).includes(item.sortMode as SortMode)
+        ? item.sortMode as SortMode
+        : "birth",
+      onlyConnectedToFocus: Boolean(item.onlyConnectedToFocus),
+      onlyCurrentThread: Boolean(item.onlyCurrentThread),
+      onlyReviewGaps: Boolean(item.onlyReviewGaps),
+      collectionIds: Array.isArray(item.collectionIds) ? item.collectionIds.filter((value): value is string => typeof value === "string") : [],
+    }))
+    .slice(0, 20);
 };
 
 export default function App() {
@@ -288,10 +355,18 @@ export default function App() {
       return new Set();
     }
   });
+  const [savedAtlasViews, setSavedAtlasViews] = useState<SavedAtlasView[]>(() => {
+    try {
+      return normalizeSavedAtlasViews(JSON.parse(localStorage.getItem(SAVED_ATLAS_VIEWS_STORAGE_KEY) || "[]"));
+    } catch {
+      return [];
+    }
+  });
+  const [activeSavedViewId, setActiveSavedViewId] = useState<string | null>(null);
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
 
-  const [sortMode, setSortMode] = useState<"birth" | "field" | "bridge" | "name" | "relevance">("birth");
+  const [sortMode, setSortMode] = useState<SortMode>("birth");
   const [onlyConnectedToFocus, setOnlyConnectedToFocus] = useState(false);
   const [onlyCurrentThread, setOnlyCurrentThread] = useState(false);
   const [onlyReviewGaps, setOnlyReviewGaps] = useState(false);
@@ -439,6 +514,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(WORKBENCH_PANEL_MODE_STORAGE_KEY, workbenchPanelMode);
   }, [workbenchPanelMode]);
+
+  useEffect(() => {
+    localStorage.setItem(SAVED_ATLAS_VIEWS_STORAGE_KEY, JSON.stringify(savedAtlasViews));
+  }, [savedAtlasViews]);
 
   // Database additions
   const handleAddThinker = (newThinker: Thinker) => {
@@ -603,6 +682,14 @@ export default function App() {
         const degree = edges.filter((edge) => edge.source === p.id || edge.target === p.id).length;
         return degree <= 1 || !p.subfields || p.subfields.length === 0;
       });
+    }
+
+    if (activeSavedViewId) {
+      const activeSavedView = savedAtlasViews.find((view) => view.id === activeSavedViewId);
+      if (activeSavedView?.collectionIds.length) {
+        const collectionIds = new Set(activeSavedView.collectionIds);
+        list = list.filter((p) => collectionIds.has(p.id));
+      }
     }
 
     // Sorting logic
@@ -1961,8 +2048,9 @@ export default function App() {
     setDraftQueueItemId(queueItemId);
   };
 
-  const hasActiveFilters = selectedFields.length > 0 || selectedSubfields.length > 0 || selectedLensTags.length > 0 || selectedEras.length > 0 || selectedRegions.length > 0 || minYear !== -650 || maxYear !== 2030 || onlyConnectedToFocus || onlyCurrentThread || onlyReviewGaps;
-  const activeFiltersCount = selectedFields.length + selectedSubfields.length + selectedLensTags.length + selectedEras.length + selectedRegions.length + (minYear !== -650 || maxYear !== 2030 ? 1 : 0) + (onlyConnectedToFocus ? 1 : 0) + (onlyCurrentThread ? 1 : 0) + (onlyReviewGaps ? 1 : 0);
+  const hasActiveFilters = selectedFields.length > 0 || selectedSubfields.length > 0 || selectedLensTags.length > 0 || selectedEras.length > 0 || selectedRegions.length > 0 || minYear !== -650 || maxYear !== 2030 || onlyConnectedToFocus || onlyCurrentThread || onlyReviewGaps || Boolean(activeSavedViewId);
+  const activeFiltersCount = selectedFields.length + selectedSubfields.length + selectedLensTags.length + selectedEras.length + selectedRegions.length + (minYear !== -650 || maxYear !== 2030 ? 1 : 0) + (onlyConnectedToFocus ? 1 : 0) + (onlyCurrentThread ? 1 : 0) + (onlyReviewGaps ? 1 : 0) + (activeSavedViewId ? 1 : 0);
+  const activeSavedView = activeSavedViewId ? savedAtlasViews.find((view) => view.id === activeSavedViewId) || null : null;
   const selectedThinker = selectedId ? people.find((p) => p.id === selectedId) : null;
   const selectedIncomingCount = selectedId ? edges.filter((e) => e.target === selectedId).length : 0;
   const selectedOutgoingCount = selectedId ? edges.filter((e) => e.source === selectedId).length : 0;
@@ -1975,6 +2063,7 @@ export default function App() {
     setOnlyConnectedToFocus(false);
     setOnlyCurrentThread(false);
     setOnlyReviewGaps(false);
+    setActiveSavedViewId(null);
     setMinYear(-650);
     setMaxYear(2030);
   };
@@ -2087,6 +2176,74 @@ export default function App() {
       return;
     }
     openPathFinder();
+  };
+
+  const saveCurrentAtlasView = () => {
+    const defaultName = [
+      activeActivityLabel,
+      selectedThinker?.name || searchQuery || selectedFields[0] || selectedEras[0] || "Current view",
+    ].join(": ");
+    const name = window.prompt("Name this saved view or collection", defaultName)?.trim();
+    if (!name) return;
+
+    const id = `view-${Date.now()}`;
+    const savedView: SavedAtlasView = {
+      id,
+      name,
+      createdAt: new Date().toISOString(),
+      activity: activeActivity,
+      viewMode,
+      chromeDensity,
+      selectedId,
+      selectedFields,
+      selectedSubfields,
+      selectedLensTags,
+      selectedEras,
+      selectedRegions,
+      selectedThreadId,
+      minYear,
+      maxYear,
+      searchQuery,
+      sortMode,
+      onlyConnectedToFocus,
+      onlyCurrentThread,
+      onlyReviewGaps,
+      collectionIds: processedPeople.map((person) => person.id).slice(0, 500),
+    };
+
+    setSavedAtlasViews((prev) => [savedView, ...prev.filter((view) => view.name !== name)].slice(0, 20));
+    setActiveSavedViewId(id);
+    setCommandMenuOpen(false);
+  };
+
+  const applySavedAtlasView = (view: SavedAtlasView) => {
+    setActiveActivity(view.activity);
+    setViewMode(view.viewMode);
+    setChromeDensity(view.chromeDensity);
+    setSelectedId(view.selectedId && people.some((person) => person.id === view.selectedId) ? view.selectedId : null);
+    setSelectedFields(view.selectedFields);
+    setSelectedSubfields(view.selectedSubfields);
+    setSelectedLensTags(view.selectedLensTags);
+    setSelectedEras(view.selectedEras);
+    setSelectedRegions(view.selectedRegions);
+    setSelectedThreadId(view.selectedThreadId);
+    setSelectedThreadStep(0);
+    setMinYear(view.minYear);
+    setMaxYear(view.maxYear);
+    setSearchQuery(view.searchQuery);
+    setSortMode(view.sortMode);
+    setOnlyConnectedToFocus(view.onlyConnectedToFocus);
+    setOnlyCurrentThread(view.onlyCurrentThread);
+    setOnlyReviewGaps(view.onlyReviewGaps);
+    setActiveSavedViewId(view.id);
+    setHighlightPath(null);
+    setCommandMenuOpen(false);
+    closeMajorOverlays();
+  };
+
+  const deleteSavedAtlasView = (id: string) => {
+    setSavedAtlasViews((prev) => prev.filter((view) => view.id !== id));
+    if (activeSavedViewId === id) setActiveSavedViewId(null);
   };
 
   const applyActivity = (activity: WorkspaceActivity) => {
@@ -2421,7 +2578,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.14 }}
-                className="absolute right-0 top-10 z-50 w-60 rounded-md border border-[#22273b] bg-[#0d1018] p-1.5 shadow-2xl shadow-black/50"
+                className="absolute right-0 top-10 z-50 w-72 rounded-md border border-[#22273b] bg-[#0d1018] p-1.5 shadow-2xl shadow-black/50"
               >
                 <button
                   onClick={() => {
@@ -2473,6 +2630,55 @@ export default function App() {
                   <Filter className="w-3.5 h-3.5 text-violet-300" />
                   Source Audit
                 </button>
+                <div className="my-1 h-px bg-[#22273b]" />
+                <button
+                  onClick={saveCurrentAtlasView}
+                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
+                >
+                  <Bookmark className="w-3.5 h-3.5 text-amber-300" />
+                  Save View / Collection
+                </button>
+                {savedAtlasViews.length > 0 && (
+                  <div className="px-2 py-1">
+                    <div className="mb-1 flex items-center justify-between gap-2 font-mono text-[8.5px] uppercase tracking-wider text-slate-600">
+                      <span>Saved Views</span>
+                      <span>{savedAtlasViews.length}</span>
+                    </div>
+                    <div className="max-h-36 space-y-1 overflow-y-auto scrollbar-thin pr-1">
+                      {savedAtlasViews.slice(0, 8).map((view) => (
+                        <div
+                          key={view.id}
+                          className={`flex items-center gap-1 rounded border px-1.5 py-1 ${
+                            activeSavedViewId === view.id
+                              ? "border-amber-400/50 bg-amber-400/10"
+                              : "border-[#22273b] bg-[#090b10]"
+                          }`}
+                        >
+                          <button
+                            onClick={() => applySavedAtlasView(view)}
+                            className="min-w-0 flex-1 text-left cursor-pointer"
+                            title={`Apply ${view.name}`}
+                          >
+                            <div className="truncate text-[10px] font-mono text-slate-200">{view.name}</div>
+                            <div className="truncate text-[8.5px] font-mono text-slate-600">
+                              {view.collectionIds.length} thinkers · {view.activity} · {view.viewMode}
+                            </div>
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              deleteSavedAtlasView(view.id);
+                            }}
+                            className="rounded p-1 text-slate-600 hover:bg-[#171b29] hover:text-[#fa5278] cursor-pointer"
+                            title={`Delete ${view.name}`}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="my-1 h-px bg-[#22273b]" />
                 <div className="px-2 py-1">
                   <div className="mb-1 font-mono text-[8.5px] uppercase tracking-wider text-slate-600">Density</div>
@@ -2573,6 +2779,18 @@ export default function App() {
 
         {/* Filter and Curate action activator */}
         <div className="flex items-center gap-2">
+          {activeSavedView && (
+            <button
+              onClick={() => setActiveSavedViewId(null)}
+              className="hidden lg:flex max-w-[180px] items-center gap-1 rounded border border-amber-400/40 bg-amber-400/10 px-2 py-1 text-[9px] font-mono text-amber-200 hover:border-amber-300 cursor-pointer"
+              title="Clear saved collection constraint"
+            >
+              <Bookmark className="h-3 w-3 shrink-0" />
+              <span className="truncate">{activeSavedView.name}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60" />
+            </button>
+          )}
+
           {/* Quick Active filter indications */}
           <AnimatePresence>
             {hasActiveFilters && (
