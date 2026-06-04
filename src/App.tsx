@@ -104,6 +104,19 @@ type LinkReviewItem = {
   createdAt: string;
 };
 
+type ReviewUndoSnapshot = {
+  label: string;
+  createdAt: string;
+  people: Thinker[];
+  edges: InfluenceEdge[];
+  importReviewQueue: ImportReviewItem[];
+  importAuditLog: ImportAuditLogItem[];
+  linkReviewQueue: LinkReviewItem[];
+  selectedId: string | null;
+  highlightPath: string[] | null;
+  workbenchTab: "links" | "tags" | "imports" | "duplicates";
+};
+
 type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
 type ChromeDensity = "compact" | "comfortable" | "focus" | "curation" | "demo";
 type PanelMode = "closed" | "floating" | "docked" | "pinned" | "fullscreen";
@@ -523,6 +536,7 @@ export default function App() {
   const [activeSavedViewId, setActiveSavedViewId] = useState<string | null>(null);
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
+  const [reviewUndoSnapshot, setReviewUndoSnapshot] = useState<ReviewUndoSnapshot | null>(null);
 
   const [sortMode, setSortMode] = useState<SortMode>("birth");
   const [onlyConnectedToFocus, setOnlyConnectedToFocus] = useState(false);
@@ -686,6 +700,39 @@ export default function App() {
     localStorage.setItem("atlas_people_v6", JSON.stringify(updated));
     setSelectedId(newThinker.id);
     setHighlightPath(null);
+  };
+
+  const captureReviewUndoSnapshot = (label: string) => {
+    setReviewUndoSnapshot({
+      label,
+      createdAt: new Date().toISOString(),
+      people,
+      edges,
+      importReviewQueue,
+      importAuditLog,
+      linkReviewQueue,
+      selectedId,
+      highlightPath,
+      workbenchTab,
+    });
+  };
+
+  const restoreReviewUndoSnapshot = () => {
+    if (!reviewUndoSnapshot) return;
+    setPeople(reviewUndoSnapshot.people);
+    setEdges(reviewUndoSnapshot.edges);
+    setImportReviewQueue(reviewUndoSnapshot.importReviewQueue);
+    setImportAuditLog(reviewUndoSnapshot.importAuditLog);
+    setLinkReviewQueue(reviewUndoSnapshot.linkReviewQueue);
+    setSelectedId(reviewUndoSnapshot.selectedId);
+    setHighlightPath(reviewUndoSnapshot.highlightPath);
+    setWorkbenchTab(reviewUndoSnapshot.workbenchTab);
+    setReviewUndoSnapshot(null);
+    localStorage.setItem("atlas_people_v6", JSON.stringify(reviewUndoSnapshot.people));
+    localStorage.setItem("atlas_edges_v6", JSON.stringify(reviewUndoSnapshot.edges));
+    persistImportReviewQueueToStorage(reviewUndoSnapshot.importReviewQueue);
+    localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(reviewUndoSnapshot.importAuditLog));
+    localStorage.setItem(LINK_REVIEW_QUEUE_STORAGE_KEY, JSON.stringify(reviewUndoSnapshot.linkReviewQueue));
   };
 
   const handleResetDatabase = () => {
@@ -1083,6 +1130,7 @@ export default function App() {
       return;
     }
 
+    captureReviewUndoSnapshot(`Added relationship: ${source.name} -> ${target.name}`);
     const nextEdges: InfluenceEdge[] = [
       ...edges,
       {
@@ -1164,6 +1212,7 @@ export default function App() {
       return;
     }
 
+    captureReviewUndoSnapshot(`Added relationship: ${selectedThinker.name} -> ${target.name}`);
     const nextEdges: InfluenceEdge[] = [
       ...edges,
       {
@@ -1256,6 +1305,7 @@ export default function App() {
       ].filter(Boolean).join(" "),
     };
 
+    captureReviewUndoSnapshot(`Accepted import: ${newThinker.name}`);
     handleAddThinker(newThinker);
     if (draftQueueItemId) {
       removeImportReviewItem(draftQueueItemId, "accepted", "Accepted from edited import draft");
@@ -1665,6 +1715,7 @@ export default function App() {
       .replace(/[^a-z0-9]+/g, "_")
       .replace(/^_+|_+$/g, "");
 
+    captureReviewUndoSnapshot(`Accepted import: ${candidate.name}`);
     handleAddThinker({
       id: people.some((person) => person.id === slug) ? `${slug}_${candidate.id.toLowerCase()}` : slug,
       name: candidate.name,
@@ -1714,6 +1765,7 @@ export default function App() {
       notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
     };
 
+    captureReviewUndoSnapshot(`Accepted import: ${newThinker.name}`);
     const nextPeople = [...people, newThinker];
     let nextEdges = edges;
     const topSuggestion = getCandidateLinkSuggestions(candidate)[0];
@@ -1802,6 +1854,7 @@ export default function App() {
   const mergeImportReviewItemIntoDuplicate = (item: ImportReviewItem, duplicateId: string) => {
     const candidate = item.candidate;
     const sourceUrl = getCandidateSourceUrl(candidate);
+    captureReviewUndoSnapshot(`Merged import metadata: ${candidate.name}`);
     const updatedPeople = people.map((person) => {
       if (person.id !== duplicateId) return person;
       const sourceNote = `Merged duplicate import from Wikidata: ${sourceUrl}`;
@@ -1865,6 +1918,7 @@ export default function App() {
 
     if (acceptedItemIds.size === 0) return;
 
+    captureReviewUndoSnapshot(`Accepted ${acceptedItemIds.size} import${acceptedItemIds.size === 1 ? "" : "s"}`);
     setPeople(nextPeople);
     localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     setEdges(nextEdges);
@@ -4136,6 +4190,21 @@ export default function App() {
                   </button>
                 ))}
               </div>
+
+              {reviewUndoSnapshot && (
+                <div className="flex flex-col gap-2 rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <div className="font-mono text-[8.5px] uppercase tracking-wider text-amber-300">Last Review Action</div>
+                    <div className="truncate text-[10px] font-mono text-slate-500">{reviewUndoSnapshot.label}</div>
+                  </div>
+                  <button
+                    onClick={restoreReviewUndoSnapshot}
+                    className="shrink-0 rounded border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 text-[9px] font-mono text-amber-200 hover:bg-amber-500/20 cursor-pointer"
+                  >
+                    Undo
+                  </button>
+                </div>
+              )}
 
               {workbenchTab === "links" && (
                 <div className="space-y-3">
