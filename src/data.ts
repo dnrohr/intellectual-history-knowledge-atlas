@@ -3245,7 +3245,7 @@ export const INITIAL_PEOPLE_DATA: Thinker[] = [
 
 ];
 
-const deriveMetadataInfluenceEdges = (people: Thinker[], explicitEdges: InfluenceEdge[]): InfluenceEdge[] => {
+export const deriveMetadataInfluenceEdges = (people: Thinker[], explicitEdges: InfluenceEdge[]): InfluenceEdge[] => {
   const peopleIds = new Set(people.map((person) => person.id));
   const explicitEdgeKeys = new Set(explicitEdges.map((edge) => `${edge.source}->${edge.target}`));
 

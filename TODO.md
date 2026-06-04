@@ -411,7 +411,7 @@ Status notation:
   - [x] duplicate detection
   - [x] candidate confidence scoring
   - [x] relationship suggestion scoring
-  - edge derivation from thinker metadata
+  - [x] edge derivation from thinker metadata
   - taxonomy grouping
   - import queue persistence
 - Add Playwright tests for:
