@@ -957,6 +957,20 @@ export default function App() {
     setMinYear(Math.max(-650, minP - buffer));
     setMaxYear(Math.min(2030, maxP + buffer));
   };
+  const namedTimeRanges = [
+    { label: "All Time", start: -650, end: 2030 },
+    { label: "Axial Age", start: -650, end: -200 },
+    { label: "Classical", start: -500, end: 500 },
+    { label: "Late Antique", start: 200, end: 800 },
+    { label: "Medieval", start: 500, end: 1500 },
+    { label: "Renaissance", start: 1300, end: 1650 },
+    { label: "Scientific Rev.", start: 1500, end: 1700 },
+    { label: "Enlightenment", start: 1650, end: 1800 },
+    { label: "Long 19th", start: 1789, end: 1914 },
+    { label: "Modernism", start: 1880, end: 1945 },
+    { label: "Postwar", start: 1945, end: 1990 },
+    { label: "Contemporary", start: 1990, end: 2030 },
+  ];
 
   const handleToggleField = (field: string) => {
     setSelectedFields((prev) =>
@@ -3855,42 +3869,23 @@ export default function App() {
                     <span>Era Shortcuts</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
-                    <button
-                      onClick={() => applyEpochSnap(-650, 2030)}
-                      className="px-2.5 py-1 rounded text-[10px] font-mono border border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60 transition-all cursor-pointer"
-                    >
-                      All Time (-650 to 2030)
-                    </button>
-                    <button
-                      onClick={() => applyEpochSnap(-650, 500)}
-                      className="px-2.5 py-1 rounded text-[10px] font-mono border border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60 transition-all cursor-pointer"
-                    >
-                      Antiquity (-650 to 500)
-                    </button>
-                    <button
-                      onClick={() => applyEpochSnap(500, 1500)}
-                      className="px-2.5 py-1 rounded text-[10px] font-mono border border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60 transition-all cursor-pointer"
-                    >
-                      Medieval (500 to 1500)
-                    </button>
-                    <button
-                      onClick={() => applyEpochSnap(1500, 1789)}
-                      className="px-2.5 py-1 rounded text-[10px] font-mono border border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60 transition-all cursor-pointer"
-                    >
-                      Early Modern (1500 to 1789)
-                    </button>
-                    <button
-                      onClick={() => applyEpochSnap(1789, 1945)}
-                      className="px-2.5 py-1 rounded text-[10px] font-mono border border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60 transition-all cursor-pointer"
-                    >
-                      Industrial Era (1789 to 1945)
-                    </button>
-                    <button
-                      onClick={() => applyEpochSnap(1945, 2030)}
-                      className="px-2.5 py-1 rounded text-[10px] font-mono border border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60 transition-all cursor-pointer"
-                    >
-                      Contemporary (1945+)
-                    </button>
+                    {namedTimeRanges.map((period) => {
+                      const active = minYear === period.start && maxYear === period.end;
+                      return (
+                        <button
+                          key={`${period.label}-${period.start}-${period.end}`}
+                          onClick={() => applyEpochSnap(period.start, period.end)}
+                          className={`px-2.5 py-1 rounded text-[10px] font-mono border transition-all cursor-pointer ${
+                            active
+                              ? "border-amber-400/60 bg-amber-400/15 text-amber-200"
+                              : "border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-700/60"
+                          }`}
+                          title={`${period.label}: ${formatYear(period.start)} to ${formatYear(period.end)}`}
+                        >
+                          {period.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

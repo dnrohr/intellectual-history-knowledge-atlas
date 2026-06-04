@@ -392,7 +392,7 @@ Status notation:
 
 ## Timeline
 
-- Add richer range controls with named historical periods.
+- [x] Add richer range controls with named historical periods.
 - Add timeline bookmarks.
 - Add selected-person neighborhood overlay.
 - Add density lanes by domain.
