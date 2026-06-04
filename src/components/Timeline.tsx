@@ -20,6 +20,8 @@ interface TimelineProps {
   minYear: number;
   maxYear: number;
   timelineBookmarks?: TimelineBookmark[];
+  onSaveTimelineBookmark?: (bookmark: { label: string; year: number }) => void;
+  onRemoveTimelineBookmark?: (id: string) => void;
   coordinatedNearbyContext?: boolean;
 }
 
@@ -27,7 +29,7 @@ interface TimelineBookmark {
   id: string;
   label: string;
   year: number;
-  kind: "thread" | "saved";
+  kind: "thread" | "saved" | "custom";
 }
 
 interface CriticalEvent {
@@ -87,6 +89,8 @@ export default function Timeline({
   minYear,
   maxYear,
   timelineBookmarks = [],
+  onSaveTimelineBookmark,
+  onRemoveTimelineBookmark,
   coordinatedNearbyContext = false,
 }: TimelineProps) {
   const YEAR_MIN = minYear;
@@ -334,6 +338,14 @@ export default function Timeline({
 
   const visibleStartYear = Math.round(Math.max(YEAR_MIN, xToYear(pan.x)));
   const visibleEndYear = Math.round(Math.min(YEAR_MAX, xToYear(pan.x + dimensions.width)));
+  const saveVisibleWindowBookmark = () => {
+    if (!onSaveTimelineBookmark) return;
+    const centerYear = Math.round((visibleStartYear + visibleEndYear) / 2);
+    const label = selectedPerson
+      ? `View: ${selectedPerson.name}`
+      : `View: ${formatYearLabel(visibleStartYear)}-${formatYearLabel(visibleEndYear)}`;
+    onSaveTimelineBookmark({ label, year: centerYear });
+  };
 
   // Redraw hook
   useEffect(() => {
@@ -1025,6 +1037,14 @@ export default function Timeline({
             >
               Full
             </button>
+            <button
+              onClick={saveVisibleWindowBookmark}
+              disabled={!onSaveTimelineBookmark}
+              className="rounded border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-[9px] font-mono text-amber-200 hover:border-amber-300 disabled:cursor-not-allowed disabled:opacity-35 cursor-pointer"
+              title="Save current timeline window"
+            >
+              Save
+            </button>
           </div>
         </div>
 
@@ -1052,20 +1072,46 @@ export default function Timeline({
               {era.label}
             </button>
           ))}
-          {timelineBookmarks.map((bookmark) => (
-            <button
-              key={`${bookmark.kind}-${bookmark.id}`}
-              onClick={() => jumpToYear(bookmark.year)}
-              className={`shrink-0 rounded border px-2 py-1 text-[9px] font-mono cursor-pointer ${
-                bookmark.kind === "thread"
-                  ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200 hover:border-cyan-300"
-                  : "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:border-emerald-300"
-              }`}
-              title={`Jump to ${bookmark.label}`}
-            >
-              {bookmark.label}
-            </button>
-          ))}
+          {timelineBookmarks.map((bookmark) => {
+            if (bookmark.kind === "custom" && onRemoveTimelineBookmark) {
+              return (
+                <div
+                  key={`${bookmark.kind}-${bookmark.id}`}
+                  className="group flex shrink-0 overflow-hidden rounded border border-amber-400/30 bg-amber-400/10 text-amber-200 hover:border-amber-300"
+                >
+                  <button
+                    onClick={() => jumpToYear(bookmark.year)}
+                    className="px-2 py-1 text-[9px] font-mono cursor-pointer"
+                    title={`Jump to ${bookmark.label}`}
+                  >
+                    {bookmark.label}
+                  </button>
+                  <button
+                    onClick={() => onRemoveTimelineBookmark(bookmark.id)}
+                    className="border-l border-amber-400/20 px-1.5 text-[9px] font-mono opacity-70 hover:bg-amber-400/15 hover:opacity-100 cursor-pointer"
+                    title={`Remove ${bookmark.label}`}
+                  >
+                    x
+                  </button>
+                </div>
+              );
+            }
+
+            return (
+              <button
+                key={`${bookmark.kind}-${bookmark.id}`}
+                onClick={() => jumpToYear(bookmark.year)}
+                className={`shrink-0 rounded border px-2 py-1 text-[9px] font-mono cursor-pointer ${
+                  bookmark.kind === "thread"
+                    ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200 hover:border-cyan-300"
+                    : "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:border-emerald-300"
+                }`}
+                title={`Jump to ${bookmark.label}`}
+              >
+                {bookmark.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -147,6 +147,13 @@ type SavedAtlasView = {
   collectionIds: string[];
 };
 
+type TimelineBookmarkItem = {
+  id: string;
+  label: string;
+  year: number;
+  kind: "thread" | "saved" | "custom";
+};
+
 type DefaultCuratedAtlasViewDefinition = {
   id: string;
   name: string;
@@ -165,6 +172,7 @@ const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v
 const LINK_REVIEW_QUEUE_STORAGE_KEY = "atlas_link_review_queue_v1";
 const WORKBENCH_PANEL_MODE_STORAGE_KEY = "atlas_workbench_panel_mode_v1";
 const SAVED_ATLAS_VIEWS_STORAGE_KEY = "atlas_saved_views_v1";
+const TIMELINE_BOOKMARKS_STORAGE_KEY = "atlas_timeline_bookmarks_v1";
 const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
 const WORKBENCH_PANEL_MODES: Array<Exclude<PanelMode, "closed">> = ["floating", "docked", "pinned", "fullscreen"];
 
@@ -431,6 +439,27 @@ const getInitialSavedAtlasViews = (): SavedAtlasView[] => {
   }
 };
 
+const normalizeTimelineBookmarks = (items: unknown): TimelineBookmarkItem[] => {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item): item is Partial<TimelineBookmarkItem> => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      id: typeof item.id === "string" ? item.id : `timeline-bookmark-${crypto.randomUUID()}`,
+      label: typeof item.label === "string" && item.label.trim() ? item.label.trim() : "Timeline Bookmark",
+      year: typeof item.year === "number" && Number.isFinite(item.year) ? Math.round(item.year) : -650,
+      kind: item.kind === "thread" || item.kind === "saved" || item.kind === "custom" ? item.kind : "custom",
+    }))
+    .slice(0, 12);
+};
+
+const getInitialTimelineBookmarks = (): TimelineBookmarkItem[] => {
+  try {
+    return normalizeTimelineBookmarks(JSON.parse(localStorage.getItem(TIMELINE_BOOKMARKS_STORAGE_KEY) || "[]"));
+  } catch {
+    return [];
+  }
+};
+
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
@@ -534,6 +563,7 @@ export default function App() {
     }
   });
   const [savedAtlasViews, setSavedAtlasViews] = useState<SavedAtlasView[]>(getInitialSavedAtlasViews);
+  const [customTimelineBookmarks, setCustomTimelineBookmarks] = useState<TimelineBookmarkItem[]>(getInitialTimelineBookmarks);
   const [activeSavedViewId, setActiveSavedViewId] = useState<string | null>(null);
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
@@ -694,6 +724,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(SAVED_ATLAS_VIEWS_STORAGE_KEY, JSON.stringify(savedAtlasViews));
   }, [savedAtlasViews]);
+
+  useEffect(() => {
+    localStorage.setItem(TIMELINE_BOOKMARKS_STORAGE_KEY, JSON.stringify(customTimelineBookmarks));
+  }, [customTimelineBookmarks]);
 
   // Database additions
   const handleAddThinker = (newThinker: Thinker) => {
@@ -2736,8 +2770,9 @@ export default function App() {
     };
   }).filter((thread) => thread.resolvedPeople.length >= 2);
   const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
-  const timelineBookmarks = [
+  const timelineBookmarks: TimelineBookmarkItem[] = [
     ...(selectedThinker ? [{ id: `focus-${selectedThinker.id}`, label: "Saved: Focus", year: selectedThinker.birth, kind: "saved" as const }] : []),
+    ...customTimelineBookmarks,
     ...canonicalThreads.slice(0, 6).map((thread) => ({
       id: thread.id,
       label: `Thread: ${thread.title}`,
@@ -2745,6 +2780,18 @@ export default function App() {
       kind: "thread" as const,
     })),
   ];
+  const saveTimelineBookmark = (bookmark: Omit<TimelineBookmarkItem, "id" | "kind">) => {
+    const nextBookmark: TimelineBookmarkItem = {
+      id: `timeline-${Date.now()}`,
+      label: bookmark.label,
+      year: bookmark.year,
+      kind: "custom",
+    };
+    setCustomTimelineBookmarks((current) => [nextBookmark, ...current.filter((item) => item.year !== bookmark.year || item.label !== bookmark.label)].slice(0, 12));
+  };
+  const removeTimelineBookmark = (id: string) => {
+    setCustomTimelineBookmarks((current) => current.filter((bookmark) => bookmark.id !== id));
+  };
   const focusCanonicalThreadStep = (thread: (typeof canonicalThreads)[number], step: number) => {
     const path = thread.resolvedPeople.map((person) => person.id);
     const nextStep = Math.max(0, Math.min(thread.resolvedPeople.length - 1, step));
@@ -5686,6 +5733,8 @@ export default function App() {
                 minYear={minYear}
                 maxYear={maxYear}
                 timelineBookmarks={timelineBookmarks}
+                onSaveTimelineBookmark={saveTimelineBookmark}
+                onRemoveTimelineBookmark={removeTimelineBookmark}
                 coordinatedNearbyContext={coordinatedLenses}
               />
             </div>
@@ -5723,6 +5772,8 @@ export default function App() {
                   minYear={minYear}
                   maxYear={maxYear}
                   timelineBookmarks={timelineBookmarks}
+                  onSaveTimelineBookmark={saveTimelineBookmark}
+                  onRemoveTimelineBookmark={removeTimelineBookmark}
                   coordinatedNearbyContext={coordinatedLenses}
                 />
               </div>
