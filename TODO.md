@@ -399,7 +399,7 @@ Status notation:
 - [x] Add edge arcs only for selected/focused neighborhoods by default.
 - [x] Add clearer BCE/CE axis treatment.
 - [x] Add confidence styling for timeline edges.
-- Add movement/institution bands that can be toggled independently.
+- [x] Add movement/institution bands that can be toggled independently.
 
 ## Quality And Engineering
 

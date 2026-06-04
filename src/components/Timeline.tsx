@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thinker, InfluenceEdge } from "../types";
-import { FIELD_COLOR, ERA_BANDS } from "../data";
+import { FIELD_COLOR, ERA_BANDS, INITIAL_INSTITUTIONS_DATA } from "../data";
 import { getDomainForField } from "../taxonomy";
 
 interface TimelineProps {
@@ -116,6 +116,8 @@ export default function Timeline({
   const [timelineDensity, setTimelineDensity] = useState<TimelineDensity>("balanced");
   const [laneMode, setLaneMode] = useState<TimelineLaneMode>("off");
   const [edgeArcScope, setEdgeArcScope] = useState<EdgeArcScope>("focus");
+  const [showMovementBands, setShowMovementBands] = useState(true);
+  const [showInstitutionBands, setShowInstitutionBands] = useState(false);
   const [nearbyContextOnly, setNearbyContextOnly] = useState(false);
 
   const ROW_H = timelineDensity === "compressed" ? 12 : timelineDensity === "sparse" ? 24 : 18;
@@ -390,6 +392,81 @@ export default function Timeline({
         ctx.fillStyle = b.fill;
         ctx.fillRect(x1, 0, x2 - x1, world.height);
       });
+    }
+
+    if (showMovementBands) {
+      const movementMap = new Map<string, { start: number; end: number; count: number; color: string }>();
+      packedPeople.forEach((person) => {
+        const movement = person.movement?.trim();
+        if (!movement || movement === "Imported") return;
+        const current = movementMap.get(movement);
+        const color = getLaneColor(person);
+        movementMap.set(movement, {
+          start: current ? Math.min(current.start, person.birth) : person.birth,
+          end: current ? Math.max(current.end, person.death ?? person.birth) : person.death ?? person.birth,
+          count: (current?.count || 0) + 1,
+          color: current?.color || color,
+        });
+      });
+
+      Array.from(movementMap.entries())
+        .filter(([, movement]) => movement.count >= 3)
+        .sort(([, left], [, right]) => right.count - left.count)
+        .slice(0, 8)
+        .forEach(([label, movement], index) => {
+          const x1 = yearToX(Math.max(YEAR_MIN, movement.start));
+          const x2 = yearToX(Math.min(YEAR_MAX, movement.end));
+          const width = Math.max(8, x2 - x1);
+          if (x2 < pan.x - 120 || x1 > pan.x + canvasW + 120) return;
+
+          ctx.fillStyle = `${movement.color}0f`;
+          ctx.fillRect(x1, HDR_H, width, world.height - HDR_H);
+          ctx.strokeStyle = `${movement.color}35`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(x1, HDR_H);
+          ctx.lineTo(x1, world.height);
+          ctx.stroke();
+
+          if (width > 90 && semanticZoomTier !== "overview") {
+            ctx.fillStyle = `${movement.color}cc`;
+            ctx.font = "700 8px 'IBM Plex Mono', monospace";
+            ctx.textAlign = "left";
+            ctx.fillText(label, Math.max(x1 + 5, pan.x + 8), HDR_H + 22 + index * 10);
+          }
+        });
+    }
+
+    if (showInstitutionBands) {
+      const visiblePersonIds = new Set(packedPeople.map((person) => person.id));
+      INITIAL_INSTITUTIONS_DATA
+        .map((institution) => ({
+          ...institution,
+          visibleFigureCount: institution.figures.filter((id) => visiblePersonIds.has(id)).length,
+        }))
+        .filter((institution) => institution.visibleFigureCount > 0)
+        .sort((left, right) => right.visibleFigureCount - left.visibleFigureCount)
+        .slice(0, 6)
+        .forEach((institution, index) => {
+          const x1 = yearToX(Math.max(YEAR_MIN, institution.peak_start));
+          const x2 = yearToX(Math.min(YEAR_MAX, institution.peak_end));
+          const width = Math.max(10, x2 - x1);
+          if (x2 < pan.x - 80 || x1 > pan.x + canvasW + 80) return;
+          const y = HDR_H + 8 + index * 8;
+
+          ctx.fillStyle = "rgba(196, 181, 253, 0.22)";
+          ctx.fillRect(x1, y, width, 4);
+          ctx.strokeStyle = "rgba(196, 181, 253, 0.5)";
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(x1, y, width, 4);
+
+          if (width > 72 && semanticZoomTier !== "overview") {
+            ctx.fillStyle = "rgba(221, 214, 254, 0.9)";
+            ctx.font = "700 7.5px 'IBM Plex Mono', monospace";
+            ctx.textAlign = "left";
+            ctx.fillText(institution.name, Math.max(x1 + 5, pan.x + 8), y + 12);
+          }
+        });
     }
 
     if (laneMode !== "off") {
@@ -853,7 +930,7 @@ export default function Timeline({
       ctx.fillText(sublabel, badgeX + 12, 66);
       ctx.restore();
     }
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, laneMode, edgeArcScope, nearbyContextOnly, coordinatedNearbyContext]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, showMovementBands, showInstitutionBands, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, laneMode, edgeArcScope, nearbyContextOnly, coordinatedNearbyContext]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -1065,6 +1142,24 @@ export default function Timeline({
             />
             <span className="font-mono">Critical Event Overlays</span>
           </label>
+          <button
+            onClick={() => setShowMovementBands((prev) => !prev)}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+              showMovementBands ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Toggle movement bands"
+          >
+            Movements
+          </button>
+          <button
+            onClick={() => setShowInstitutionBands((prev) => !prev)}
+            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+              showInstitutionBands ? "border-violet-300 bg-violet-300/15 text-violet-100" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
+            }`}
+            title="Toggle institution peak bands"
+          >
+            Inst.
+          </button>
           <div className="flex items-center rounded border border-[#252a3d] bg-[#080a0f] p-0.5">
             {([
               ["off", "Off", "No timeline lanes"],
