@@ -2898,6 +2898,11 @@ export default function App() {
     .filter((person, index, list) => list.findIndex((item) => item.id === person.id) === index)
     .filter((person) => processedPeople.some((match) => match.id === person.id))
     .slice(0, 12);
+  const highBridgeIndexPeople = processedPeople
+    .filter((person) => (person.bridge_score ?? 0) >= 4)
+    .filter((person) => person.id !== selectedId)
+    .sort((a, b) => (b.bridge_score ?? 0) - (a.bridge_score ?? 0) || a.birth - b.birth)
+    .slice(0, 12);
 
   const groupPeopleBy = (list: Thinker[], getKey: (person: Thinker) => string) =>
     Object.entries(
@@ -2935,6 +2940,7 @@ export default function App() {
     { title: "Recently Added", list: recentlyAddedPeople },
     { title: "Recently Reviewed", list: recentlyReviewedPeople },
     { title: "Orphans", list: unlinkedThinkers },
+    { title: "High Bridge Score", list: highBridgeIndexPeople },
     { title: "Current Matches", list: currentMatchPeople },
   ].filter(Boolean) as { title: string; list: Thinker[] }[];
 
@@ -2969,6 +2975,10 @@ export default function App() {
 
     if (groupTitle === "Orphans") {
       return `${formatYear(person.birth)} · no mapped relationships`;
+    }
+
+    if (groupTitle === "High Bridge Score") {
+      return `${formatYear(person.birth)} · bridge ${person.bridge_score ?? 0}/5 · ${person.fields?.[0] || "Unclassified"}`;
     }
 
     if (groupTitle === "Connected") {
