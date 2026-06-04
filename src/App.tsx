@@ -2941,6 +2941,7 @@ export default function App() {
     { title: "Recently Reviewed", list: recentlyReviewedPeople },
     { title: "Orphans", list: unlinkedThinkers },
     { title: "High Bridge Score", list: highBridgeIndexPeople },
+    { title: "Needs Source", list: sourceGapThinkers.slice(0, 12) },
     { title: "Current Matches", list: currentMatchPeople },
   ].filter(Boolean) as { title: string; list: Thinker[] }[];
 
@@ -2979,6 +2980,14 @@ export default function App() {
 
     if (groupTitle === "High Bridge Score") {
       return `${formatYear(person.birth)} · bridge ${person.bridge_score ?? 0}/5 · ${person.fields?.[0] || "Unclassified"}`;
+    }
+
+    if (groupTitle === "Needs Source") {
+      const gapCount = edges.filter((edge) =>
+        (edge.source === person.id || edge.target === person.id) &&
+        (edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !edge.sourceClaims || edge.sourceClaims.length === 0)
+      ).length;
+      return `${gapCount} source gap${gapCount === 1 ? "" : "s"} · ${person.fields?.[0] || "Unclassified"}`;
     }
 
     if (groupTitle === "Connected") {

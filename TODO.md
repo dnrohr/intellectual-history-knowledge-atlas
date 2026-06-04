@@ -382,7 +382,7 @@ Status notation:
 - [x] Add "recently reviewed" group.
 - [x] Add "orphans" group.
 - [x] Add "high bridge score" group.
-- Add "needs source" group.
+- [x] Add "needs source" group.
 - Add row badges for edge count, source count, and review status.
 - Add quick actions on index rows:
   - focus
