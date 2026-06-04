@@ -470,7 +470,7 @@ export default function App() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [expandedDisciplineGroups, setExpandedDisciplineGroups] = useState<string[]>(["Natural Inquiry", "Formal Systems"]);
   const [expandedFacetFields, setExpandedFacetFields] = useState<string[]>([]);
-  const [indexMode, setIndexMode] = useState<"context" | "cluster" | "era" | "field" | "movement" | "institution">("context");
+  const [indexMode, setIndexMode] = useState<"context" | "cluster" | "era" | "field" | "movement" | "institution" | "review">("context");
   const [expandedIndexGroups, setExpandedIndexGroups] = useState<string[]>([
     "Selected",
     "Connected",
@@ -2896,6 +2896,21 @@ export default function App() {
       .sort((a, b) => a.title.localeCompare(b.title));
   const getInstitutionForPerson = (person: Thinker) =>
     INITIAL_INSTITUTIONS_DATA.find((institution) => institution.figures.includes(person.id))?.name || "Unaffiliated";
+  const getReviewStatusForPerson = (person: Thinker) => {
+    const personEdges = edges.filter((edge) => edge.source === person.id || edge.target === person.id);
+    const hasSourceGap = personEdges.some((edge) =>
+      edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !edge.sourceClaims || edge.sourceClaims.length === 0
+    );
+    const isImported = person.movement === "Imported" || person.notes?.includes("Imported from");
+
+    if (isImported && personEdges.length === 0) return "Unlinked import";
+    if (hasSourceGap) return "Needs source review";
+    if (!person.subfields || person.subfields.length === 0) return "Needs tags";
+    if (personEdges.length === 0) return "Orphan";
+    if (personEdges.length <= 1) return "Sparse links";
+    if (isImported) return "Imported linked";
+    return "Connected";
+  };
 
   const contextIndexGroups = [
     selectedThinker ? { title: "Selected", list: [selectedThinker] } : null,
@@ -2915,6 +2930,8 @@ export default function App() {
       ? groupPeopleBy(processedPeople, (person) => person.movement || "Unclassified movement")
       : indexMode === "institution"
       ? groupPeopleBy(processedPeople, getInstitutionForPerson)
+      : indexMode === "review"
+      ? groupPeopleBy(processedPeople, getReviewStatusForPerson)
       : groupPeopleBy(processedPeople, (person) => person.fields?.[0] || "Unclassified");
 
   const getIndexContext = (person: Thinker, groupTitle: string) => {
@@ -2961,6 +2978,11 @@ export default function App() {
 
     if (indexMode === "institution") {
       return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"} · ${person.movement || person.era || "Unclassified"}`;
+    }
+
+    if (indexMode === "review") {
+      const degree = edges.filter((edge) => edge.source === person.id || edge.target === person.id).length;
+      return `${formatYear(person.birth)} · ${degree} edge${degree === 1 ? "" : "s"} · ${person.fields?.[0] || "Unclassified"}`;
     }
 
     return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"}`;
@@ -5440,12 +5462,12 @@ export default function App() {
                 <span className="font-mono text-[8.5px] text-slate-500">({processedPeople.length})</span>
               </div>
               <div className="border-b border-[#22273b] bg-[#0d1018] px-3 py-2 pr-5">
-                <div className="grid grid-cols-6 gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
-                  {(["context", "cluster", "era", "field", "movement", "institution"] as const).map((mode) => (
+                <div className="flex gap-1 overflow-x-auto rounded-md border border-[#22273b] bg-[#080a0f] p-0.5 scrollbar-thin">
+                  {(["context", "cluster", "era", "field", "movement", "institution", "review"] as const).map((mode) => (
                     <button
                       key={mode}
                       onClick={() => setIndexMode(mode)}
-                      className={`rounded px-1 py-1 text-[8px] font-mono capitalize transition-colors cursor-pointer ${
+                      className={`shrink-0 rounded px-1.5 py-1 text-[8px] font-mono capitalize transition-colors cursor-pointer ${
                         indexMode === mode
                           ? "bg-[#1f2438] text-[#9bdaff] font-bold"
                           : "text-slate-500 hover:text-slate-200"
