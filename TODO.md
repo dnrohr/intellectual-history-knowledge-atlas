@@ -413,7 +413,7 @@ Status notation:
   - [x] relationship suggestion scoring
   - [x] edge derivation from thinker metadata
   - [x] taxonomy grouping
-  - import queue persistence
+  - [x] import queue persistence
 - Add Playwright tests for:
   - batch import queueing
   - accepting queued candidate
