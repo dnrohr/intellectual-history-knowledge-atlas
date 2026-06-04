@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { Thinker, InfluenceEdge } from "../types";
-import { FIELD_COLOR } from "../data";
+import { FIELD_COLOR, INITIAL_INSTITUTIONS_DATA } from "../data";
+import { getDomainForField } from "../taxonomy";
+
+type GraphClusterMode = "none" | "domain" | "movement" | "era" | "institution";
 
 interface NetworkGraphProps {
   people: Thinker[];
@@ -40,11 +43,49 @@ export default function NetworkGraph({
   const linksRef = useRef<SimulatedLink[]>([]);
   const requestRef = useRef<number | null>(null);
   const animTimeRef = useRef<number>(0);
+  const clusterCentersRef = useRef<Map<string, { x: number; y: number }>>(new Map());
 
   const [hoveredNode, setHoveredNode] = useState<SimulatedNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [focusDepth, setFocusDepth] = useState<"all" | 1 | 2 | 3>(1);
+  const [clusterMode, setClusterMode] = useState<GraphClusterMode>("none");
   const effectiveFocusDepth = coordinatedFocusDepth ?? focusDepth;
+
+  const getClusterKey = (person: Thinker, mode: GraphClusterMode = clusterMode) => {
+    if (mode === "domain") return getDomainForField(person.fields?.[0] || "");
+    if (mode === "movement") return person.movement || "Unclassified movement";
+    if (mode === "era") return person.era || "Unclassified era";
+    if (mode === "institution") {
+      return INITIAL_INSTITUTIONS_DATA.find((institution) => institution.figures.includes(person.id))?.name || "Unaffiliated";
+    }
+    return "Network";
+  };
+
+  const getClusterCenters = (nodes: SimulatedNode[], width: number, height: number, mode: GraphClusterMode) => {
+    if (mode === "none") return new Map<string, { x: number; y: number }>();
+
+    const keys = Array.from(new Set(nodes.map((node) => getClusterKey(node, mode)))).sort();
+    const cols = Math.max(1, Math.ceil(Math.sqrt(keys.length)));
+    const rows = Math.max(1, Math.ceil(keys.length / cols));
+    const xPad = width * 0.12;
+    const yPad = height * 0.18;
+    const usableWidth = Math.max(120, width - xPad * 2);
+    const usableHeight = Math.max(120, height - yPad * 2);
+
+    return new Map(
+      keys.map((key, index) => {
+        const col = index % cols;
+        const row = Math.floor(index / cols);
+        return [
+          key,
+          {
+            x: xPad + ((col + 0.5) * usableWidth) / cols,
+            y: yPad + ((row + 0.5) * usableHeight) / rows,
+          },
+        ];
+      })
+    );
+  };
 
   const { graphPeople, graphEdges, visibleTotal } = useMemo(() => {
     if (!selectedId || effectiveFocusDepth === "all") {
@@ -122,6 +163,7 @@ export default function NetworkGraph({
 
     nodesRef.current = newNodes;
     linksRef.current = newLinks;
+    clusterCentersRef.current = getClusterCenters(newNodes, width, height, clusterMode);
 
     if (simulationRef.current) {
       simulationRef.current.stop();
@@ -132,8 +174,8 @@ export default function NetworkGraph({
       .force("charge", d3.forceManyBody().strength(-200))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide<SimulatedNode>().radius((d) => d.r + 8).iterations(3))
-      .force("x", d3.forceX<SimulatedNode>(width / 2).strength(0.04))
-      .force("y", d3.forceY<SimulatedNode>(height / 2).strength(0.04));
+      .force("x", d3.forceX<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.x ?? width / 2).strength(clusterMode === "none" ? 0.04 : 0.14))
+      .force("y", d3.forceY<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.y ?? height / 2).strength(clusterMode === "none" ? 0.04 : 0.14));
 
     sim.on("tick", draw);
     simulationRef.current = sim;
@@ -149,7 +191,7 @@ export default function NetworkGraph({
     return () => {
       sim.stop();
     };
-  }, [graphPeople, graphEdges]);
+  }, [graphPeople, graphEdges, clusterMode]);
 
   // Handle Resize
   useEffect(() => {
@@ -166,7 +208,10 @@ export default function NetworkGraph({
         canvas.style.height = height + "px";
 
         if (simulationRef.current) {
+          clusterCentersRef.current = getClusterCenters(nodesRef.current, width, height, clusterMode);
           simulationRef.current.force("center", d3.forceCenter(width / 2, height / 2));
+          simulationRef.current.force("x", d3.forceX<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.x ?? width / 2).strength(clusterMode === "none" ? 0.04 : 0.14));
+          simulationRef.current.force("y", d3.forceY<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.y ?? height / 2).strength(clusterMode === "none" ? 0.04 : 0.14));
           simulationRef.current.alpha(0.3).restart();
         }
       }
@@ -174,7 +219,7 @@ export default function NetworkGraph({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [clusterMode]);
 
   const draw = () => {
     const canvas = canvasRef.current;
@@ -196,6 +241,25 @@ export default function NetworkGraph({
     const t = transformRef.current;
     ctx.translate(t.x, t.y);
     ctx.scale(t.k, t.k);
+
+    if (clusterMode !== "none") {
+      clusterCentersRef.current.forEach((center, key) => {
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, 48, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(123, 156, 245, 0.035)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(123, 156, 245, 0.08)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = "rgba(156, 177, 220, 0.5)";
+        ctx.font = "600 8px 'IBM Plex Mono', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(key.slice(0, 28), center.x, center.y - 54);
+        ctx.restore();
+      });
+    }
 
     // Build active context sets for selective dimming
     const activeSet = new Set<string>();
@@ -446,7 +510,7 @@ export default function NetworkGraph({
         requestRef.current = null;
       }
     };
-  }, [selectedId, highlightPath, effectiveFocusDepth]);
+  }, [selectedId, highlightPath, effectiveFocusDepth, clusterMode]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -623,6 +687,32 @@ export default function NetworkGraph({
             }`}
           >
             {depth === "all" ? "All" : `${depth} hop`}
+          </button>
+        ))}
+      </div>
+
+      <div className="absolute top-8 right-2.5 z-10 flex max-w-[calc(100%-11rem)] items-center gap-1 overflow-x-auto scrollbar-thin bg-[#141721]/90 border border-[#252a3d] rounded-md p-1">
+        {([
+          ["none", "Free"],
+          ["domain", "Domain"],
+          ["movement", "Movement"],
+          ["era", "Era"],
+          ["institution", "Institution"],
+        ] as const).map(([mode, label]) => (
+          <button
+            key={mode}
+            onClick={() => {
+              setClusterMode(mode);
+              if (simulationRef.current) simulationRef.current.alpha(0.8).restart();
+            }}
+            className={`shrink-0 px-2 py-0.5 text-[9px] font-mono rounded cursor-pointer transition-colors ${
+              clusterMode === mode
+                ? "bg-amber-400/15 text-amber-200"
+                : "text-slate-500 hover:text-slate-200"
+            }`}
+            title={`Cluster graph by ${label.toLowerCase()}`}
+          >
+            {label}
           </button>
         ))}
       </div>

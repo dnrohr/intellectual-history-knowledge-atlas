@@ -357,7 +357,7 @@ Status notation:
 - [x] Add "high-confidence suggestions" view.
 - [x] Add "source gaps" view.
 - [x] Add compact relationship inspector.
-- Add graph clustering by domain, movement, era, and institution.
+- [x] Add graph clustering by domain, movement, era, and institution.
 - Add graph layout modes:
   - timeline-projected
   - force-directed
