@@ -398,7 +398,7 @@ Status notation:
 - [x] Add density lanes by domain.
 - [x] Add edge arcs only for selected/focused neighborhoods by default.
 - [x] Add clearer BCE/CE axis treatment.
-- Add confidence styling for timeline edges.
+- [x] Add confidence styling for timeline edges.
 - Add movement/institution bands that can be toggled independently.
 
 ## Quality And Engineering

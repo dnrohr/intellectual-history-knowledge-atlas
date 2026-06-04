@@ -47,11 +47,14 @@ type EdgeArcScope = "focus" | "all";
 const getEdgeVisualState = (edge: InfluenceEdge) => {
   const isSuggested = edge.status === "suggested";
   const needsSource = edge.status === "needs_source" || !edge.sourceClaims || edge.sourceClaims.length === 0;
-  const lowConfidence = (edge.confidence ?? 1) < 0.5;
+  const confidence = Math.max(0, Math.min(1, edge.confidence ?? 1));
+  const lowConfidence = confidence < 0.5;
   return {
     isSuggested,
     needsSource,
     lowConfidence,
+    confidence,
+    confidenceWeight: 0.55 + confidence * 0.55,
     dash: isSuggested ? [5, 4] : needsSource || lowConfidence ? [2, 4] : [],
   };
 };
@@ -636,25 +639,28 @@ export default function Timeline({
         const tx = yearToX(tgtBirthYr + (tgtDeathYr - tgtBirthYr) * 0.5);
         const sy = HDR_H + src.row * ROW_H + ROW_H / 2;
         const ty = HDR_H + tgt.row * ROW_H + ROW_H / 2;
+        const selectedAlpha = 0.42 + edgeVisual.confidence * 0.46;
+        const mutedAlpha = 0.035 + edgeVisual.confidence * 0.11;
+        const pathAlpha = 0.56 + edgeVisual.confidence * 0.36;
 
         ctx.strokeStyle = isCurrentlySelected
           ? edgeVisual.isSuggested
-            ? "rgba(56, 189, 248, 0.78)"
+            ? `rgba(56, 189, 248, ${selectedAlpha})`
             : edgeVisual.needsSource || edgeVisual.lowConfidence
-            ? "rgba(251, 191, 36, 0.72)"
-            : "#7b9cf5"
+            ? `rgba(251, 191, 36, ${selectedAlpha})`
+            : `rgba(123, 156, 245, ${selectedAlpha})`
           : isHighlightedPathEdge
-          ? "#e8b84b"
+          ? `rgba(232, 184, 75, ${pathAlpha})`
           : edgeVisual.isSuggested
-          ? "rgba(56, 189, 248, 0.16)"
+          ? `rgba(56, 189, 248, ${mutedAlpha})`
           : edgeVisual.needsSource || edgeVisual.lowConfidence
-          ? "rgba(251, 191, 36, 0.12)"
-          : "rgba(255, 255, 255, 0.05)";
+          ? `rgba(251, 191, 36, ${mutedAlpha})`
+          : `rgba(255, 255, 255, ${mutedAlpha})`;
         ctx.lineWidth = isCurrentlySelected
-          ? edgeVisual.isSuggested ? 1.1 : 1.6
+          ? (edgeVisual.isSuggested ? 1.1 : 1.6) * edgeVisual.confidenceWeight
           : isHighlightedPathEdge
-          ? edgeVisual.isSuggested ? 1.8 : 2.2
-          : edgeVisual.isSuggested ? 0.7 : (e.strength || 3) * 0.2;
+          ? (edgeVisual.isSuggested ? 1.8 : 2.2) * edgeVisual.confidenceWeight
+          : (edgeVisual.isSuggested ? 0.7 : (e.strength || 3) * 0.2) * edgeVisual.confidenceWeight;
         ctx.lineCap = "round";
         ctx.setLineDash(edgeVisual.dash);
 
@@ -1292,11 +1298,15 @@ export default function Timeline({
             <div className="pointer-events-none sticky bottom-2 left-2 z-10 hidden w-fit items-center gap-2 rounded-md border border-[#252a3d] bg-[#10131d]/90 px-2 py-1 font-mono text-[8.5px] text-slate-500 sm:flex">
               <span className="inline-flex items-center gap-1">
                 <span className="h-px w-5 bg-[#7b9cf5]" />
-                Confirmed
+                High confidence
               </span>
               <span className="inline-flex items-center gap-1">
                 <span className="h-px w-5 border-t border-dashed border-cyan-300" />
                 Suggested
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-px w-5 border-t border-dotted border-amber-200 opacity-55" />
+                Low confidence
               </span>
               <span className="inline-flex items-center gap-1">
                 <span className="h-px w-5 border-t border-dotted border-amber-300" />
