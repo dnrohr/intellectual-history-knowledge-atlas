@@ -5580,6 +5580,15 @@ export default function App() {
                               const isSelected = p.id === selectedId;
                               const inPath = highlightPath && highlightPath.includes(p.id);
                               const contextText = getIndexContext(p, group.title);
+                              const rowEdges = edges.filter((edge) => edge.source === p.id || edge.target === p.id);
+                              const sourcedEdgeCount = rowEdges.filter((edge) => edge.sourceClaims && edge.sourceClaims.length > 0).length;
+                              const reviewStatus = getReviewStatusForPerson(p);
+                              const reviewTone =
+                                reviewStatus.includes("Needs") || reviewStatus === "Orphan"
+                                  ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                                  : reviewStatus.includes("Sparse") || reviewStatus.includes("Unlinked")
+                                  ? "border-[#7b9cf5]/30 bg-[#7b9cf5]/10 text-[#9bdaff]"
+                                  : "border-emerald-500/25 bg-emerald-500/10 text-emerald-300";
 
                               return (
                                 <button
@@ -5599,6 +5608,19 @@ export default function App() {
                                     <div className="text-[8.5px] text-slate-500 font-mono mt-0.5 truncate">
                                       {contextText}
                                     </div>
+                                  </div>
+                                  <div className="hidden shrink-0 flex-col items-end gap-0.5 sm:flex">
+                                    <div className="flex gap-1">
+                                      <span className="rounded border border-[#252a3d] bg-[#0b0d14] px-1 py-0.5 text-[7.5px] font-mono text-slate-500">
+                                        {rowEdges.length}e
+                                      </span>
+                                      <span className="rounded border border-[#252a3d] bg-[#0b0d14] px-1 py-0.5 text-[7.5px] font-mono text-slate-500">
+                                        {sourcedEdgeCount}s
+                                      </span>
+                                    </div>
+                                    <span className={`max-w-20 truncate rounded border px-1 py-0.5 text-[7px] font-mono ${reviewTone}`}>
+                                      {reviewStatus}
+                                    </span>
                                   </div>
                                 </button>
                               );

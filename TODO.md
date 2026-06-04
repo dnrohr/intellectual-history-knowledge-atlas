@@ -383,7 +383,7 @@ Status notation:
 - [x] Add "orphans" group.
 - [x] Add "high bridge score" group.
 - [x] Add "needs source" group.
-- Add row badges for edge count, source count, and review status.
+- [x] Add row badges for edge count, source count, and review status.
 - Add quick actions on index rows:
   - focus
   - connect
