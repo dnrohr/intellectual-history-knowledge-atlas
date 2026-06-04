@@ -397,7 +397,7 @@ Status notation:
 - [x] Add selected-person neighborhood overlay.
 - [x] Add density lanes by domain.
 - [x] Add edge arcs only for selected/focused neighborhoods by default.
-- Add clearer BCE/CE axis treatment.
+- [x] Add clearer BCE/CE axis treatment.
 - Add confidence styling for timeline edges.
 - Add movement/institution bands that can be toggled independently.
 

@@ -458,8 +458,24 @@ export default function Timeline({
       ctx.fillStyle = isMajor ? "rgba(255, 255, 255, 0.55)" : "rgba(255, 255, 255, 0.22)";
       ctx.font = `${isMajor ? "600" : "400"} ${isMajor ? "10" : "8"}px 'IBM Plex Mono', monospace`;
       ctx.textAlign = "left";
-      ctx.fillText(y < 0 ? `${Math.abs(y)} BCE` : String(y), x + 3, HDR_H - 8);
+      ctx.fillText(formatYearLabel(y), x + 3, HDR_H - 8);
     });
+
+    if (YEAR_MIN <= 0 && YEAR_MAX >= 0) {
+      const zeroX = yearToX(0);
+      ctx.strokeStyle = "rgba(232, 184, 75, 0.56)";
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(zeroX, HDR_H);
+      ctx.lineTo(zeroX, world.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(232, 184, 75, 0.88)";
+      ctx.font = "700 9px 'IBM Plex Mono', monospace";
+      ctx.textAlign = "left";
+      ctx.fillText("BCE / CE", zeroX + 6, HDR_H + 12);
+    }
 
     ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
     ctx.lineWidth = 1;
@@ -497,7 +513,7 @@ export default function Timeline({
         ctx.strokeStyle = `${ev.color}80`;
         ctx.lineWidth = 1;
 
-        const tagText = `${ev.year < 0 ? `${Math.abs(ev.year)} BCE` : ev.year}: ${ev.name}`;
+        const tagText = `${formatYearLabel(ev.year)}: ${ev.name}`;
         ctx.font = "500 8.5px 'IBM Plex Mono', monospace";
         const txtMargin = 3;
         const txtWidth = ctx.measureText(tagText).width;
@@ -777,8 +793,34 @@ export default function Timeline({
       ctx.fillStyle = isMajor ? "rgba(255, 255, 255, 0.72)" : "rgba(255, 255, 255, 0.32)";
       ctx.font = `${isMajor ? "600" : "400"} ${isMajor ? "10" : "8"}px 'IBM Plex Mono', monospace`;
       ctx.textAlign = "left";
-      ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
+      ctx.fillText(formatYearLabel(year), x + 3, 18);
     });
+
+    const drawAxisEraChip = (label: string, x: number) => {
+      ctx.font = "700 8px 'IBM Plex Mono', monospace";
+      const width = ctx.measureText(label).width + 12;
+      const chipX = Math.max(4, Math.min(canvasW - width - 4, x));
+      ctx.fillStyle = "rgba(9, 11, 16, 0.88)";
+      ctx.strokeStyle = "rgba(232, 184, 75, 0.34)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect?.(chipX, 2, width, 13, 3);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(232, 184, 75, 0.92)";
+      ctx.textAlign = "left";
+      ctx.fillText(label, chipX + 6, 11);
+    };
+
+    if (visibleStartYear < 0) {
+      drawAxisEraChip("BCE", 6);
+    }
+    if (visibleEndYear >= 0) {
+      drawAxisEraChip("CE", canvasW - 34);
+    }
+    if (visibleStartYear < 0 && visibleEndYear >= 0) {
+      drawAxisEraChip("BCE | CE", yearToX(0) - pan.x + 6);
+    }
     ctx.restore();
 
     if (selectedPerson && selectedNeighborhoodEdges.length > 0) {
@@ -1280,7 +1322,7 @@ export default function Timeline({
             {hoveredPerson.fields?.join(", ")} {hoveredPerson.subfields?.length ? `• ${hoveredPerson.subfields.join(', ')}` : ""}
           </div>
           <div className="text-[10px] text-slate-500 font-mono mb-2">
-            {hoveredPerson.birth < 0 ? `${Math.abs(hoveredPerson.birth)} BCE` : hoveredPerson.birth} – {hoveredPerson.death ?? "present"} · Era: {hoveredPerson.era}
+            {formatYearLabel(hoveredPerson.birth)} – {hoveredPerson.death !== undefined && hoveredPerson.death !== null ? formatYearLabel(hoveredPerson.death) : "present"} · Era: {hoveredPerson.era}
           </div>
           {hoveredPerson.notes && (
             <p className="text-slate-300 leading-relaxed text-[11px] font-[350] border-t border-[#252a3d] pt-1.5 mt-1.5 italic">
@@ -1305,7 +1347,7 @@ export default function Timeline({
             <span>Critical Historical Event</span>
           </div>
           <div className="font-mono text-[11px] font-bold text-slate-100 mb-1">
-            {hoveredEvent.name} ({hoveredEvent.year < 0 ? `${Math.abs(hoveredEvent.year)} BCE` : hoveredEvent.year})
+            {hoveredEvent.name} ({formatYearLabel(hoveredEvent.year)})
           </div>
           <p className="text-slate-300 leading-relaxed text-[11px] border-t border-[#252a3d] pt-1.5 mt-1.5 italic">
             {hoveredEvent.desc}
