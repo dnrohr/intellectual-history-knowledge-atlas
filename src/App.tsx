@@ -13,7 +13,7 @@ import DetailPanel from "./components/DetailPanel";
 import AddThinkerModal from "./components/AddThinkerModal";
 import PathFinder from "./components/PathFinder";
 import EmptyState from "./components/EmptyState";
-import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getTopicGroupsForField, getDomainForField } from "./taxonomy";
+import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
 import { CANONICAL_THREADS } from "./threads";
 import {
@@ -741,28 +741,9 @@ export default function App() {
 
   const countPeopleBy = (predicate: (person: Thinker) => boolean) => people.filter(predicate).length;
 
-  const disciplineGroups = TAXONOMY_DOMAINS.map((group) => ({
-    ...group,
-    fields: group.fields.filter((field) => allFields.includes(field)),
-  }));
-
-  const groupedFields = new Set(disciplineGroups.flatMap((group) => group.fields));
-  const ungroupedFields = allFields.filter((field) => !groupedFields.has(field));
-  if (ungroupedFields.length > 0) {
-    disciplineGroups.push({ name: "Other Domains", fields: ungroupedFields });
-  }
-
-  const subfieldsByField = Object.fromEntries(
-    allFields.map((field) => [
-      field,
-      Array.from(new Set([...(CONTROLLED_TOPICS[field] || []), ...people
-        .filter((person) => person.fields?.includes(field))
-        .flatMap((person) => person.subfields || [])])).sort(),
-    ])
-  ) as Record<string, string[]>;
-  const topicGroupsByField = Object.fromEntries(
-    allFields.map((field) => [field, getTopicGroupsForField(field, subfieldsByField[field] || [])])
-  );
+  const disciplineGroups = buildDisciplineGroups(allFields);
+  const subfieldsByField = buildSubfieldsByField(allFields, people);
+  const topicGroupsByField = buildTopicGroupsByField(allFields, subfieldsByField);
 
   // ── FILTERING & SORTING PROCESSING ──
   const getFilteredPeople = (): Thinker[] => {

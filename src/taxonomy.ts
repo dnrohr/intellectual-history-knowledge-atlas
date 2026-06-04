@@ -1,3 +1,5 @@
+import { Thinker } from "./types";
+
 export interface TaxonomyDomain {
   name: string;
   fields: string[];
@@ -186,6 +188,34 @@ export const getTopicGroupsForField = (field: string, extraTopics: string[] = []
     ? [...groups, { name: "Local Additions", topics: localTopics }]
     : groups;
 };
+
+export const buildDisciplineGroups = (fields: string[]) => {
+  const disciplineGroups = TAXONOMY_DOMAINS.map((group) => ({
+    ...group,
+    fields: group.fields.filter((field) => fields.includes(field)),
+  }));
+
+  const groupedFields = new Set(disciplineGroups.flatMap((group) => group.fields));
+  const ungroupedFields = fields.filter((field) => !groupedFields.has(field));
+  return ungroupedFields.length > 0
+    ? [...disciplineGroups, { name: "Other Domains", fields: ungroupedFields }]
+    : disciplineGroups;
+};
+
+export const buildSubfieldsByField = (fields: string[], people: Thinker[]) =>
+  Object.fromEntries(
+    fields.map((field) => [
+      field,
+      Array.from(new Set([...(CONTROLLED_TOPICS[field] || []), ...people
+        .filter((person) => person.fields?.includes(field))
+        .flatMap((person) => person.subfields || [])])).sort(),
+    ])
+  ) as Record<string, string[]>;
+
+export const buildTopicGroupsByField = (fields: string[], subfieldsByField: Record<string, string[]>) =>
+  Object.fromEntries(
+    fields.map((field) => [field, getTopicGroupsForField(field, subfieldsByField[field] || [])])
+  ) as Record<string, TaxonomyTopicGroup[]>;
 
 export const inferLensTags = (item: {
   fields?: string[];
