@@ -380,7 +380,7 @@ Status notation:
 - [x] Add index grouping by source/review status.
 - [x] Add "recently added" group.
 - [x] Add "recently reviewed" group.
-- Add "orphans" group.
+- [x] Add "orphans" group.
 - Add "high bridge score" group.
 - Add "needs source" group.
 - Add row badges for edge count, source count, and review status.

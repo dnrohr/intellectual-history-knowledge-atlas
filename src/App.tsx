@@ -2934,6 +2934,7 @@ export default function App() {
     { title: "Likely Links", list: likelyIndexPeople },
     { title: "Recently Added", list: recentlyAddedPeople },
     { title: "Recently Reviewed", list: recentlyReviewedPeople },
+    { title: "Orphans", list: unlinkedThinkers },
     { title: "Current Matches", list: currentMatchPeople },
   ].filter(Boolean) as { title: string; list: Thinker[] }[];
 
@@ -2964,6 +2965,10 @@ export default function App() {
     if (groupTitle === "Recently Reviewed") {
       const entry = importAuditLog.find((item) => item.candidateId === person.id || item.candidateName === person.name);
       return `${entry?.status || "reviewed"} · ${entry?.reason || person.fields?.[0] || "review history"}`;
+    }
+
+    if (groupTitle === "Orphans") {
+      return `${formatYear(person.birth)} · no mapped relationships`;
     }
 
     if (groupTitle === "Connected") {
