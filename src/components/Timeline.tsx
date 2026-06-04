@@ -524,6 +524,49 @@ export default function Timeline({
     }
 
     // ── 3. Influence connectors edges ──
+    const selectedNeighborhoodEdges = selectedId
+      ? edges.filter((edge) => edge.source === selectedId || edge.target === selectedId)
+      : [];
+    const selectedNeighborIds = new Set<string>();
+    selectedNeighborhoodEdges.forEach((edge) => {
+      selectedNeighborIds.add(edge.source === selectedId ? edge.target : edge.source);
+    });
+    const selectedNeighborhoodPeople = selectedId
+      ? packedPeople.filter((person) => person.id === selectedId || selectedNeighborIds.has(person.id))
+      : [];
+
+    if (selectedPerson && selectedNeighborhoodPeople.length > 1) {
+      const focusColor = FIELD_COLOR[selectedPerson.fields?.[0] || "Philosophy"] || "#7b9cf5";
+      const selectedBirthX = yearToX(selectedPerson.birth);
+      const selectedDeathX = yearToX(selectedPerson.death ?? 2024);
+
+      ctx.save();
+      ctx.fillStyle = `${focusColor}14`;
+      ctx.beginPath();
+      ctx.roundRect?.(
+        selectedBirthX - 8,
+        HDR_H - 8,
+        Math.max(selectedDeathX - selectedBirthX, 10) + 16,
+        Math.max(24, world.height - HDR_H + 8),
+        6
+      );
+      ctx.fill();
+
+      selectedNeighborhoodPeople.forEach((person) => {
+        const isFocus = person.id === selectedId;
+        const rowY = HDR_H + person.row * ROW_H;
+        ctx.fillStyle = isFocus ? "rgba(255, 255, 255, 0.06)" : "rgba(123, 156, 245, 0.045)";
+        ctx.fillRect(pan.x, rowY, dimensions.width, ROW_H);
+        ctx.strokeStyle = isFocus ? `${focusColor}70` : "rgba(123, 156, 245, 0.28)";
+        ctx.lineWidth = isFocus ? 1.2 : 0.8;
+        ctx.beginPath();
+        ctx.moveTo(pan.x, rowY + ROW_H - 0.5);
+        ctx.lineTo(pan.x + dimensions.width, rowY + ROW_H - 0.5);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
     const highlightedEdgeKeys = new Set<string>();
     if (highlightPath) {
       for (let i = 0; i < highlightPath.length - 1; i += 1) {
@@ -725,6 +768,31 @@ export default function Timeline({
       ctx.fillText(year < 0 ? `${Math.abs(year)} BCE` : String(year), x + 3, 18);
     });
     ctx.restore();
+
+    if (selectedPerson && selectedNeighborhoodEdges.length > 0) {
+      const neighbors = selectedNeighborhoodPeople.filter((person) => person.id !== selectedId);
+      const label = `${selectedPerson.name} neighborhood`;
+      const sublabel = `${neighbors.length} people / ${selectedNeighborhoodEdges.length} links`;
+      ctx.save();
+      ctx.font = "600 10px 'IBM Plex Mono', monospace";
+      const labelWidth = Math.max(ctx.measureText(label).width, ctx.measureText(sublabel).width);
+      const badgeWidth = Math.min(canvasW - 24, Math.max(160, labelWidth + 28));
+      const badgeX = Math.max(12, canvasW - badgeWidth - 12);
+      ctx.fillStyle = "rgba(9, 11, 16, 0.88)";
+      ctx.strokeStyle = "rgba(123, 156, 245, 0.42)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect?.(badgeX, 34, badgeWidth, 42, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#bfdbfe";
+      ctx.textAlign = "left";
+      ctx.fillText(label, badgeX + 12, 51);
+      ctx.fillStyle = "rgba(226, 232, 240, 0.62)";
+      ctx.font = "500 9px 'IBM Plex Mono', monospace";
+      ctx.fillText(sublabel, badgeX + 12, 66);
+      ctx.restore();
+    }
   }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen, nearbyContextOnly, coordinatedNearbyContext]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
