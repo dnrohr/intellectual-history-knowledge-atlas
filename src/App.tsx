@@ -16,6 +16,17 @@ import EmptyState from "./components/EmptyState";
 import { TAXONOMY_DOMAINS, CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getTopicGroupsForField, getDomainForField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
 import { CANONICAL_THREADS } from "./threads";
+import {
+  IMPORT_QUEUE_SCHEMA_VERSION,
+  IMPORT_QUEUE_STORAGE_KEY,
+  LEGACY_IMPORT_QUEUE_STORAGE_KEY,
+  ImportReviewItem,
+  ImportReviewStatus,
+  WikidataCandidate,
+  normalizeStoredImportReviewQueue,
+  parseStoredImportReviewQueue,
+  persistImportReviewQueueToStorage,
+} from "./importQueue";
 import { 
   Plus, 
   RefreshCcw, 
@@ -37,39 +48,6 @@ import {
   Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-
-type WikidataCandidate = {
-  id: string;
-  name: string;
-  description: string;
-  birth: number | null;
-  death: number | null;
-  aliases?: string[];
-  fields?: string[];
-  topics?: string[];
-  region?: string | null;
-  era?: string | null;
-  movement?: string | null;
-  works?: string[];
-  advisors?: string[];
-  students?: string[];
-  influencedBy?: string[];
-  employers?: string[];
-  educatedAt?: string[];
-  memberOf?: string[];
-  sourceUrl: string;
-  wikipediaUrl: string | null;
-};
-
-type ImportReviewStatus = "queued" | "edited" | "accepted" | "skipped" | "duplicate";
-
-type ImportReviewItem = {
-  id: string;
-  candidate: WikidataCandidate;
-  confidence: number;
-  duplicateId: string | null;
-  status: ImportReviewStatus;
-};
 
 type ImportAuditLogItem = {
   id: string;
@@ -166,15 +144,11 @@ type DefaultCuratedAtlasViewDefinition = {
   match: (person: Thinker) => boolean;
 };
 
-const IMPORT_QUEUE_SCHEMA_VERSION = 2;
-const IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v2";
-const LEGACY_IMPORT_QUEUE_STORAGE_KEY = "atlas_import_queue_v1";
 const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v1";
 const LINK_REVIEW_QUEUE_STORAGE_KEY = "atlas_link_review_queue_v1";
 const WORKBENCH_PANEL_MODE_STORAGE_KEY = "atlas_workbench_panel_mode_v1";
 const SAVED_ATLAS_VIEWS_STORAGE_KEY = "atlas_saved_views_v1";
 const TIMELINE_BOOKMARKS_STORAGE_KEY = "atlas_timeline_bookmarks_v1";
-const IMPORT_QUEUE_STATUSES: ImportReviewStatus[] = ["queued", "edited", "accepted", "skipped", "duplicate"];
 const WORKBENCH_PANEL_MODES: Array<Exclude<PanelMode, "closed">> = ["floating", "docked", "pinned", "fullscreen"];
 
 const personSearchText = (person: Thinker) =>
@@ -289,60 +263,8 @@ const DEFAULT_CURATED_ATLAS_VIEW_DEFINITIONS: DefaultCuratedAtlasViewDefinition[
   },
 ];
 
-type StoredImportReviewQueue = {
-  version: number;
-  updatedAt: string;
-  items: ImportReviewItem[];
-};
-
-const isImportReviewStatus = (status: unknown): status is ImportReviewStatus =>
-  typeof status === "string" && IMPORT_QUEUE_STATUSES.includes(status as ImportReviewStatus);
-
 const isWorkbenchPanelMode = (mode: unknown): mode is Exclude<PanelMode, "closed"> =>
   typeof mode === "string" && WORKBENCH_PANEL_MODES.includes(mode as Exclude<PanelMode, "closed">);
-
-const normalizeImportReviewQueueItem = (item: Partial<ImportReviewItem> | null | undefined): ImportReviewItem | null => {
-  if (!item || !item.id || !item.candidate?.id || !item.candidate.name) return null;
-  const duplicateId = typeof item.duplicateId === "string" ? item.duplicateId : null;
-  return {
-    id: String(item.id),
-    candidate: item.candidate,
-    confidence: Number.isFinite(Number(item.confidence)) ? Math.max(0, Math.min(100, Math.round(Number(item.confidence)))) : 0,
-    duplicateId,
-    status: isImportReviewStatus(item.status) ? item.status : duplicateId ? "duplicate" : "queued",
-  };
-};
-
-const normalizeImportReviewQueue = (items: unknown): ImportReviewItem[] => {
-  if (!Array.isArray(items)) return [];
-  return items
-    .map((item) => normalizeImportReviewQueueItem(item as Partial<ImportReviewItem>))
-    .filter((item): item is ImportReviewItem => Boolean(item));
-};
-
-const normalizeStoredImportReviewQueue = (storedQueue: unknown): ImportReviewItem[] => {
-  if (Array.isArray(storedQueue)) return normalizeImportReviewQueue(storedQueue);
-  if (storedQueue && typeof storedQueue === "object" && Array.isArray((storedQueue as StoredImportReviewQueue).items)) {
-    return normalizeImportReviewQueue((storedQueue as StoredImportReviewQueue).items);
-  }
-  return [];
-};
-
-const parseStoredImportReviewQueue = (savedQueue: string): ImportReviewItem[] => {
-  return normalizeStoredImportReviewQueue(JSON.parse(savedQueue));
-};
-
-const serializeImportReviewQueue = (items: ImportReviewItem[]) =>
-  JSON.stringify({
-    version: IMPORT_QUEUE_SCHEMA_VERSION,
-    updatedAt: new Date().toISOString(),
-    items: normalizeImportReviewQueue(items),
-  } satisfies StoredImportReviewQueue);
-
-const persistImportReviewQueueToStorage = (items: ImportReviewItem[]) => {
-  localStorage.setItem(IMPORT_QUEUE_STORAGE_KEY, serializeImportReviewQueue(items));
-  localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
-};
 
 const normalizeLinkReviewQueue = (items: unknown): LinkReviewItem[] => {
   if (!Array.isArray(items)) return [];

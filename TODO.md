@@ -404,7 +404,7 @@ Status notation:
 ## Quality And Engineering
 
 - [x] Split `src/App.tsx` into focused modules/components.
-- Extract import queue logic into a hook or reducer.
+- [x] Extract import queue logic into a hook or reducer.
 - Extract relationship scoring into a testable utility.
 - Extract taxonomy helpers into testable utilities.
 - Add unit tests for:
