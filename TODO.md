@@ -410,7 +410,7 @@ Status notation:
 - Add unit tests for:
   - [x] duplicate detection
   - [x] candidate confidence scoring
-  - relationship suggestion scoring
+  - [x] relationship suggestion scoring
   - edge derivation from thinker metadata
   - taxonomy grouping
   - import queue persistence
