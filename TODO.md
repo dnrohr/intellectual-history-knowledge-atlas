@@ -378,7 +378,7 @@ Status notation:
 - [x] Add index grouping by movement.
 - [x] Add index grouping by institution.
 - [x] Add index grouping by source/review status.
-- Add "recently added" group.
+- [x] Add "recently added" group.
 - Add "recently reviewed" group.
 - Add "orphans" group.
 - Add "high bridge score" group.

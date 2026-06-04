@@ -2882,6 +2882,11 @@ export default function App() {
     .filter((person) => !connectedIndexPeople.some((connected) => connected.id === person.id))
     .filter((person) => !likelyIndexPeople.some((likely) => likely.id === person.id))
     .slice(0, 30);
+  const recentlyAddedPeople = [...people]
+    .reverse()
+    .filter((person) => processedPeople.some((match) => match.id === person.id))
+    .filter((person) => person.id !== selectedId)
+    .slice(0, 12);
 
   const groupPeopleBy = (list: Thinker[], getKey: (person: Thinker) => string) =>
     Object.entries(
@@ -2916,6 +2921,7 @@ export default function App() {
     selectedThinker ? { title: "Selected", list: [selectedThinker] } : null,
     { title: "Connected", list: connectedIndexPeople },
     { title: "Likely Links", list: likelyIndexPeople },
+    { title: "Recently Added", list: recentlyAddedPeople },
     { title: "Current Matches", list: currentMatchPeople },
   ].filter(Boolean) as { title: string; list: Thinker[] }[];
 
@@ -2937,6 +2943,10 @@ export default function App() {
   const getIndexContext = (person: Thinker, groupTitle: string) => {
     if (groupTitle === "Selected") {
       return `${formatYear(person.birth)} · current focus`;
+    }
+
+    if (groupTitle === "Recently Added") {
+      return `${formatYear(person.birth)} · ${person.movement || person.fields?.[0] || "Unclassified"}`;
     }
 
     if (groupTitle === "Connected") {
