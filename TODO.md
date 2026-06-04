@@ -369,7 +369,7 @@ Status notation:
 - [x] Add undo for accepting imports and relationships.
 - [x] Add visual distinction between confirmed and suggested edges.
 - [x] Add edge filters by type, confidence, and source status.
-- Add label density controls for large graphs.
+- [x] Add label density controls for large graphs.
 - Add minimap or overview navigator for large graph/timeline views.
 
 ## Thinkers Index
