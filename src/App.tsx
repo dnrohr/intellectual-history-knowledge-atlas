@@ -29,6 +29,7 @@ import {
 } from "./importQueue";
 import { scoreCandidateRelationship } from "./relationshipScoring";
 import { findDuplicateCandidateId, normalizeEntityName } from "./duplicateDetection";
+import { scoreCandidateConfidence } from "./importConfidence";
 import { 
   Plus, 
   RefreshCcw, 
@@ -1471,17 +1472,7 @@ export default function App() {
     if (draftQueueItemId === id) setDraftQueueItemId(null);
   };
 
-  const getCandidateConfidence = (query: string, candidate: WikidataCandidate | null) => {
-    if (!candidate) return 0;
-    let score = 0;
-    if (normalizeName(query) === normalizeName(candidate.name)) score += 55;
-    if (candidate.birth !== null) score += 15;
-    if (candidate.description) score += 10;
-    if ((candidate.fields || []).length > 0) score += 8;
-    if ((candidate.topics || []).length > 0) score += 6;
-    if (candidate.wikipediaUrl) score += 6;
-    return Math.min(100, score);
-  };
+  const getCandidateConfidence = scoreCandidateConfidence;
 
   const getImportQualityLabels = (candidate: WikidataCandidate, confidence: number): ImportQualityLabel[] => {
     const candidateSourceUrl = getCandidateSourceUrl(candidate);

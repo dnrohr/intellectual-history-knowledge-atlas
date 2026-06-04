@@ -409,7 +409,7 @@ Status notation:
 - [x] Extract taxonomy helpers into testable utilities.
 - Add unit tests for:
   - [x] duplicate detection
-  - candidate confidence scoring
+  - [x] candidate confidence scoring
   - relationship suggestion scoring
   - edge derivation from thinker metadata
   - taxonomy grouping
