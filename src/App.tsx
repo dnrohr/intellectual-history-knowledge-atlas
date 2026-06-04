@@ -28,6 +28,7 @@ import {
   persistImportReviewQueueToStorage,
 } from "./importQueue";
 import { scoreCandidateRelationship } from "./relationshipScoring";
+import { findDuplicateCandidateId, normalizeEntityName } from "./duplicateDetection";
 import { 
   Plus, 
   RefreshCcw, 
@@ -1311,7 +1312,7 @@ export default function App() {
     setDraftQueueItemId(null);
   };
 
-  const normalizeName = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const normalizeName = normalizeEntityName;
   const getLinkSuggestionKey = (candidateId: string, personId: string) => `${candidateId}::${personId}`;
   const rejectCandidateLinkSuggestion = (candidateId: string, personId: string) => {
     const suggestionKey = getLinkSuggestionKey(candidateId, personId);
@@ -1368,38 +1369,7 @@ export default function App() {
   const getCandidateSourceUrl = (candidate: WikidataCandidate) =>
     candidate.sourceUrl === "manual-paste" ? "" : candidate.wikipediaUrl || candidate.sourceUrl;
 
-  const getNameVariants = (name: string) =>
-    Array.from(new Set([
-      name,
-      name.replace(/\([^)]*\)/g, " "),
-      ...Array.from(name.matchAll(/\(([^)]*)\)/g)).map((match) => match[1]),
-    ].map(normalizeName).filter(Boolean)));
-
-  const yearsAreClose = (left: number | null, right: number | null, tolerance = 2) =>
-    left !== null && right !== null && Math.abs(left - right) <= tolerance;
-
-  const getDuplicateIdForCandidate = (candidate: WikidataCandidate) => {
-    const candidateNames = new Set([
-      ...getNameVariants(candidate.name),
-      ...(candidate.aliases || []).flatMap(getNameVariants),
-    ]);
-    const candidateSourceUrls = [candidate.sourceUrl, candidate.wikipediaUrl].filter(Boolean) as string[];
-    const candidateWorks = new Set((candidate.works || []).map(normalizeName).filter(Boolean));
-
-    return people.find((person) => {
-      const personNames = getNameVariants(person.name);
-      const nameMatches = personNames.some((name) => candidateNames.has(name));
-      if (nameMatches) return true;
-
-      const notes = person.notes || "";
-      if (candidateSourceUrls.some((url) => notes.includes(url))) return true;
-
-      const sameBirth = yearsAreClose(candidate.birth, person.birth);
-      const sameDeath = yearsAreClose(candidate.death, person.death);
-      const sharedWorks = (person.works || []).filter((work) => candidateWorks.has(normalizeName(work))).length;
-      return sameBirth && (sameDeath || sharedWorks > 0);
-    })?.id || null;
-  };
+  const getDuplicateIdForCandidate = (candidate: WikidataCandidate) => findDuplicateCandidateId(candidate, people);
 
   const candidateToThinkerDraft = (candidate: WikidataCandidate): Thinker => ({
     id: candidate.id,

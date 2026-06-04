@@ -408,7 +408,7 @@ Status notation:
 - [x] Extract relationship scoring into a testable utility.
 - [x] Extract taxonomy helpers into testable utilities.
 - Add unit tests for:
-  - duplicate detection
+  - [x] duplicate detection
   - candidate confidence scoring
   - relationship suggestion scoring
   - edge derivation from thinker metadata
