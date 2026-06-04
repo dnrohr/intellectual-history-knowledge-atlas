@@ -370,7 +370,7 @@ Status notation:
 - [x] Add visual distinction between confirmed and suggested edges.
 - [x] Add edge filters by type, confidence, and source status.
 - [x] Add label density controls for large graphs.
-- Add minimap or overview navigator for large graph/timeline views.
+- [x] Add minimap or overview navigator for large graph/timeline views.
 
 ## Thinkers Index
 

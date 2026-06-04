@@ -53,6 +53,7 @@ export default function NetworkGraph({
 }: NetworkGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const minimapCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const simulationRef = useRef<d3.Simulation<SimulatedNode, SimulatedLink> | null>(null);
   const transformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
@@ -363,6 +364,103 @@ export default function NetworkGraph({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [clusterMode, layoutMode]);
+
+  const getGraphBounds = () => {
+    const positionedNodes = nodesRef.current.filter((node) => node.x !== undefined && node.y !== undefined);
+    if (positionedNodes.length === 0) return null;
+
+    const minX = Math.min(...positionedNodes.map((node) => node.x!));
+    const maxX = Math.max(...positionedNodes.map((node) => node.x!));
+    const minY = Math.min(...positionedNodes.map((node) => node.y!));
+    const maxY = Math.max(...positionedNodes.map((node) => node.y!));
+    const pad = 32;
+    return {
+      minX: minX - pad,
+      maxX: maxX + pad,
+      minY: minY - pad,
+      maxY: maxY + pad,
+    };
+  };
+
+  const getMinimapProjection = (width: number, height: number) => {
+    const bounds = getGraphBounds();
+    if (!bounds) return null;
+
+    const graphWidth = Math.max(1, bounds.maxX - bounds.minX);
+    const graphHeight = Math.max(1, bounds.maxY - bounds.minY);
+    const scale = Math.min(width / graphWidth, height / graphHeight);
+    const offsetX = (width - graphWidth * scale) / 2;
+    const offsetY = (height - graphHeight * scale) / 2;
+
+    return {
+      bounds,
+      mapX: (x: number) => offsetX + (x - bounds.minX) * scale,
+      mapY: (y: number) => offsetY + (y - bounds.minY) * scale,
+      invertX: (x: number) => bounds.minX + (x - offsetX) / scale,
+      invertY: (y: number) => bounds.minY + (y - offsetY) / scale,
+    };
+  };
+
+  const drawMinimap = () => {
+    const minimap = minimapCanvasRef.current;
+    const canvas = canvasRef.current;
+    if (!minimap || !canvas || nodesRef.current.length === 0) return;
+
+    const ratio = window.devicePixelRatio || 1;
+    const width = minimap.clientWidth || 160;
+    const height = minimap.clientHeight || 96;
+    minimap.width = width * ratio;
+    minimap.height = height * ratio;
+
+    const ctx = minimap.getContext("2d");
+    if (!ctx) return;
+
+    const projection = getMinimapProjection(width, height);
+    if (!projection) return;
+
+    ctx.clearRect(0, 0, minimap.width, minimap.height);
+    ctx.save();
+    ctx.scale(ratio, ratio);
+    ctx.fillStyle = "rgba(9, 11, 16, 0.92)";
+    ctx.fillRect(0, 0, width, height);
+
+    linksRef.current.forEach((link) => {
+      if (link.source.x === undefined || link.source.y === undefined || link.target.x === undefined || link.target.y === undefined) return;
+      ctx.beginPath();
+      ctx.moveTo(projection.mapX(link.source.x), projection.mapY(link.source.y));
+      ctx.lineTo(projection.mapX(link.target.x), projection.mapY(link.target.y));
+      ctx.strokeStyle = link.status === "suggested" ? "rgba(56, 189, 248, 0.18)" : "rgba(148, 163, 184, 0.14)";
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+    });
+
+    nodesRef.current.forEach((node) => {
+      if (node.x === undefined || node.y === undefined) return;
+      const isSelected = node.id === selectedId;
+      ctx.beginPath();
+      ctx.arc(projection.mapX(node.x), projection.mapY(node.y), isSelected ? 3 : 1.7, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? "#ffffff" : FIELD_COLOR[node.fields?.[0]] || "#94a3b8";
+      ctx.globalAlpha = isSelected ? 1 : 0.72;
+      ctx.fill();
+    });
+
+    const t = transformRef.current;
+    const mainWidth = canvas.width / ratio;
+    const mainHeight = canvas.height / ratio;
+    const viewMinX = -t.x / t.k;
+    const viewMinY = -t.y / t.k;
+    const viewMaxX = (mainWidth - t.x) / t.k;
+    const viewMaxY = (mainHeight - t.y) / t.k;
+    const vx = projection.mapX(viewMinX);
+    const vy = projection.mapY(viewMinY);
+    const vw = projection.mapX(viewMaxX) - vx;
+    const vh = projection.mapY(viewMaxY) - vy;
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(155, 218, 255, 0.75)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(vx, vy, vw, vh);
+    ctx.restore();
+  };
 
   const draw = () => {
     const canvas = canvasRef.current;
@@ -685,6 +783,7 @@ export default function NetworkGraph({
     });
 
     ctx.restore();
+    drawMinimap();
   };
 
   // Animation frame effect hook for glowing traveling flows
@@ -863,6 +962,30 @@ export default function NetworkGraph({
     draw();
   };
 
+  const handleMinimapClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const minimap = minimapCanvasRef.current;
+    const canvas = canvasRef.current;
+    if (!minimap || !canvas) return;
+
+    const rect = minimap.getBoundingClientRect();
+    const projection = getMinimapProjection(rect.width, rect.height);
+    if (!projection) return;
+
+    const graphX = projection.invertX(event.clientX - rect.left);
+    const graphY = projection.invertY(event.clientY - rect.top);
+    const ratio = window.devicePixelRatio || 1;
+    const mainWidth = canvas.width / ratio;
+    const mainHeight = canvas.height / ratio;
+    const currentK = transformRef.current.k;
+
+    transformRef.current = new d3.ZoomTransform(
+      currentK,
+      mainWidth / 2 - graphX * currentK,
+      mainHeight / 2 - graphY * currentK
+    );
+    draw();
+  };
+
   return (
     <div
       ref={containerRef}
@@ -991,6 +1114,21 @@ export default function NetworkGraph({
         >
           Reset View
         </button>
+      </div>
+
+      <div className="absolute bottom-10 left-3.5 z-10 hidden rounded-md border border-[#252a3d] bg-[#10131d]/90 p-1 shadow-lg shadow-black/30 sm:block">
+        <div className="mb-0.5 flex items-center justify-between gap-3 px-1 font-mono text-[8px] uppercase tracking-wider text-slate-600">
+          <span>Overview</span>
+          <span>{graphPeople.length}</span>
+        </div>
+        <canvas
+          ref={minimapCanvasRef}
+          onClick={handleMinimapClick}
+          width={160}
+          height={96}
+          className="block h-24 w-40 cursor-crosshair rounded border border-[#1d2232]"
+          title="Click overview to recenter graph"
+        />
       </div>
 
       <div className="absolute bottom-2.5 left-3.5 z-10 hidden items-center gap-2 rounded-md border border-[#252a3d] bg-[#10131d]/90 px-2 py-1 font-mono text-[8.5px] text-slate-500 sm:flex">
