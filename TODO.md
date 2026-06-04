@@ -358,12 +358,12 @@ Status notation:
 - [x] Add "source gaps" view.
 - [x] Add compact relationship inspector.
 - [x] Add graph clustering by domain, movement, era, and institution.
-- Add graph layout modes:
-  - timeline-projected
-  - force-directed
-  - ego network
-  - lineage tree
-  - concept neighborhood
+- [x] Add graph layout modes:
+  - [x] timeline-projected
+  - [x] force-directed
+  - [x] ego network
+  - [x] lineage tree
+  - [x] concept neighborhood
 - Add better empty states and review guidance.
 - Add keyboard shortcuts for review workflows.
 - Add undo for accepting imports and relationships.

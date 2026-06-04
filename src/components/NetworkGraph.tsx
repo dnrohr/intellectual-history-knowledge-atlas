@@ -5,6 +5,7 @@ import { FIELD_COLOR, INITIAL_INSTITUTIONS_DATA } from "../data";
 import { getDomainForField } from "../taxonomy";
 
 type GraphClusterMode = "none" | "domain" | "movement" | "era" | "institution";
+type GraphLayoutMode = "force" | "timeline" | "ego" | "lineage" | "concept";
 
 interface NetworkGraphProps {
   people: Thinker[];
@@ -44,11 +45,13 @@ export default function NetworkGraph({
   const requestRef = useRef<number | null>(null);
   const animTimeRef = useRef<number>(0);
   const clusterCentersRef = useRef<Map<string, { x: number; y: number }>>(new Map());
+  const layoutTargetsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
 
   const [hoveredNode, setHoveredNode] = useState<SimulatedNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [focusDepth, setFocusDepth] = useState<"all" | 1 | 2 | 3>(1);
   const [clusterMode, setClusterMode] = useState<GraphClusterMode>("none");
+  const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>("force");
   const effectiveFocusDepth = coordinatedFocusDepth ?? focusDepth;
 
   const getClusterKey = (person: Thinker, mode: GraphClusterMode = clusterMode) => {
@@ -85,6 +88,124 @@ export default function NetworkGraph({
         ];
       })
     );
+  };
+
+  const getConceptKey = (person: Thinker) =>
+    person.subfields?.[0]?.split("/")[0]?.trim() || getDomainForField(person.fields?.[0] || "");
+
+  const getGridCenters = (keys: string[], width: number, height: number) => {
+    const cols = Math.max(1, Math.ceil(Math.sqrt(keys.length)));
+    const rows = Math.max(1, Math.ceil(keys.length / cols));
+    const xPad = width * 0.12;
+    const yPad = height * 0.18;
+    const usableWidth = Math.max(120, width - xPad * 2);
+    const usableHeight = Math.max(120, height - yPad * 2);
+
+    return new Map(
+      keys.map((key, index) => [
+        key,
+        {
+          x: xPad + (((index % cols) + 0.5) * usableWidth) / cols,
+          y: yPad + ((Math.floor(index / cols) + 0.5) * usableHeight) / rows,
+        },
+      ])
+    );
+  };
+
+  const getGraphDepths = (nodes: SimulatedNode[]) => {
+    const depths = new Map<string, number>();
+    if (!selectedId || !nodes.some((node) => node.id === selectedId)) return depths;
+
+    depths.set(selectedId, 0);
+    const queue = [{ id: selectedId, depth: 0 }];
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      graphEdges.forEach((edge) => {
+        const neighbor = edge.source === current.id ? edge.target : edge.target === current.id ? edge.source : null;
+        if (neighbor && !depths.has(neighbor)) {
+          depths.set(neighbor, current.depth + 1);
+          queue.push({ id: neighbor, depth: current.depth + 1 });
+        }
+      });
+    }
+    return depths;
+  };
+
+  const getLayoutTargets = (
+    nodes: SimulatedNode[],
+    width: number,
+    height: number,
+    mode: GraphLayoutMode,
+    cluster: GraphClusterMode
+  ) => {
+    if (mode === "force") {
+      if (cluster === "none") return new Map(nodes.map((node) => [node.id, { x: width / 2, y: height / 2 }]));
+      const centers = getClusterCenters(nodes, width, height, cluster);
+      return new Map(nodes.map((node) => [node.id, centers.get(getClusterKey(node, cluster)) || { x: width / 2, y: height / 2 }]));
+    }
+
+    const births = nodes.map((node) => node.birth);
+    const minBirth = Math.min(...births, -650);
+    const maxBirth = Math.max(...births, 2030);
+    const span = Math.max(1, maxBirth - minBirth);
+    const xForYear = (year: number) => width * 0.08 + ((year - minBirth) / span) * width * 0.84;
+
+    if (mode === "timeline") {
+      const lanes = Array.from(new Set(nodes.map((node) => getDomainForField(node.fields?.[0] || "")))).sort();
+      return new Map(nodes.map((node) => {
+        const laneIndex = Math.max(0, lanes.indexOf(getDomainForField(node.fields?.[0] || "")));
+        return [
+          node.id,
+          {
+            x: xForYear(node.birth),
+            y: height * 0.16 + ((laneIndex + 0.5) * height * 0.68) / Math.max(1, lanes.length),
+          },
+        ];
+      }));
+    }
+
+    if (mode === "ego" && selectedId) {
+      const depths = getGraphDepths(nodes);
+      const byDepth = new Map<number, SimulatedNode[]>();
+      nodes.forEach((node) => {
+        const depth = depths.get(node.id) ?? 4;
+        const bucket = Math.min(depth, 4);
+        byDepth.set(bucket, [...(byDepth.get(bucket) || []), node]);
+      });
+
+      return new Map(nodes.map((node) => {
+        const depth = Math.min(depths.get(node.id) ?? 4, 4);
+        if (node.id === selectedId) return [node.id, { x: width / 2, y: height / 2 }];
+        const bucket = byDepth.get(depth) || [node];
+        const index = Math.max(0, bucket.findIndex((item) => item.id === node.id));
+        const angle = (index / Math.max(1, bucket.length)) * Math.PI * 2 + depth * 0.35;
+        const radius = Math.min(width, height) * (0.14 + depth * 0.1);
+        return [node.id, { x: width / 2 + Math.cos(angle) * radius, y: height / 2 + Math.sin(angle) * radius }];
+      }));
+    }
+
+    if (mode === "lineage") {
+      const incoming = new Set(graphEdges.filter((edge) => edge.target === selectedId).map((edge) => edge.source));
+      const outgoing = new Set(graphEdges.filter((edge) => edge.source === selectedId).map((edge) => edge.target));
+      return new Map(nodes.map((node) => {
+        const y = node.id === selectedId
+          ? height * 0.5
+          : incoming.has(node.id)
+          ? height * 0.28
+          : outgoing.has(node.id)
+          ? height * 0.68
+          : height * 0.82;
+        return [node.id, { x: xForYear(node.birth), y }];
+      }));
+    }
+
+    if (mode === "concept") {
+      const keys = Array.from(new Set(nodes.map(getConceptKey))).sort();
+      const centers = getGridCenters(keys, width, height);
+      return new Map(nodes.map((node) => [node.id, centers.get(getConceptKey(node)) || { x: width / 2, y: height / 2 }]));
+    }
+
+    return new Map(nodes.map((node) => [node.id, { x: width / 2, y: height / 2 }]));
   };
 
   const { graphPeople, graphEdges, visibleTotal } = useMemo(() => {
@@ -164,6 +285,7 @@ export default function NetworkGraph({
     nodesRef.current = newNodes;
     linksRef.current = newLinks;
     clusterCentersRef.current = getClusterCenters(newNodes, width, height, clusterMode);
+    layoutTargetsRef.current = getLayoutTargets(newNodes, width, height, layoutMode, clusterMode);
 
     if (simulationRef.current) {
       simulationRef.current.stop();
@@ -174,8 +296,8 @@ export default function NetworkGraph({
       .force("charge", d3.forceManyBody().strength(-200))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide<SimulatedNode>().radius((d) => d.r + 8).iterations(3))
-      .force("x", d3.forceX<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.x ?? width / 2).strength(clusterMode === "none" ? 0.04 : 0.14))
-      .force("y", d3.forceY<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.y ?? height / 2).strength(clusterMode === "none" ? 0.04 : 0.14));
+      .force("x", d3.forceX<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.x ?? width / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16))
+      .force("y", d3.forceY<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.y ?? height / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16));
 
     sim.on("tick", draw);
     simulationRef.current = sim;
@@ -191,7 +313,7 @@ export default function NetworkGraph({
     return () => {
       sim.stop();
     };
-  }, [graphPeople, graphEdges, clusterMode]);
+  }, [graphPeople, graphEdges, clusterMode, layoutMode]);
 
   // Handle Resize
   useEffect(() => {
@@ -209,9 +331,10 @@ export default function NetworkGraph({
 
         if (simulationRef.current) {
           clusterCentersRef.current = getClusterCenters(nodesRef.current, width, height, clusterMode);
+          layoutTargetsRef.current = getLayoutTargets(nodesRef.current, width, height, layoutMode, clusterMode);
           simulationRef.current.force("center", d3.forceCenter(width / 2, height / 2));
-          simulationRef.current.force("x", d3.forceX<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.x ?? width / 2).strength(clusterMode === "none" ? 0.04 : 0.14));
-          simulationRef.current.force("y", d3.forceY<SimulatedNode>((d) => clusterCentersRef.current.get(getClusterKey(d))?.y ?? height / 2).strength(clusterMode === "none" ? 0.04 : 0.14));
+          simulationRef.current.force("x", d3.forceX<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.x ?? width / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16));
+          simulationRef.current.force("y", d3.forceY<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.y ?? height / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16));
           simulationRef.current.alpha(0.3).restart();
         }
       }
@@ -219,7 +342,7 @@ export default function NetworkGraph({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [clusterMode]);
+  }, [clusterMode, layoutMode]);
 
   const draw = () => {
     const canvas = canvasRef.current;
@@ -242,7 +365,7 @@ export default function NetworkGraph({
     ctx.translate(t.x, t.y);
     ctx.scale(t.k, t.k);
 
-    if (clusterMode !== "none") {
+    if (clusterMode !== "none" && layoutMode === "force") {
       clusterCentersRef.current.forEach((center, key) => {
         ctx.save();
         ctx.globalAlpha = 0.5;
@@ -259,6 +382,39 @@ export default function NetworkGraph({
         ctx.fillText(key.slice(0, 28), center.x, center.y - 54);
         ctx.restore();
       });
+    }
+
+    if (layoutMode !== "force") {
+      ctx.save();
+      ctx.fillStyle = "rgba(156, 177, 220, 0.45)";
+      ctx.font = "600 8px 'IBM Plex Mono', monospace";
+      ctx.textAlign = "left";
+      const label =
+        layoutMode === "timeline"
+          ? "Timeline projection: birth year -> horizontal position"
+          : layoutMode === "ego"
+          ? "Ego network: rings show distance from current focus"
+          : layoutMode === "lineage"
+          ? "Lineage tree: predecessors above, successors below"
+          : "Concept neighborhood: shared topics gather locally";
+      ctx.fillText(label, 16, 22);
+
+      if (layoutMode === "lineage") {
+        [
+          ["Influenced by", height * 0.28],
+          ["Focus", height * 0.5],
+          ["Influences", height * 0.68],
+        ].forEach(([bandLabel, y]) => {
+          ctx.beginPath();
+          ctx.moveTo(12, Number(y));
+          ctx.lineTo(width - 12, Number(y));
+          ctx.strokeStyle = "rgba(123, 156, 245, 0.08)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillText(String(bandLabel), 16, Number(y) - 5);
+        });
+      }
+      ctx.restore();
     }
 
     // Build active context sets for selective dimming
@@ -711,6 +867,33 @@ export default function NetworkGraph({
                 : "text-slate-500 hover:text-slate-200"
             }`}
             title={`Cluster graph by ${label.toLowerCase()}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="absolute top-[3.9rem] left-3.5 right-2.5 z-10 flex items-center gap-1 overflow-x-auto scrollbar-thin bg-[#10131d]/90 border border-[#252a3d] rounded-md p-1">
+        {([
+          ["force", "Force"],
+          ["timeline", "Timeline"],
+          ["ego", "Ego"],
+          ["lineage", "Lineage"],
+          ["concept", "Concept"],
+        ] as const).map(([mode, label]) => (
+          <button
+            key={mode}
+            onClick={() => {
+              setLayoutMode(mode);
+              if (simulationRef.current) simulationRef.current.alpha(0.9).restart();
+            }}
+            disabled={(mode === "ego" || mode === "lineage") && !selectedId}
+            className={`shrink-0 px-2 py-0.5 text-[9px] font-mono rounded cursor-pointer transition-colors disabled:opacity-35 disabled:cursor-not-allowed ${
+              layoutMode === mode
+                ? "bg-[#7b9cf5]/20 text-[#9bdaff]"
+                : "text-slate-500 hover:text-slate-200"
+            }`}
+            title={`${label} graph layout`}
           >
             {label}
           </button>
