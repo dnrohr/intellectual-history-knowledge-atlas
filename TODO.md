@@ -405,7 +405,7 @@ Status notation:
 
 - [x] Split `src/App.tsx` into focused modules/components.
 - [x] Extract import queue logic into a hook or reducer.
-- Extract relationship scoring into a testable utility.
+- [x] Extract relationship scoring into a testable utility.
 - Extract taxonomy helpers into testable utilities.
 - Add unit tests for:
   - duplicate detection
