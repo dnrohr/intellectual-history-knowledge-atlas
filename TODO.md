@@ -356,7 +356,7 @@ Status notation:
 - [x] Add "needs review" view.
 - [x] Add "high-confidence suggestions" view.
 - [x] Add "source gaps" view.
-- Add compact relationship inspector.
+- [x] Add compact relationship inspector.
 - Add graph clustering by domain, movement, era, and institution.
 - Add graph layout modes:
   - timeline-projected

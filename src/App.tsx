@@ -436,6 +436,7 @@ export default function App() {
     return isWorkbenchPanelMode(savedMode) ? savedMode : "docked";
   });
   const [coordinatedLenses, setCoordinatedLenses] = useState(true);
+  const [relationshipInspectorOpen, setRelationshipInspectorOpen] = useState(false);
 
   // Panel Resizer states
   const [sidebarWidth, setSidebarWidth] = useState(220);
@@ -2277,6 +2278,7 @@ export default function App() {
   const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
   const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
   const showRadarCurationActions = chromeDensity === "curation" || activeActivity === "curate" || activeActivity === "sources";
+  const showRelationshipInspector = !isReducedChrome && relationshipInspectorOpen && Boolean(selectedThinker);
   const effectiveWorkbenchPanelMode: PanelMode = extensionWorkbenchOpen ? workbenchPanelMode : "closed";
   const workbenchPanelModes: Array<{ id: Exclude<PanelMode, "closed">; label: string }> = [
     { id: "floating", label: "Float" },
@@ -2629,6 +2631,23 @@ export default function App() {
         })
         .filter((item) => item.other)
     : [];
+  const selectedRelationshipRows = selectedId
+    ? edges
+        .filter((edge) => edge.source === selectedId || edge.target === selectedId)
+        .map((edge) => {
+          const otherId = edge.source === selectedId ? edge.target : edge.source;
+          const other = people.find((person) => person.id === otherId);
+          const direction = edge.source === selectedId ? "out" : "in";
+          const hasSources = Boolean(edge.sourceClaims && edge.sourceClaims.length > 0);
+          const needsSource = edge.status === "needs_source" || !hasSources;
+          const lowConfidence = (edge.confidence ?? 1) < 0.5;
+          const confidence = edge.confidence ?? 1;
+          return { edge, other, direction, hasSources, needsSource, lowConfidence, confidence };
+        })
+        .filter((item) => item.other)
+        .sort((a, b) => Number(b.needsSource || b.lowConfidence) - Number(a.needsSource || a.lowConfidence) || b.edge.strength - a.edge.strength)
+    : [];
+  const selectedSourceGapCount = selectedRelationshipRows.filter((row) => row.needsSource || row.lowConfidence).length;
   const unlinkedThinkers = people
     .filter((p) => !edges.some((e) => e.source === p.id || e.target === p.id))
     .slice(0, 20);
@@ -3315,6 +3334,18 @@ export default function App() {
           >
             Sync Lenses
           </button>
+          <button
+            onClick={() => setRelationshipInspectorOpen((prev) => !prev)}
+            disabled={!selectedId}
+            className={`px-2.5 py-1 text-[10px] font-mono rounded-md border transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed ${
+              relationshipInspectorOpen
+                ? "border-amber-400 bg-amber-400/15 text-amber-200"
+                : "border-[#252a3d] bg-[#141724] text-slate-400 hover:border-slate-500"
+            }`}
+            title="Toggle compact relationship inspector"
+          >
+            Relations
+          </button>
         </div>
 
         <div className="hidden xl:flex items-center gap-2 min-w-0 text-[10px] font-mono text-slate-500">
@@ -3371,6 +3402,105 @@ export default function App() {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+          )}
+
+          {showRelationshipInspector && selectedThinker && (
+          <div className={`${showFocusContextBand || showConnectionRadar ? "mt-3 " : ""}grid grid-cols-1 xl:grid-cols-[auto_1fr_auto] gap-2 items-center`}>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Relationship Inspector</span>
+              <span className="rounded border border-[#252a3d] bg-[#0b0d14] px-1.5 py-0.5 text-[8.5px] font-mono text-slate-500">
+                {selectedRelationshipRows.length} edges
+              </span>
+              {selectedSourceGapCount > 0 && (
+                <button
+                  onClick={openSourceGapsView}
+                  className="rounded border border-violet-400/30 bg-violet-400/10 px-1.5 py-0.5 text-[8.5px] font-mono text-violet-200 hover:border-violet-300 cursor-pointer"
+                  title="Open source gaps view"
+                >
+                  {selectedSourceGapCount} gaps
+                </button>
+              )}
+            </div>
+
+            <div className="min-w-0 flex gap-2 overflow-x-auto scrollbar-thin pb-0.5">
+              {selectedRelationshipRows.length > 0 ? (
+                selectedRelationshipRows.slice(0, 10).map(({ edge, other, direction, confidence, hasSources, needsSource, lowConfidence }) => {
+                  const otherField = other?.fields?.[0] || "Philosophy";
+                  const col = FIELD_COLOR[otherField] || "#94a3b8";
+                  return (
+                    <div
+                      key={`relationship-inspector-${edge.source}-${edge.target}`}
+                      className="shrink-0 w-[280px] rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-2"
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: col }} />
+                        <button
+                          onClick={() => other && selectPerson(other.id)}
+                          className="min-w-0 flex-1 text-left cursor-pointer"
+                          title={edge.note || edge.type}
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-mono text-[9px] text-slate-600">{direction === "in" ? "<" : ">"}</span>
+                            <span className="truncate text-[10.5px] font-semibold text-slate-200">{other?.name}</span>
+                          </div>
+                          <div className="mt-0.5 truncate text-[9px] font-mono text-slate-500">
+                            {edge.type} · strength {edge.strength}
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!other) return;
+                            setHighlightPath(direction === "out" ? [selectedThinker.id, other.id] : [other.id, selectedThinker.id]);
+                          }}
+                          className="rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-2 py-1 text-[8.5px] font-mono text-[#9bdaff] hover:border-[#9bdaff] cursor-pointer"
+                          title="Highlight this edge"
+                        >
+                          Path
+                        </button>
+                      </div>
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <span className={`rounded border px-1.5 py-0.5 text-[8.5px] font-mono ${
+                          lowConfidence ? "border-amber-400/30 bg-amber-400/10 text-amber-200" : "border-emerald-400/25 bg-emerald-400/10 text-emerald-200"
+                        }`}>
+                          {Math.round(confidence * 100)}%
+                        </span>
+                        <span className={`rounded border px-1.5 py-0.5 text-[8.5px] font-mono ${
+                          needsSource ? "border-violet-400/30 bg-violet-400/10 text-violet-200" : "border-[#252a3d] bg-[#090b10] text-slate-500"
+                        }`}>
+                          {hasSources ? `${edge.sourceClaims?.length || 0} sources` : "needs source"}
+                        </span>
+                        {edge.status && (
+                          <span className="truncate rounded border border-[#252a3d] bg-[#090b10] px-1.5 py-0.5 text-[8.5px] font-mono text-slate-500">
+                            {edge.status}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-2 text-[10px] font-mono text-slate-600">
+                  No direct relationships for this focus yet.
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => openWorkbenchPanel("links")}
+                className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
+              >
+                Workbench
+              </button>
+              <button
+                onClick={() => setRelationshipInspectorOpen(false)}
+                className="rounded border border-[#252a3d] bg-[#090b10] p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
+                title="Close relationship inspector"
+              >
+                <X className="h-3 w-3" />
+              </button>
             </div>
           </div>
           )}
