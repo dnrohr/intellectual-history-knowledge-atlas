@@ -395,7 +395,7 @@ Status notation:
 - [x] Add richer range controls with named historical periods.
 - [x] Add timeline bookmarks.
 - [x] Add selected-person neighborhood overlay.
-- Add density lanes by domain.
+- [x] Add density lanes by domain.
 - Add edge arcs only for selected/focused neighborhoods by default.
 - Add clearer BCE/CE axis treatment.
 - Add confidence styling for timeline edges.

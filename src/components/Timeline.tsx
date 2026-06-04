@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thinker, InfluenceEdge } from "../types";
 import { FIELD_COLOR, ERA_BANDS } from "../data";
+import { getDomainForField } from "../taxonomy";
 
 interface TimelineProps {
   people: Thinker[];
@@ -40,6 +41,7 @@ interface CriticalEvent {
 }
 
 type TimelineDensity = "sparse" | "balanced" | "compressed";
+type TimelineLaneMode = "off" | "field" | "domain";
 
 const getEdgeVisualState = (edge: InfluenceEdge) => {
   const isSuggested = edge.status === "suggested";
@@ -108,7 +110,7 @@ export default function Timeline({
   const [isPanning, setIsPanning] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [timelineDensity, setTimelineDensity] = useState<TimelineDensity>("balanced");
-  const [fieldLanesOpen, setFieldLanesOpen] = useState(false);
+  const [laneMode, setLaneMode] = useState<TimelineLaneMode>("off");
   const [nearbyContextOnly, setNearbyContextOnly] = useState(false);
 
   const ROW_H = timelineDensity === "compressed" ? 12 : timelineDensity === "sparse" ? 24 : 18;
@@ -122,6 +124,11 @@ export default function Timeline({
   const formatYearLabel = (year: number) => year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
   const selectedPerson = selectedId ? packedPeople.find((person) => person.id === selectedId) : null;
   const eraBookmarks = ERA_BANDS.filter((band) => band.e >= YEAR_MIN && band.s <= YEAR_MAX).slice(0, 8);
+  const getLaneKey = (person: Thinker) => {
+    const primaryField = person.fields?.[0] || "Unclassified";
+    return laneMode === "domain" ? getDomainForField(primaryField) : primaryField;
+  };
+  const getLaneColor = (person: Thinker) => FIELD_COLOR[person.fields?.[0] || "Philosophy"] || "#94a3b8";
 
   // Drag scrolling state
   const isDraggingRef = useRef(false);
@@ -220,20 +227,20 @@ export default function Timeline({
     const rows: number[] = [];
     const minGap = 20; // safe horizontal years buffer count
 
-    if (fieldLanesOpen) {
-      const byField = new Map<string, Thinker[]>();
+    if (laneMode !== "off") {
+      const byLane = new Map<string, Thinker[]>();
       people.forEach((person) => {
-        const field = person.fields?.[0] || "Unclassified";
-        byField.set(field, [...(byField.get(field) || []), person]);
+        const lane = getLaneKey(person);
+        byLane.set(lane, [...(byLane.get(lane) || []), person]);
       });
 
-      const packedByField: (Thinker & { row: number })[] = [];
+      const packedByLane: (Thinker & { row: number })[] = [];
       let baseRow = 0;
-      Array.from(byField.entries())
+      Array.from(byLane.entries())
         .sort(([left], [right]) => left.localeCompare(right))
-        .forEach(([, fieldPeople]) => {
-          const fieldRows: number[] = [];
-          fieldPeople
+        .forEach(([, lanePeople]) => {
+          const laneRows: number[] = [];
+          lanePeople
             .sort((a, b) => a.birth - b.birth)
             .forEach((p) => {
               const birthWithBuffer = p.birth - minGap;
@@ -241,25 +248,25 @@ export default function Timeline({
               const deathWithBuffer = deathVal + minGap;
               let placedRow = -1;
 
-              for (let r = 0; r < fieldRows.length; r++) {
-                if (birthWithBuffer >= fieldRows[r]) {
+              for (let r = 0; r < laneRows.length; r++) {
+                if (birthWithBuffer >= laneRows[r]) {
                   placedRow = r;
-                  fieldRows[r] = deathWithBuffer;
+                  laneRows[r] = deathWithBuffer;
                   break;
                 }
               }
 
               if (placedRow === -1) {
-                placedRow = fieldRows.length;
-                fieldRows.push(deathWithBuffer);
+                placedRow = laneRows.length;
+                laneRows.push(deathWithBuffer);
               }
 
-              packedByField.push({ ...p, row: baseRow + placedRow });
+              packedByLane.push({ ...p, row: baseRow + placedRow });
             });
-          baseRow += fieldRows.length + 1;
+          baseRow += laneRows.length + 1;
         });
 
-      setPackedPeople(packedByField);
+      setPackedPeople(packedByLane);
       return;
     }
 
@@ -290,7 +297,7 @@ export default function Timeline({
     });
 
     setPackedPeople(packed);
-  }, [people, fieldLanesOpen]);
+  }, [people, laneMode]);
 
   // Scaler formulas
   const getLinearWidth = () => (YEAR_MAX - YEAR_MIN) * BASE_PX_YR * zoom;
@@ -380,20 +387,20 @@ export default function Timeline({
       });
     }
 
-    if (fieldLanesOpen) {
+    if (laneMode !== "off") {
       const laneMap = new Map<string, { minRow: number; maxRow: number; color: string }>();
       packedPeople.forEach((person) => {
-        const field = person.fields?.[0] || "Unclassified";
-        const current = laneMap.get(field);
-        const color = FIELD_COLOR[field] || "#94a3b8";
-        laneMap.set(field, {
+        const lane = getLaneKey(person);
+        const current = laneMap.get(lane);
+        const color = getLaneColor(person);
+        laneMap.set(lane, {
           minRow: current ? Math.min(current.minRow, person.row) : person.row,
           maxRow: current ? Math.max(current.maxRow, person.row) : person.row,
-          color,
+          color: current?.color || color,
         });
       });
 
-      Array.from(laneMap.entries()).forEach(([field, lane]) => {
+      Array.from(laneMap.entries()).forEach(([label, lane]) => {
         const y = HDR_H + lane.minRow * ROW_H;
         const height = (lane.maxRow - lane.minRow + 1) * ROW_H;
         ctx.fillStyle = `${lane.color}12`;
@@ -407,7 +414,7 @@ export default function Timeline({
         ctx.fillStyle = `${lane.color}cc`;
         ctx.font = "600 8px 'IBM Plex Mono', monospace";
         ctx.textAlign = "left";
-        ctx.fillText(field, pan.x + 8, y + 11);
+        ctx.fillText(laneMode === "domain" ? label.toUpperCase() : label, pan.x + 8, y + 11);
       });
     }
 
@@ -793,7 +800,7 @@ export default function Timeline({
       ctx.fillText(sublabel, badgeX + 12, 66);
       ctx.restore();
     }
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, fieldLanesOpen, nearbyContextOnly, coordinatedNearbyContext]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, laneMode, nearbyContextOnly, coordinatedNearbyContext]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -1005,15 +1012,24 @@ export default function Timeline({
             />
             <span className="font-mono">Critical Event Overlays</span>
           </label>
-          <button
-            onClick={() => setFieldLanesOpen((prev) => !prev)}
-            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
-              fieldLanesOpen ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]" : "border-[#252a3d] text-slate-500 hover:text-slate-200"
-            }`}
-            title="Toggle field lanes"
-          >
-            Lanes
-          </button>
+          <div className="flex items-center rounded border border-[#252a3d] bg-[#080a0f] p-0.5">
+            {([
+              ["off", "Off", "No timeline lanes"],
+              ["field", "Field", "Pack timeline rows by primary field"],
+              ["domain", "Domain", "Pack timeline rows by taxonomy domain"],
+            ] as const).map(([mode, label, title]) => (
+              <button
+                key={mode}
+                onClick={() => setLaneMode(mode)}
+                className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+                  laneMode === mode ? "bg-[#1f2438] text-[#9bdaff]" : "text-slate-500 hover:text-slate-200"
+                }`}
+                title={title}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => setNearbyContextOnly((prev) => !prev)}
             disabled={!selectedId && !highlightPath}
