@@ -2887,6 +2887,17 @@ export default function App() {
     .filter((person) => processedPeople.some((match) => match.id === person.id))
     .filter((person) => person.id !== selectedId)
     .slice(0, 12);
+  const recentlyReviewedPeople = importAuditLog
+    .map((entry) =>
+      people.find((person) =>
+        person.id === entry.candidateId ||
+        person.name.toLowerCase() === entry.candidateName.toLowerCase()
+      )
+    )
+    .filter((person): person is Thinker => Boolean(person))
+    .filter((person, index, list) => list.findIndex((item) => item.id === person.id) === index)
+    .filter((person) => processedPeople.some((match) => match.id === person.id))
+    .slice(0, 12);
 
   const groupPeopleBy = (list: Thinker[], getKey: (person: Thinker) => string) =>
     Object.entries(
@@ -2922,6 +2933,7 @@ export default function App() {
     { title: "Connected", list: connectedIndexPeople },
     { title: "Likely Links", list: likelyIndexPeople },
     { title: "Recently Added", list: recentlyAddedPeople },
+    { title: "Recently Reviewed", list: recentlyReviewedPeople },
     { title: "Current Matches", list: currentMatchPeople },
   ].filter(Boolean) as { title: string; list: Thinker[] }[];
 
@@ -2947,6 +2959,11 @@ export default function App() {
 
     if (groupTitle === "Recently Added") {
       return `${formatYear(person.birth)} · ${person.movement || person.fields?.[0] || "Unclassified"}`;
+    }
+
+    if (groupTitle === "Recently Reviewed") {
+      const entry = importAuditLog.find((item) => item.candidateId === person.id || item.candidateName === person.name);
+      return `${entry?.status || "reviewed"} · ${entry?.reason || person.fields?.[0] || "review history"}`;
     }
 
     if (groupTitle === "Connected") {

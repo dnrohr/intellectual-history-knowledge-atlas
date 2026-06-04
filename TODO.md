@@ -379,7 +379,7 @@ Status notation:
 - [x] Add index grouping by institution.
 - [x] Add index grouping by source/review status.
 - [x] Add "recently added" group.
-- Add "recently reviewed" group.
+- [x] Add "recently reviewed" group.
 - Add "orphans" group.
 - Add "high bridge score" group.
 - Add "needs source" group.
