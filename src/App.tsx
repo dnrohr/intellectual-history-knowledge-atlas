@@ -469,7 +469,7 @@ export default function App() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [expandedDisciplineGroups, setExpandedDisciplineGroups] = useState<string[]>(["Natural Inquiry", "Formal Systems"]);
   const [expandedFacetFields, setExpandedFacetFields] = useState<string[]>([]);
-  const [indexMode, setIndexMode] = useState<"context" | "cluster" | "era" | "field">("context");
+  const [indexMode, setIndexMode] = useState<"context" | "cluster" | "era" | "field" | "movement">("context");
   const [expandedIndexGroups, setExpandedIndexGroups] = useState<string[]>([
     "Selected",
     "Connected",
@@ -2908,6 +2908,8 @@ export default function App() {
       ? groupPeopleBy(processedPeople, (person) => getDomainForField(person.fields?.[0] || ""))
       : indexMode === "era"
       ? groupPeopleBy(processedPeople, (person) => person.era || "Unclassified")
+      : indexMode === "movement"
+      ? groupPeopleBy(processedPeople, (person) => person.movement || "Unclassified movement")
       : groupPeopleBy(processedPeople, (person) => person.fields?.[0] || "Unclassified");
 
   const getIndexContext = (person: Thinker, groupTitle: string) => {
@@ -2946,6 +2948,10 @@ export default function App() {
 
     if (indexMode === "field") {
       return `${formatYear(person.birth)} · ${person.era || person.region || "Unclassified"}`;
+    }
+
+    if (indexMode === "movement") {
+      return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"} · ${person.era || person.region || "Unclassified"}`;
     }
 
     return `${formatYear(person.birth)} · ${person.fields?.[0] || "Unclassified"}`;
@@ -5425,18 +5431,19 @@ export default function App() {
                 <span className="font-mono text-[8.5px] text-slate-500">({processedPeople.length})</span>
               </div>
               <div className="border-b border-[#22273b] bg-[#0d1018] px-3 py-2 pr-5">
-                <div className="grid grid-cols-4 gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
-                  {(["context", "cluster", "era", "field"] as const).map((mode) => (
+                <div className="grid grid-cols-5 gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
+                  {(["context", "cluster", "era", "field", "movement"] as const).map((mode) => (
                     <button
                       key={mode}
                       onClick={() => setIndexMode(mode)}
-                      className={`rounded px-1.5 py-1 text-[9px] font-mono capitalize transition-colors cursor-pointer ${
+                      className={`rounded px-1 py-1 text-[8.5px] font-mono capitalize transition-colors cursor-pointer ${
                         indexMode === mode
                           ? "bg-[#1f2438] text-[#9bdaff] font-bold"
                           : "text-slate-500 hover:text-slate-200"
                       }`}
+                      title={`Group index by ${mode === "cluster" ? "domain cluster" : mode}`}
                     >
-                      {mode === "cluster" ? "clusters" : mode}
+                      {mode === "cluster" ? "domains" : mode === "movement" ? "movt" : mode}
                     </button>
                   ))}
                 </div>
