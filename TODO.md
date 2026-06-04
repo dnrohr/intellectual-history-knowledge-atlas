@@ -412,7 +412,7 @@ Status notation:
   - [x] candidate confidence scoring
   - [x] relationship suggestion scoring
   - [x] edge derivation from thinker metadata
-  - taxonomy grouping
+  - [x] taxonomy grouping
   - import queue persistence
 - Add Playwright tests for:
   - batch import queueing
