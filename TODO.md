@@ -364,7 +364,7 @@ Status notation:
   - [x] ego network
   - [x] lineage tree
   - [x] concept neighborhood
-- Add better empty states and review guidance.
+- [x] Add better empty states and review guidance.
 - Add keyboard shortcuts for review workflows.
 - Add undo for accepting imports and relationships.
 - Add visual distinction between confirmed and suggested edges.

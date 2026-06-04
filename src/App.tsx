@@ -2825,6 +2825,24 @@ export default function App() {
   );
   const importQueueDuplicateCount = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate)).length;
   const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < importConfidenceThreshold).length;
+  const renderEmptyState = (
+    title: string,
+    detail: string,
+    action?: { label: string; onClick: () => void }
+  ) => (
+    <div className="rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-3 text-left">
+      <div className="font-mono text-[9px] uppercase tracking-wider text-slate-400">{title}</div>
+      <p className="mt-1 text-[10px] leading-relaxed text-slate-600 font-mono">{detail}</p>
+      {action && (
+        <button
+          onClick={action.onClick}
+          className="mt-2 rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-2 py-1 text-[8.5px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+        >
+          {action.label}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
@@ -3481,9 +3499,11 @@ export default function App() {
                   );
                 })
               ) : (
-                <div className="rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-2 text-[10px] font-mono text-slate-600">
-                  No direct relationships for this focus yet.
-                </div>
+                renderEmptyState(
+                  "No Direct Relationships",
+                  "Use the workbench to add a provisional link, or switch to high-confidence suggestions to find nearby candidates.",
+                  { label: "Open Workbench", onClick: () => openWorkbenchPanel("links") }
+                )
               )}
             </div>
 
@@ -3559,9 +3579,11 @@ export default function App() {
                   );
                 })
               ) : (
-                <div className="rounded-md border border-[#252a3d] bg-[#0b0d14] px-3 py-2 text-[10px] font-mono text-slate-600">
-                  No high-signal link suggestions for this focus yet.
-                </div>
+                renderEmptyState(
+                  "No High-Signal Suggestions",
+                  "Try widening filters, choosing a better-connected focus, or opening the review view to repair sparse records.",
+                  { label: "Needs Review", onClick: openNeedsReviewView }
+                )
               )}
             </div>
           </div>
@@ -4363,7 +4385,11 @@ export default function App() {
                           </div>
                         ))
                       ) : (
-                        <div className="text-[10px] text-slate-600 italic font-mono py-2">No links queued for review.</div>
+                        renderEmptyState(
+                          "No Links Queued",
+                          "Queue a candidate from Link Candidates, or use high-confidence suggestions to build a shortlist for later review.",
+                          { label: "High-Confidence View", onClick: openHighConfidenceSuggestionsView }
+                        )
                       )}
                     </div>
                   </div>
@@ -4431,9 +4457,15 @@ export default function App() {
                           );
                         })
                       ) : (
-                        <div className="text-[10px] text-slate-600 italic font-mono py-2">
-                          Select a thinker to see possible links.
-                        </div>
+                        renderEmptyState(
+                          selectedThinker ? "No Link Candidates" : "Select a Focus",
+                          selectedThinker
+                            ? "This focus has no strong contextual candidates under the current filters. Clear filters or use Source Gaps to find weak evidence."
+                            : "Choose a thinker from the index or graph to generate relationship candidates.",
+                          selectedThinker
+                            ? { label: "Clear Filters", onClick: resetFilters }
+                            : { label: "Explore", onClick: () => applyActivity("explore") }
+                        )
                       )}
                     </div>
                   </div>
@@ -5004,7 +5036,10 @@ export default function App() {
                                         </div>
                                       );
                                     }) : (
-                                      <div className="text-[9px] font-mono text-slate-600 italic">No strong link suggestions yet.</div>
+                                      renderEmptyState(
+                                        "No Strong Link Suggestions",
+                                        "Accept the candidate without a link, or edit the draft to add clearer movement, topic, and source context before linking."
+                                      )
                                     )}
                                   </div>
                                 )}
@@ -5041,9 +5076,11 @@ export default function App() {
                             );
                           })
                         ) : (
-                          <div className="rounded border border-[#1d2232] bg-[#0e1119] px-3 py-4 text-center text-[10px] font-mono text-slate-600">
-                            Queue candidates from search or batch results.
-                          </div>
+                          renderEmptyState(
+                            "Import Queue Empty",
+                            "Search Wikidata, paste a batch, or create a manual draft. Accepted candidates appear in the atlas and can be linked from the workbench.",
+                            { label: "Focus Import", onClick: () => setWorkbenchTab("imports") }
+                          )
                         )}
                       </div>
 
@@ -5128,7 +5165,10 @@ export default function App() {
                         <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8.5px] font-mono text-amber-300">{candidate.score}</span>
                       </div>
                     )) : (
-                      <div className="text-[10px] text-slate-600 italic font-mono py-2">No likely duplicates detected.</div>
+                      renderEmptyState(
+                        "No Likely Duplicates",
+                        "The current atlas has no close name/year collisions. Recheck after importing a batch or merging external candidates."
+                      )
                     )}
                   </div>
                 </div>
@@ -5258,8 +5298,12 @@ export default function App() {
                     );
                   })}
                   {processedPeople.length === 0 && (
-                    <div className="p-4 text-center text-[10px] text-slate-500 italic">
-                      No thinkers match filters.
+                    <div className="p-3">
+                      {renderEmptyState(
+                        "No Thinkers Match",
+                        "The current search, saved collection, year range, or facets have narrowed the atlas to zero results.",
+                        { label: "Clear Filters", onClick: resetFilters }
+                      )}
                     </div>
                   )}
                 </div>
