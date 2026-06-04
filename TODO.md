@@ -376,7 +376,7 @@ Status notation:
 
 - [x] Add search result ranking instead of raw filtering only.
 - [x] Add index grouping by movement.
-- Add index grouping by institution.
+- [x] Add index grouping by institution.
 - Add index grouping by source/review status.
 - Add "recently added" group.
 - Add "recently reviewed" group.
