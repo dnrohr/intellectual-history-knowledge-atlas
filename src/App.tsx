@@ -2571,6 +2571,55 @@ export default function App() {
     setSidebarOpen(false);
     openWorkbenchPanel("links");
   };
+
+  useEffect(() => {
+    const isTypingTarget = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+      return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+    };
+
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (isTypingTarget(event.target)) return;
+
+      const key = event.key.toLowerCase();
+      const usesPrimaryModifier = event.ctrlKey || event.metaKey;
+
+      if (usesPrimaryModifier && key === "k") {
+        event.preventDefault();
+        setCommandMenuOpen((prev) => !prev);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        setCommandMenuOpen(false);
+        setRelationshipInspectorOpen(false);
+        closeMajorOverlays();
+        return;
+      }
+
+      if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+      const reviewShortcuts: Record<string, () => void> = {
+        r: openNeedsReviewView,
+        h: openHighConfidenceSuggestionsView,
+        u: openUnlinkedImportsView,
+        g: openSourceGapsView,
+        i: () => applyActivity("import"),
+        w: () => applyActivity("curate"),
+      };
+
+      const action = reviewShortcuts[key];
+      if (!action) return;
+
+      event.preventDefault();
+      setCommandMenuOpen(false);
+      action();
+    };
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  });
+
   const formatYear = (year: number | null) => {
     if (year === null) return "present";
     return year < 0 ? `${Math.abs(year)} BCE` : `${year}`;
@@ -2899,7 +2948,7 @@ export default function App() {
                 ? "bg-[#1f2438] border-[#7b9cf5] text-[#9bdaff]"
                 : "border-[#22273b] bg-[#141724]/40 text-slate-300 hover:text-white"
             }`}
-            title="Open activity actions"
+            title="Open activity actions (Ctrl+K)"
           >
             <MoreHorizontal className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Actions</span>
@@ -2922,7 +2971,7 @@ export default function App() {
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-[#7b9cf5]" />
-                  Add Thinker
+                  <span className="flex-1">Add Thinker</span>
                 </button>
                 <button
                   onClick={() => {
@@ -2932,7 +2981,8 @@ export default function App() {
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5 text-emerald-300" />
-                  Open Workbench
+                  <span className="flex-1">Open Workbench</span>
+                  <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt W</span>
                 </button>
                 <button
                   onClick={() => {
@@ -2942,7 +2992,7 @@ export default function App() {
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Share2 className="w-3.5 h-3.5 text-amber-300" />
-                  Trace Path
+                  <span className="flex-1">Trace Path</span>
                 </button>
                 <button
                   onClick={() => {
@@ -2952,7 +3002,8 @@ export default function App() {
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-cyan-300" />
-                  Import Review
+                  <span className="flex-1">Import Review</span>
+                  <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt I</span>
                 </button>
                 <button
                   onClick={openUnlinkedImportsView}
@@ -2960,6 +3011,7 @@ export default function App() {
                 >
                   <Bookmark className="w-3.5 h-3.5 text-cyan-300" />
                   <span className="flex-1">Unlinked Imports</span>
+                  <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt U</span>
                   <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-[8.5px] text-cyan-200">{unlinkedImportedThinkers.length}</span>
                 </button>
                 <button
@@ -2968,6 +3020,7 @@ export default function App() {
                 >
                   <Eye className="w-3.5 h-3.5 text-amber-300" />
                   <span className="flex-1">Needs Review</span>
+                  <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt R</span>
                   <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-[8.5px] text-amber-200">{needsReviewThinkers.length}</span>
                 </button>
                 <button
@@ -2977,6 +3030,7 @@ export default function App() {
                 >
                   <Share2 className="w-3.5 h-3.5 text-emerald-300" />
                   <span className="flex-1">High-Confidence Suggestions</span>
+                  <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt H</span>
                   <span className="rounded bg-emerald-400/10 px-1.5 py-0.5 text-[8.5px] text-emerald-200">{highConfidenceSuggestions.length}</span>
                 </button>
                 <button
@@ -2985,6 +3039,7 @@ export default function App() {
                 >
                   <Filter className="w-3.5 h-3.5 text-violet-300" />
                   <span className="flex-1">Source Gaps</span>
+                  <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt G</span>
                   <span className="rounded bg-violet-400/10 px-1.5 py-0.5 text-[8.5px] text-violet-200">{sourceGapEdges.length}</span>
                 </button>
                 <button
@@ -2995,8 +3050,17 @@ export default function App() {
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Filter className="w-3.5 h-3.5 text-violet-300" />
-                  Source Audit
+                  <span className="flex-1">Source Audit</span>
                 </button>
+                <div className="mx-2 my-1 rounded border border-[#22273b] bg-[#090b10] px-2 py-1.5 font-mono text-[8.5px] text-slate-500">
+                  <div className="mb-1 uppercase tracking-wider text-slate-600">Shortcuts</div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                    <span>Ctrl K</span>
+                    <span>Actions</span>
+                    <span>Esc</span>
+                    <span>Close panels</span>
+                  </div>
+                </div>
                 <div className="my-1 h-px bg-[#22273b]" />
                 <button
                   onClick={saveCurrentAtlasView}

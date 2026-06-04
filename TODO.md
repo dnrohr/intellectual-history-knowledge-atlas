@@ -365,7 +365,7 @@ Status notation:
   - [x] lineage tree
   - [x] concept neighborhood
 - [x] Add better empty states and review guidance.
-- Add keyboard shortcuts for review workflows.
+- [x] Add keyboard shortcuts for review workflows.
 - Add undo for accepting imports and relationships.
 - Add visual distinction between confirmed and suggested edges.
 - Add edge filters by type, confidence, and source status.
