@@ -25,7 +25,22 @@ interface SimulatedLink extends d3.SimulationLinkDatum<SimulatedNode> {
   target: SimulatedNode;
   strength: number;
   type: string;
+  confidence?: number;
+  sourceClaims?: string[];
+  status?: InfluenceEdge["status"];
 }
+
+const getEdgeVisualState = (edge: Pick<InfluenceEdge, "confidence" | "sourceClaims" | "status">) => {
+  const isSuggested = edge.status === "suggested";
+  const needsSource = edge.status === "needs_source" || !edge.sourceClaims || edge.sourceClaims.length === 0;
+  const lowConfidence = (edge.confidence ?? 1) < 0.5;
+  return {
+    isSuggested,
+    needsSource,
+    lowConfidence,
+    dash: isSuggested ? [5, 4] : needsSource || lowConfidence ? [2, 4] : [],
+  };
+};
 
 export default function NetworkGraph({
   people,
@@ -279,6 +294,9 @@ export default function NetworkGraph({
           target: targetNode,
           strength: e.strength || 3,
           type: e.type,
+          confidence: e.confidence,
+          sourceClaims: e.sourceClaims,
+          status: e.status,
         };
       });
 
@@ -510,12 +528,17 @@ export default function NetworkGraph({
         sourceDepth !== undefined &&
         targetDepth !== undefined &&
         focusEdgeDepth > 0;
+      const edgeVisual = getEdgeVisualState(l);
 
       ctx.save();
       // Faint out inactive lines if there's a selection
       if (isAnySelected && !isEdgeActive && !inHighlightPath) {
         ctx.globalAlpha = 0.28;
       }
+      if (edgeVisual.isSuggested && !isEdgeActive && !inHighlightPath) {
+        ctx.globalAlpha *= 0.78;
+      }
+      ctx.setLineDash(edgeVisual.dash);
 
       ctx.beginPath();
       ctx.moveTo(l.source.x!, l.source.y!);
@@ -527,18 +550,27 @@ export default function NetworkGraph({
 
       if (inHighlightPath) {
         ctx.strokeStyle = "rgba(232, 184, 75, 0.9)";
-        ctx.lineWidth = 2.4;
+        ctx.lineWidth = edgeVisual.isSuggested ? 2 : 2.4;
       } else if (isEdgeActive) {
-        ctx.strokeStyle = isSourceSelected ? "rgba(123, 156, 245, 0.9)" : "rgba(167, 139, 250, 0.9)";
-        ctx.lineWidth = 1.8;
+        ctx.strokeStyle = edgeVisual.isSuggested
+          ? "rgba(56, 189, 248, 0.78)"
+          : edgeVisual.needsSource || edgeVisual.lowConfidence
+          ? "rgba(251, 191, 36, 0.72)"
+          : isSourceSelected ? "rgba(123, 156, 245, 0.9)" : "rgba(167, 139, 250, 0.9)";
+        ctx.lineWidth = edgeVisual.isSuggested ? 1.25 : 1.8;
       } else if (isFocusedContextEdge) {
-        ctx.strokeStyle = "rgba(123, 156, 245, 0.42)";
-        ctx.lineWidth = 0.9;
+        ctx.strokeStyle = edgeVisual.isSuggested ? "rgba(56, 189, 248, 0.34)" : "rgba(123, 156, 245, 0.42)";
+        ctx.lineWidth = edgeVisual.isSuggested ? 0.7 : 0.9;
       } else {
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
-        ctx.lineWidth = 0.6;
+        ctx.strokeStyle = edgeVisual.isSuggested
+          ? "rgba(56, 189, 248, 0.14)"
+          : edgeVisual.needsSource || edgeVisual.lowConfidence
+          ? "rgba(251, 191, 36, 0.1)"
+          : "rgba(255, 255, 255, 0.04)";
+        ctx.lineWidth = edgeVisual.isSuggested ? 0.55 : 0.6;
       }
       ctx.stroke();
+      ctx.setLineDash([]);
 
       // Indicator arrow flow
       if (isEdgeActive || inHighlightPath || isFocusedContextEdge) {
@@ -546,6 +578,10 @@ export default function NetworkGraph({
         const arrowLength = isFocusedContextEdge ? 4.5 : 6;
         ctx.fillStyle = inHighlightPath
           ? "rgba(232, 184, 75, 0.95)"
+          : edgeVisual.isSuggested
+          ? "rgba(56, 189, 248, 0.7)"
+          : edgeVisual.needsSource || edgeVisual.lowConfidence
+          ? "rgba(251, 191, 36, 0.72)"
           : isFocusedContextEdge
           ? "rgba(123, 156, 245, 0.45)"
           : "rgba(123, 156, 245, 0.95)";
@@ -920,6 +956,21 @@ export default function NetworkGraph({
         >
           Reset View
         </button>
+      </div>
+
+      <div className="absolute bottom-2.5 left-3.5 z-10 hidden items-center gap-2 rounded-md border border-[#252a3d] bg-[#10131d]/90 px-2 py-1 font-mono text-[8.5px] text-slate-500 sm:flex">
+        <span className="inline-flex items-center gap-1">
+          <span className="h-px w-5 bg-[#7b9cf5]" />
+          Confirmed
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-px w-5 border-t border-dashed border-cyan-300" />
+          Suggested
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-px w-5 border-t border-dotted border-amber-300" />
+          Needs source
+        </span>
       </div>
 
       <canvas

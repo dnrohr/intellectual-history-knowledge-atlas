@@ -39,6 +39,18 @@ interface CriticalEvent {
 
 type TimelineDensity = "sparse" | "balanced" | "compressed";
 
+const getEdgeVisualState = (edge: InfluenceEdge) => {
+  const isSuggested = edge.status === "suggested";
+  const needsSource = edge.status === "needs_source" || !edge.sourceClaims || edge.sourceClaims.length === 0;
+  const lowConfidence = (edge.confidence ?? 1) < 0.5;
+  return {
+    isSuggested,
+    needsSource,
+    lowConfidence,
+    dash: isSuggested ? [5, 4] : needsSource || lowConfidence ? [2, 4] : [],
+  };
+};
+
 const CRITICAL_EVENTS: CriticalEvent[] = [
   { year: -399, name: "Trial of Socrates", desc: "Socrates drank hemlock, establishing the ultimate ideal of free critical inquiry and philosophical martyrdom.", color: "#f87171" },
   { year: -323, name: "Death of Alexander", desc: "Alexander's demise ushered in the Hellenistic period, blending Greek philosophy with ancient Near Eastern science.", color: "#fb923c" },
@@ -515,6 +527,7 @@ export default function Timeline({
 
         const isHighlightedPathEdge = highlightedEdgeKeys.has(`${e.source}->${e.target}`);
         const isCurrentlySelected = src.id === selectedId || tgt.id === selectedId;
+        const edgeVisual = getEdgeVisualState(e);
 
         // Skip connection if a selection is active and this link is unrelated
         if (isAnySelected && !isCurrentlySelected && !isHighlightedPathEdge) {
@@ -541,14 +554,32 @@ export default function Timeline({
         const sy = HDR_H + src.row * ROW_H + ROW_H / 2;
         const ty = HDR_H + tgt.row * ROW_H + ROW_H / 2;
 
-        ctx.strokeStyle = isCurrentlySelected ? "#7b9cf5" : isHighlightedPathEdge ? "#e8b84b" : "rgba(255, 255, 255, 0.05)";
-        ctx.lineWidth = isCurrentlySelected ? 1.6 : isHighlightedPathEdge ? 2.2 : (e.strength || 3) * 0.2;
+        ctx.strokeStyle = isCurrentlySelected
+          ? edgeVisual.isSuggested
+            ? "rgba(56, 189, 248, 0.78)"
+            : edgeVisual.needsSource || edgeVisual.lowConfidence
+            ? "rgba(251, 191, 36, 0.72)"
+            : "#7b9cf5"
+          : isHighlightedPathEdge
+          ? "#e8b84b"
+          : edgeVisual.isSuggested
+          ? "rgba(56, 189, 248, 0.16)"
+          : edgeVisual.needsSource || edgeVisual.lowConfidence
+          ? "rgba(251, 191, 36, 0.12)"
+          : "rgba(255, 255, 255, 0.05)";
+        ctx.lineWidth = isCurrentlySelected
+          ? edgeVisual.isSuggested ? 1.1 : 1.6
+          : isHighlightedPathEdge
+          ? edgeVisual.isSuggested ? 1.8 : 2.2
+          : edgeVisual.isSuggested ? 0.7 : (e.strength || 3) * 0.2;
         ctx.lineCap = "round";
+        ctx.setLineDash(edgeVisual.dash);
 
         ctx.beginPath();
         ctx.moveTo(sx, sy);
         ctx.bezierCurveTo(sx, sy - 20, tx, ty - 20, tx, ty);
         ctx.stroke();
+        ctx.setLineDash([]);
       });
     }
 
@@ -1064,6 +1095,20 @@ export default function Timeline({
                 height: `${dimensions.height}px`,
               }}
             />
+            <div className="pointer-events-none sticky bottom-2 left-2 z-10 hidden w-fit items-center gap-2 rounded-md border border-[#252a3d] bg-[#10131d]/90 px-2 py-1 font-mono text-[8.5px] text-slate-500 sm:flex">
+              <span className="inline-flex items-center gap-1">
+                <span className="h-px w-5 bg-[#7b9cf5]" />
+                Confirmed
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-px w-5 border-t border-dashed border-cyan-300" />
+                Suggested
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-px w-5 border-t border-dotted border-amber-300" />
+                Needs source
+              </span>
+            </div>
           </div>
         </div>
       </div>

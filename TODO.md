@@ -367,7 +367,7 @@ Status notation:
 - [x] Add better empty states and review guidance.
 - [x] Add keyboard shortcuts for review workflows.
 - [x] Add undo for accepting imports and relationships.
-- Add visual distinction between confirmed and suggested edges.
+- [x] Add visual distinction between confirmed and suggested edges.
 - Add edge filters by type, confidence, and source status.
 - Add label density controls for large graphs.
 - Add minimap or overview navigator for large graph/timeline views.
