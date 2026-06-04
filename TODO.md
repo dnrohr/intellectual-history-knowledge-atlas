@@ -374,7 +374,7 @@ Status notation:
 
 ## Thinkers Index
 
-- Add search result ranking instead of raw filtering only.
+- [x] Add search result ranking instead of raw filtering only.
 - Add index grouping by movement.
 - Add index grouping by institution.
 - Add index grouping by source/review status.

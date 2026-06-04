@@ -852,18 +852,39 @@ export default function App() {
       list = list.filter((p) => p.region && selectedRegions.includes(p.region));
     }
 
-    // 4. Raw text criteria search matching
-    if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase().trim();
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          (p.notes && p.notes.toLowerCase().includes(q)) ||
-          p.fields?.some((f) => f.toLowerCase().includes(q)) ||
-          p.subfields?.some((sf) => sf.toLowerCase().includes(q)) ||
-          (p.region && p.region.toLowerCase().includes(q)) ||
-          p.works?.some((w) => w.toLowerCase().includes(q))
-      );
+    const q = searchQuery.toLowerCase().trim();
+    const queryTokens = q.split(/\s+/).filter(Boolean);
+    const getSearchRelevanceScore = (p: Thinker) => {
+      if (!q) return 0;
+
+      const name = p.name.toLowerCase();
+      const fields = (p.fields || []).join(" ").toLowerCase();
+      const topics = (p.subfields || []).join(" ").toLowerCase();
+      const works = (p.works || []).join(" ").toLowerCase();
+      const movement = (p.movement || "").toLowerCase();
+      const region = (p.region || "").toLowerCase();
+      const era = (p.era || "").toLowerCase();
+      const notes = (p.notes || "").toLowerCase();
+      const searchable = [name, fields, topics, works, movement, region, era, notes].join(" ");
+      if (!queryTokens.every((token) => searchable.includes(token))) return 0;
+
+      let score = 1;
+      if (name === q) score += 90;
+      else if (name.startsWith(q)) score += 65;
+      else if (name.includes(q)) score += 45;
+      if (queryTokens.every((token) => name.includes(token))) score += 20;
+      if (fields.includes(q)) score += 18;
+      if (topics.includes(q)) score += 16;
+      if (works.includes(q)) score += 14;
+      if (movement.includes(q)) score += 12;
+      if (region.includes(q) || era.includes(q)) score += 8;
+      if (notes.includes(q)) score += 5;
+      return score;
+    };
+
+    // 4. Ranked text search matching
+    if (q !== "") {
+      list = list.filter((p) => getSearchRelevanceScore(p) > 0);
     }
 
     if (onlyConnectedToFocus && selectedId) {
@@ -902,10 +923,9 @@ export default function App() {
 
     // Sorting logic
     const relevanceScore = (p: Thinker) => {
-      let score = p.bridge_score ?? 1;
+      let score = (p.bridge_score ?? 1) + getSearchRelevanceScore(p);
       if (selectedId && edges.some((edge) => edge.source === selectedId && edge.target === p.id || edge.target === selectedId && edge.source === p.id)) score += 8;
       if (selectedId === p.id) score += 12;
-      if (searchQuery.trim() !== "" && p.name.toLowerCase().includes(searchQuery.toLowerCase().trim())) score += 6;
       if (selectedFields.some((field) => p.fields?.includes(field))) score += 3;
       if (selectedEras.includes(p.era || "")) score += 2;
       return score;
@@ -3249,6 +3269,7 @@ export default function App() {
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
+                if (e.target.value.trim()) setSortMode("relevance");
                 setHighlightPath(null);
               }}
               className="pl-9 pr-8 py-1 bg-[#090b10] border border-[#22273b] rounded-md text-xs text-slate-200 w-full focus:border-[#7b9cf5] focus:outline-none transition-all placeholder:text-slate-600"
