@@ -42,6 +42,7 @@ interface CriticalEvent {
 
 type TimelineDensity = "sparse" | "balanced" | "compressed";
 type TimelineLaneMode = "off" | "field" | "domain";
+type EdgeArcScope = "focus" | "all";
 
 const getEdgeVisualState = (edge: InfluenceEdge) => {
   const isSuggested = edge.status === "suggested";
@@ -111,6 +112,7 @@ export default function Timeline({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [timelineDensity, setTimelineDensity] = useState<TimelineDensity>("balanced");
   const [laneMode, setLaneMode] = useState<TimelineLaneMode>("off");
+  const [edgeArcScope, setEdgeArcScope] = useState<EdgeArcScope>("focus");
   const [nearbyContextOnly, setNearbyContextOnly] = useState(false);
 
   const ROW_H = timelineDensity === "compressed" ? 12 : timelineDensity === "sparse" ? 24 : 18;
@@ -591,8 +593,11 @@ export default function Timeline({
         const isCurrentlySelected = src.id === selectedId || tgt.id === selectedId;
         const edgeVisual = getEdgeVisualState(e);
 
-        // Skip connection if a selection is active and this link is unrelated
-        if (isAnySelected && !isCurrentlySelected && !isHighlightedPathEdge) {
+        if (edgeArcScope === "focus" && !isAnySelected) {
+          return;
+        }
+
+        if (edgeArcScope === "focus" && !isCurrentlySelected && !isHighlightedPathEdge) {
           return;
         }
 
@@ -800,7 +805,7 @@ export default function Timeline({
       ctx.fillText(sublabel, badgeX + 12, 66);
       ctx.restore();
     }
-  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, laneMode, nearbyContextOnly, coordinatedNearbyContext]);
+  }, [packedPeople, selectedId, hoveredPerson, hoveredEvent, highlightPath, logScale, showMov, showEdges, showWorks, showLabels, showEvents, zoom, edges, searchQuery, minYear, maxYear, pan.x, pan.y, dimensions.width, dimensions.height, timelineDensity, semanticZoomTier, laneMode, edgeArcScope, nearbyContextOnly, coordinatedNearbyContext]);
 
   const findPersonAtClientPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -1023,6 +1028,23 @@ export default function Timeline({
                 onClick={() => setLaneMode(mode)}
                 className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
                   laneMode === mode ? "bg-[#1f2438] text-[#9bdaff]" : "text-slate-500 hover:text-slate-200"
+                }`}
+                title={title}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center rounded border border-[#252a3d] bg-[#080a0f] p-0.5">
+            {([
+              ["focus", "Focus", "Show arcs for the selected or highlighted neighborhood"],
+              ["all", "All", "Show all visible timeline arcs"],
+            ] as const).map(([mode, label, title]) => (
+              <button
+                key={mode}
+                onClick={() => setEdgeArcScope(mode)}
+                className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+                  edgeArcScope === mode ? "bg-[#1f2438] text-[#9bdaff]" : "text-slate-500 hover:text-slate-200"
                 }`}
                 title={title}
               >
