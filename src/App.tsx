@@ -549,6 +549,9 @@ export default function App() {
   const [showEdges, setShowEdges] = useState(true);
   const [showWorks, setShowWorks] = useState(true);
   const [showLabels, setShowLabels] = useState(false);
+  const [edgeTypeFilter, setEdgeTypeFilter] = useState("all");
+  const [edgeSourceFilter, setEdgeSourceFilter] = useState<"all" | "sourced" | "needs_source">("all");
+  const [edgeConfidenceFilter, setEdgeConfidenceFilter] = useState(0);
   const [logScale, setLogScale] = useState(true);
   const [zoom, setZoom] = useState(1.4);
 
@@ -2720,11 +2723,25 @@ export default function App() {
   const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
     focusCanonicalThreadStep(thread, 0);
   };
+  const edgeTypeOptions = Array.from(new Set(edges.map((edge) => edge.type).filter(Boolean))).sort();
+  const edgeMatchesReviewFilters = (edge: InfluenceEdge) => {
+    if (edgeTypeFilter !== "all" && edge.type !== edgeTypeFilter) return false;
+    if ((edge.confidence ?? 1) < edgeConfidenceFilter) return false;
+
+    const hasSources = Boolean(edge.sourceClaims && edge.sourceClaims.length > 0);
+    const needsSource = edge.status === "needs_source" || !hasSources;
+    if (edgeSourceFilter === "sourced" && !hasSources) return false;
+    if (edgeSourceFilter === "needs_source" && !needsSource) return false;
+
+    return true;
+  };
+  const filteredEdges = edges.filter(edgeMatchesReviewFilters);
+  const hasActiveEdgeFilters = edgeTypeFilter !== "all" || edgeSourceFilter !== "all" || edgeConfidenceFilter > 0;
   const selectedLensLabels = selectedThinker
     ? Array.from(new Set(Object.values(inferLensTags(selectedThinker)).flat())).map(getLensOptionLabel).slice(0, 8)
     : [];
   const selectedNearestRelations = selectedId
-    ? edges
+    ? filteredEdges
         .filter((edge) => edge.source === selectedId || edge.target === selectedId)
         .slice(0, 6)
         .map((edge) => {
@@ -2735,7 +2752,7 @@ export default function App() {
         .filter((item) => item.other)
     : [];
   const selectedRelationshipRows = selectedId
-    ? edges
+    ? filteredEdges
         .filter((edge) => edge.source === selectedId || edge.target === selectedId)
         .map((edge) => {
           const otherId = edge.source === selectedId ? edge.target : edge.source;
@@ -4103,6 +4120,57 @@ export default function App() {
                   >
                     Influence Lines
                   </button>
+                  <select
+                    value={edgeTypeFilter}
+                    onChange={(event) => setEdgeTypeFilter(event.target.value)}
+                    className="max-w-[150px] rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-400 outline-none"
+                    title="Filter edges by relationship type"
+                  >
+                    <option value="all">All edge types</option>
+                    {edgeTypeOptions.map((type) => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={edgeSourceFilter}
+                    onChange={(event) => setEdgeSourceFilter(event.target.value as typeof edgeSourceFilter)}
+                    className="rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-400 outline-none"
+                    title="Filter edges by source status"
+                  >
+                    <option value="all">All sources</option>
+                    <option value="sourced">Sourced</option>
+                    <option value="needs_source">Needs source</option>
+                  </select>
+                  <label className="flex items-center gap-1.5 rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-500">
+                    <span>{Math.round(edgeConfidenceFilter * 100)}%+</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={edgeConfidenceFilter}
+                      onChange={(event) => setEdgeConfidenceFilter(Number(event.target.value))}
+                      className="w-16 accent-[#7b9cf5]"
+                      title="Minimum edge confidence"
+                    />
+                  </label>
+                  {hasActiveEdgeFilters && (
+                    <span className="text-[#5a6480]">
+                      {filteredEdges.length}/{edges.length}
+                    </span>
+                  )}
+                  {hasActiveEdgeFilters && (
+                    <button
+                      onClick={() => {
+                        setEdgeTypeFilter("all");
+                        setEdgeSourceFilter("all");
+                        setEdgeConfidenceFilter(0);
+                      }}
+                      className="rounded-md border border-[#252a3d] px-2 py-1 text-[10px] font-mono text-slate-500 hover:text-slate-200 cursor-pointer"
+                    >
+                      Reset Edges
+                    </button>
+                  )}
                   <button
                     onClick={() => setShowWorks((prev) => !prev)}
                     className={`px-2.5 py-1 text-[10px] font-mono border rounded-md cursor-pointer transition-colors ${
@@ -5453,7 +5521,7 @@ export default function App() {
             <div className={`flex-1 min-h-0 relative ${viewMode === "timeline" ? "block h-full" : "hidden"}`}>
               <Timeline
                 people={processedPeople}
-                edges={edges}
+                edges={filteredEdges}
                 selectedId={selectedId}
                 onSelect={selectPerson}
                 highlightPath={highlightPath}
@@ -5477,7 +5545,7 @@ export default function App() {
             <div className={`flex-1 min-h-0 relative p-4 ${viewMode === "network" ? "block h-full" : "hidden"}`}>
               <NetworkGraph
                 people={processedPeople}
-                edges={edges}
+                edges={filteredEdges}
                 selectedId={selectedId}
                 onSelect={selectPerson}
                 highlightPath={highlightPath}
@@ -5490,7 +5558,7 @@ export default function App() {
               <div style={{ height: `${splitHeightRatio}%` }} className="min-h-[100px] overflow-hidden relative max-md:!h-full">
                 <Timeline
                   people={processedPeople}
-                  edges={edges}
+                  edges={filteredEdges}
                   selectedId={selectedId}
                   onSelect={selectPerson}
                   highlightPath={highlightPath}
@@ -5520,7 +5588,7 @@ export default function App() {
               <div style={{ height: `${100 - splitHeightRatio}%` }} className="min-h-[150px] p-3 relative max-md:hidden">
                 <NetworkGraph
                   people={processedPeople}
-                  edges={edges}
+                  edges={filteredEdges}
                   selectedId={selectedId}
                   onSelect={selectPerson}
                   highlightPath={highlightPath}
@@ -5584,7 +5652,7 @@ export default function App() {
                   selectedId={selectedId}
                   onSelect={selectPerson}
                   people={people}
-                  edges={edges}
+                  edges={filteredEdges}
                   onFindContemporaries={handleFindContemporaries}
                   onShowBFS={handleShowBFS}
                 />
