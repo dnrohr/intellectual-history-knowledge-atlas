@@ -384,11 +384,11 @@ Status notation:
 - [x] Add "high bridge score" group.
 - [x] Add "needs source" group.
 - [x] Add row badges for edge count, source count, and review status.
-- Add quick actions on index rows:
-  - focus
-  - connect
-  - edit tags
-  - review sources
+- [x] Add quick actions on index rows:
+  - [x] focus
+  - [x] connect
+  - [x] edit tags
+  - [x] review sources
 
 ## Timeline
 

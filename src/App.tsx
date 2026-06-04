@@ -5591,10 +5591,9 @@ export default function App() {
                                   : "border-emerald-500/25 bg-emerald-500/10 text-emerald-300";
 
                               return (
-                                <button
+                                <div
                                   key={`${group.title}-${p.id}`}
-                                  onClick={() => selectPerson(p.id)}
-                                  className={`w-full text-left px-3.5 py-2 text-[10.5px] border-l-2 transition-all cursor-pointer flex items-center gap-2.5 hover:bg-[#1f243b]/44 ${
+                                  className={`group flex items-center border-l-2 transition-all hover:bg-[#1f243b]/44 ${
                                     isSelected
                                       ? "bg-[#1f2438] border-[#7b9cf5] text-white font-semibold"
                                       : inPath
@@ -5602,13 +5601,19 @@ export default function App() {
                                       : "border-transparent text-slate-400 hover:text-white"
                                   }`}
                                 >
-                                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: col }} />
-                                  <div className="flex-1 overflow-hidden">
-                                    <div className="truncate font-sans font-medium">{p.name}</div>
-                                    <div className="text-[8.5px] text-slate-500 font-mono mt-0.5 truncate">
-                                      {contextText}
+                                  <button
+                                    onClick={() => selectPerson(p.id)}
+                                    className="flex min-w-0 flex-1 items-center gap-2.5 px-3.5 py-2 text-left text-[10.5px] cursor-pointer"
+                                    title={`Focus ${p.name}`}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: col }} />
+                                    <div className="flex-1 overflow-hidden">
+                                      <div className="truncate font-sans font-medium">{p.name}</div>
+                                      <div className="text-[8.5px] text-slate-500 font-mono mt-0.5 truncate">
+                                        {contextText}
+                                      </div>
                                     </div>
-                                  </div>
+                                  </button>
                                   <div className="hidden shrink-0 flex-col items-end gap-0.5 sm:flex">
                                     <div className="flex gap-1">
                                       <span className="rounded border border-[#252a3d] bg-[#0b0d14] px-1 py-0.5 text-[7.5px] font-mono text-slate-500">
@@ -5622,7 +5627,24 @@ export default function App() {
                                       {reviewStatus}
                                     </span>
                                   </div>
-                                </button>
+                                  <div className="flex shrink-0 items-center gap-0.5 pr-2 pl-1 opacity-55 transition-opacity group-hover:opacity-100">
+                                    {[
+                                      { label: "F", title: "Focus", action: () => selectPerson(p.id) },
+                                      { label: "C", title: "Connect", action: () => { selectPerson(p.id); openWorkbenchPanel("links"); } },
+                                      { label: "T", title: "Edit tags", action: () => { selectPerson(p.id); openWorkbenchPanel("tags"); } },
+                                      { label: "S", title: "Review sources", action: () => { selectPerson(p.id); applyActivity("sources"); } },
+                                    ].map((action) => (
+                                      <button
+                                        key={`${p.id}-${action.title}`}
+                                        onClick={action.action}
+                                        className="rounded border border-[#252a3d] bg-[#0b0d14] px-1 py-0.5 text-[7.5px] font-mono text-slate-500 hover:border-[#7b9cf5] hover:text-[#9bdaff] cursor-pointer"
+                                        title={`${action.title} ${p.name}`}
+                                      >
+                                        {action.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
                               );
                             })}
                           </div>
