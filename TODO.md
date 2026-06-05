@@ -301,7 +301,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
   - source-context neighbor
   - parallel development
   - canonical-thread edges
-- [ ] Generate missing edge candidates automatically from:
+- [x] Generate missing edge candidates automatically from:
   - source adapter relationship observations
   - explicit claim records
   - citation and work-to-work evidence

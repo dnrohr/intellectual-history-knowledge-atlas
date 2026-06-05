@@ -3,6 +3,7 @@ import {
   BulkEdgeValidationResult,
   createBulkEdgeValidationResult,
   createExistingEdgeValidationSubject,
+  generateMissingEdgeCandidates,
   validateBulkEdgeEvidence,
   validateBulkEdgeRelationshipRules,
   validateBulkEdgeStructure,
@@ -10,9 +11,9 @@ import {
 import { InfluenceEdge, SourceClaimEntity, Thinker } from "./types";
 
 const people: Thinker[] = [
-  { id: "a", name: "A", birth: 1800, death: 1860, fields: ["Philosophy"] },
-  { id: "b", name: "B", birth: 1850, death: 1910, fields: ["Philosophy"] },
-  { id: "c", name: "C", birth: 1900, death: 1970, fields: ["Philosophy"] },
+  { id: "a", name: "A", birth: 1800, death: 1860, fields: ["Philosophy"], movement: "Idealism", region: "Europe" },
+  { id: "b", name: "B", birth: 1850, death: 1910, fields: ["Philosophy"], movement: "Idealism", region: "Europe" },
+  { id: "c", name: "C", birth: 1900, death: 1970, fields: ["Philosophy"], movement: "Pragmatism", region: "US" },
 ];
 
 const relationshipClaim = (
@@ -369,5 +370,59 @@ describe("bulk edge validation model", () => {
       "parallel-development-needs-non-transmission-evidence",
       "canonical-thread-edge-needs-high-confidence-source-support",
     ]);
+  });
+
+  it("generates missing edge candidates from automated evidence signals", () => {
+    const candidates = generateMissingEdgeCandidates(
+      [
+        { ...people[0], influenced: ["b"] },
+        people[1],
+        people[2],
+      ],
+      [
+        { source: "a", target: "b", type: "Influence", strength: 3 },
+      ],
+      [
+        relationshipClaim("claim:relationship", {
+          subjectEntityId: "relationship:person:b:Influence:person:c",
+          value: "B influenced C through citation reception",
+          confidence: 0.88,
+        }),
+        relationshipClaim("claim:advisor", {
+          subjectEntityId: "person:c",
+          subjectEntityType: "Person",
+          field: "advisor",
+          value: "b",
+          confidence: 0.9,
+        }),
+        relationshipClaim("claim:coauthor", {
+          subjectEntityId: "person:a",
+          subjectEntityType: "Person",
+          field: "coauthor",
+          value: "c",
+          confidence: 0.86,
+        }),
+      ],
+      [{
+        id: "thread:test",
+        title: "Test Thread",
+        field: "Philosophy",
+        purpose: "Check gap generation",
+        people: ["a", "c"],
+        concepts: [],
+        edgeTypes: ["Source-context neighbor"],
+        confidence: "high",
+      }]
+    );
+
+    expect(candidates.map((candidate) => `${candidate.source}->${candidate.target}:${candidate.type}`)).toEqual([
+      "a->b:Source-context neighbor",
+      "a->c:Collaboration",
+      "a->c:Source-context neighbor",
+      "b->c:Influence",
+      "b->c:Mentorship",
+    ]);
+    expect(candidates.find((candidate) => candidate.id === "candidate:metadata:a:influence:b")).toBeUndefined();
+    expect(candidates.find((candidate) => candidate.id === "candidate:thread:thread:test:a:c")?.threadIds).toEqual(["thread:test"]);
   });
 });

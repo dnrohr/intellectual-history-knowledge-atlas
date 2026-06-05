@@ -1,4 +1,4 @@
-import { InfluenceEdge, KnownRelationshipType, SourceClaimEntity, Thinker } from "./types";
+import { CanonicalThread, InfluenceEdge, KnownRelationshipType, SourceClaimEntity, Thinker } from "./types";
 import { getSourceClaimRecencyDays } from "./knowledgeModel";
 
 export type BulkEdgeValidationOrigin = "existing-edge" | "discovered-candidate";
@@ -296,6 +296,184 @@ const relationshipRuleReasons = (
   }
 
   return reasons;
+};
+
+const candidateKey = (source: string, target: string, type: string) =>
+  `${source}->${target}:${type}`;
+
+const existingEdgeKeys = (edges: InfluenceEdge[]) =>
+  new Set(edges.map((edge) => candidateKey(edge.source, edge.target, String(edge.type))));
+
+const addMissingCandidate = (
+  candidates: Map<string, InfluenceEdge>,
+  existingKeys: Set<string>,
+  edge: InfluenceEdge
+) => {
+  const key = candidateKey(edge.source, edge.target, String(edge.type));
+  if (existingKeys.has(key)) return;
+  const existing = candidates.get(key);
+  if (!existing) {
+    candidates.set(key, edge);
+    return;
+  }
+  candidates.set(key, {
+    ...existing,
+    confidence: Math.min(0.98, Math.max(existing.confidence ?? 0.5, edge.confidence ?? 0.5) + 0.03),
+    claimIds: Array.from(new Set([...(existing.claimIds || []), ...(edge.claimIds || [])])),
+    sourceClaims: Array.from(new Set([...(existing.sourceClaims || []), ...(edge.sourceClaims || [])])),
+    note: Array.from(new Set([existing.note, edge.note].filter(Boolean))).join("; "),
+  });
+};
+
+const candidateFromClaim = (claim: SourceClaimEntity): InfluenceEdge | null => {
+  if (claim.subjectEntityType !== "Relationship" || ["rejected", "stale", "conflicting"].includes(claim.status)) return null;
+  const relationshipMatch = claim.subjectEntityId.match(/^relationship:person:([^:]+):(.+):person:([^:]+)$/);
+  if (relationshipMatch) {
+    return {
+      id: `candidate:${claim.id}`,
+      source: relationshipMatch[1],
+      target: relationshipMatch[3],
+      type: relationshipMatch[2],
+      strength: Math.max(1, Math.round(claim.confidence * 5)),
+      confidence: claim.confidence,
+      status: "suggested",
+      claimIds: [claim.id],
+      sourceClaims: claim.sourceUrl ? [claim.sourceUrl] : [],
+      note: `Relationship claim from ${claim.sourceName}: ${claim.value}`,
+    };
+  }
+
+  const value = claim.value.toLowerCase();
+  const parts = claim.value.split(/->|=>| influenced | mentored | collaborated with /i).map((part) => part.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const relationshipType = value.includes("mentor")
+    ? "Mentorship"
+    : value.includes("collaborat") || value.includes("coauthor")
+      ? "Collaboration"
+      : "Influence";
+  return {
+    id: `candidate:${claim.id}`,
+    source: parts[0],
+    target: parts[1],
+    type: relationshipType,
+    strength: Math.max(1, Math.round(claim.confidence * 5)),
+    confidence: claim.confidence,
+    status: "suggested",
+    claimIds: [claim.id],
+    sourceClaims: claim.sourceUrl ? [claim.sourceUrl] : [],
+    note: `Relationship claim from ${claim.sourceName}: ${claim.value}`,
+  };
+};
+
+export const generateMissingEdgeCandidates = (
+  people: Thinker[],
+  edges: InfluenceEdge[],
+  claims: SourceClaimEntity[] = [],
+  threads: CanonicalThread[] = []
+): InfluenceEdge[] => {
+  const candidates = new Map<string, InfluenceEdge>();
+  const existingKeys = existingEdgeKeys(edges);
+  const peopleById = new Map(people.map((person) => [person.id, person]));
+
+  people.forEach((person) => {
+    (person.influenced || []).forEach((targetId) => {
+      if (!peopleById.has(targetId)) return;
+      addMissingCandidate(candidates, existingKeys, {
+        id: `candidate:metadata:${person.id}:influence:${targetId}`,
+        source: person.id,
+        target: targetId,
+        type: "Influence",
+        strength: 3,
+        confidence: 0.68,
+        status: "suggested",
+        note: "Metadata explicit influence signal.",
+      });
+    });
+  });
+
+  claims.forEach((claim) => {
+    const fromClaim = candidateFromClaim(claim);
+    if (fromClaim) {
+      addMissingCandidate(candidates, existingKeys, fromClaim);
+    }
+    if (claim.subjectEntityType !== "Person" || ["rejected", "stale", "conflicting"].includes(claim.status)) return;
+    const subjectId = claim.subjectEntityId.replace(/^person:/, "");
+    const targetId = claim.value.replace(/^person:/, "");
+    if (!peopleById.has(subjectId) || !peopleById.has(targetId) || subjectId === targetId) return;
+    if (/advisor|mentor|student/i.test(claim.field)) {
+      const source = /advisor|mentor/i.test(claim.field) ? targetId : subjectId;
+      const target = source === targetId ? subjectId : targetId;
+      addMissingCandidate(candidates, existingKeys, {
+        id: `candidate:${claim.id}`,
+        source,
+        target,
+        type: "Mentorship",
+        strength: Math.max(1, Math.round(claim.confidence * 5)),
+        confidence: claim.confidence,
+        status: "suggested",
+        claimIds: [claim.id],
+        sourceClaims: claim.sourceUrl ? [claim.sourceUrl] : [],
+        note: `Advisor/student lineage claim from ${claim.sourceName}.`,
+      });
+    }
+    if (/coauthor|correspondent|collabor/i.test(claim.field)) {
+      addMissingCandidate(candidates, existingKeys, {
+        id: `candidate:${claim.id}`,
+        source: subjectId,
+        target: targetId,
+        type: "Collaboration",
+        strength: Math.max(1, Math.round(claim.confidence * 5)),
+        confidence: claim.confidence,
+        status: "suggested",
+        claimIds: [claim.id],
+        sourceClaims: claim.sourceUrl ? [claim.sourceUrl] : [],
+        note: `Collaboration claim from ${claim.sourceName}.`,
+      });
+    }
+  });
+
+  people.forEach((person, index) => {
+    people.slice(index + 1).forEach((other) => {
+      const sharedMovement = person.movement && person.movement === other.movement ? person.movement : null;
+      const sharedRegion = person.region && person.region === other.region ? person.region : null;
+      if (!sharedMovement && !sharedRegion) return;
+      const source = person.birth <= other.birth ? person : other;
+      const target = source.id === person.id ? other : person;
+      if (target.birth - source.birth > 125) return;
+      addMissingCandidate(candidates, existingKeys, {
+        id: `candidate:context:${source.id}:${target.id}`,
+        source: source.id,
+        target: target.id,
+        type: "Source-context neighbor",
+        strength: 2,
+        confidence: 0.42,
+        status: "suggested",
+        note: `Chronology-constrained shared ${sharedMovement ? `movement: ${sharedMovement}` : `region: ${sharedRegion}`}.`,
+      });
+    });
+  });
+
+  threads.forEach((thread) => {
+    thread.people.slice(0, -1).forEach((sourceId, index) => {
+      const targetId = thread.people[index + 1];
+      if (!peopleById.has(sourceId) || !peopleById.has(targetId)) return;
+      addMissingCandidate(candidates, existingKeys, {
+        id: `candidate:thread:${thread.id}:${sourceId}:${targetId}`,
+        source: sourceId,
+        target: targetId,
+        type: thread.edgeTypes[0] || "Source-context neighbor",
+        strength: 3,
+        confidence: thread.confidence === "high" ? 0.82 : 0.64,
+        status: "suggested",
+        threadIds: [thread.id],
+        note: `Canonical thread gap candidate: ${thread.title}.`,
+      });
+    });
+  });
+
+  return Array.from(candidates.values()).sort((left, right) =>
+    candidateKey(left.source, left.target, String(left.type)).localeCompare(candidateKey(right.source, right.target, String(right.type)))
+  );
 };
 
 export const validateBulkEdgeRelationshipRules = (
