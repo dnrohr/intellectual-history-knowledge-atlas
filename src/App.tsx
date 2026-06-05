@@ -15,7 +15,7 @@ import PathFinder from "./components/PathFinder";
 import EmptyState from "./components/EmptyState";
 import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
-import { CANONICAL_THREADS, tagRelationshipsWithThreads } from "./threads";
+import { auditThreadGaps, CANONICAL_THREADS, tagRelationshipsWithThreads } from "./threads";
 import { SourceAdapterRunRecord, summarizeSourceAdapterRuns } from "./sourceAdapters";
 import {
   IMPORT_QUEUE_SCHEMA_VERSION,
@@ -2569,6 +2569,7 @@ export default function App() {
     return {
       ...thread,
       stepEdges: pairEdges,
+      gapFindings: auditThreadGaps([thread], people, edges),
       edgeGapCount: pairEdges.filter((edge) => !edge).length,
       weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || (edge.sourceClaims || []).length === 0)).length,
     };
@@ -4582,6 +4583,11 @@ export default function App() {
                             {thread.weakEdgeCount > 0 && (
                               <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
                                 {thread.weakEdgeCount} weak edges
+                              </span>
+                            )}
+                            {thread.gapFindings.length > 0 && (
+                              <span className="rounded border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[8px] font-mono text-rose-300">
+                                {thread.gapFindings.length} audit gaps
                               </span>
                             )}
                           </div>

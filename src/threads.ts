@@ -42,6 +42,104 @@ export const tagRelationshipsWithThreads = (
     return threadIds.length > 0 ? { ...edge, threadIds } : edge;
   });
 
+export type ThreadGapAuditCode =
+  | "missing-intermediate-figure"
+  | "missing-edge"
+  | "missing-edge-source"
+  | "weak-claim"
+  | "overlong-chronology-jump";
+
+export interface ThreadGapAuditFinding {
+  threadId: string;
+  code: ThreadGapAuditCode;
+  severity: "info" | "warning" | "critical";
+  stepIndex: number;
+  sourceId?: string;
+  targetId?: string;
+  message: string;
+}
+
+export const auditThreadGaps = (
+  threads: CanonicalThread[],
+  people: Array<{ id: string; birth: number }>,
+  edges: InfluenceEdge[],
+  maxChronologyGapYears = 250
+): ThreadGapAuditFinding[] => {
+  const peopleById = new Map(people.map((person) => [person.id, person]));
+  const findings: ThreadGapAuditFinding[] = [];
+
+  threads.forEach((thread) => {
+    thread.people.forEach((personId, index) => {
+      if (!peopleById.has(personId)) {
+        findings.push({
+          threadId: thread.id,
+          code: "missing-intermediate-figure",
+          severity: "critical",
+          stepIndex: index,
+          sourceId: personId,
+          message: "Thread references a missing intermediate figure.",
+        });
+      }
+    });
+
+    thread.people.slice(0, -1).forEach((sourceId, index) => {
+      const targetId = thread.people[index + 1];
+      const source = peopleById.get(sourceId);
+      const target = peopleById.get(targetId);
+      const edge = edges.find((candidate) => edgeMatchesThreadPair(candidate, sourceId, targetId));
+
+      if (!edge) {
+        findings.push({
+          threadId: thread.id,
+          code: "missing-edge",
+          severity: "critical",
+          stepIndex: index,
+          sourceId,
+          targetId,
+          message: "Thread step has no relationship edge.",
+        });
+      } else {
+        if ((edge.sourceClaims || edge.claimIds || []).length === 0) {
+          findings.push({
+            threadId: thread.id,
+            code: "missing-edge-source",
+            severity: "warning",
+            stepIndex: index,
+            sourceId,
+            targetId,
+            message: "Thread relationship has no source claims.",
+          });
+        }
+        if ((edge.confidence ?? 1) < 0.5 || edge.status === "needs_source") {
+          findings.push({
+            threadId: thread.id,
+            code: "weak-claim",
+            severity: "warning",
+            stepIndex: index,
+            sourceId,
+            targetId,
+            message: "Thread relationship claim is weak or needs source review.",
+          });
+        }
+      }
+
+      if (source && target && Math.abs(target.birth - source.birth) > maxChronologyGapYears) {
+        findings.push({
+          threadId: thread.id,
+          code: "overlong-chronology-jump",
+          severity: "info",
+          stepIndex: index,
+          sourceId,
+          targetId,
+          message: "Thread step spans a large chronology gap.",
+        });
+      }
+    });
+  });
+
+  return findings;
+};
+
 export const CANONICAL_THREADS: CanonicalThread[] = [
   {
     id: "logic-to-computation",

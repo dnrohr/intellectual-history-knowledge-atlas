@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildThreadFromCanonical, tagRelationshipsWithThreads, THREADS } from "./threads";
+import { auditThreadGaps, buildThreadFromCanonical, tagRelationshipsWithThreads, THREADS } from "./threads";
 import { CanonicalThread } from "./types";
 
 describe("threads", () => {
@@ -76,5 +76,34 @@ describe("threads", () => {
     expect(tagged[0].threadIds).toEqual(["existing", "thread-one", "thread-two"]);
     expect(tagged[1].threadIds).toEqual(["thread-one"]);
     expect(tagged[2].threadIds).toBeUndefined();
+  });
+
+  it("audits thread gaps for missing figures, sources, weak claims, and chronology jumps", () => {
+    const findings = auditThreadGaps([
+      {
+        id: "thread",
+        title: "Thread",
+        field: "Logic",
+        purpose: "Thread",
+        people: ["a", "b", "missing", "c"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "needs-review",
+      },
+    ], [
+      { id: "a", birth: 1000 },
+      { id: "b", birth: 1300 },
+      { id: "c", birth: 1900 },
+    ], [
+      { source: "a", target: "b", type: "Influence", strength: 2, confidence: 0.3, status: "needs_source" },
+    ], 250);
+
+    expect(findings.map((finding) => finding.code)).toEqual(expect.arrayContaining([
+      "missing-intermediate-figure",
+      "missing-edge",
+      "missing-edge-source",
+      "weak-claim",
+      "overlong-chronology-jump",
+    ]));
   });
 });
