@@ -416,7 +416,7 @@ Status notation:
   - [x] import queue persistence
 - Add Playwright tests for:
   - [x] batch import queueing
-  - accepting queued candidate
+  - [x] accepting queued candidate
   - editing queued candidate
   - accepting candidate with suggested link
   - filter drawer taxonomy expansion

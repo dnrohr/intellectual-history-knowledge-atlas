@@ -1,16 +1,24 @@
-import { expect, test } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 
-test("queues pasted batch import rows for review", async ({ page }) => {
+const openImportActivity = async (page: Page) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-
   await page.getByTestId("activity-import").click();
-  await page.getByTestId("batch-import-text").fill([
+};
+
+const queuePastedRows = async (page: Page, rows: string[]) => {
+  await page.getByTestId("batch-import-text").fill(rows.join("\n"));
+  await page.getByTestId("queue-pasted-import-rows").click();
+};
+
+test("queues pasted batch import rows for review", async ({ page }) => {
+  await openImportActivity(page);
+
+  await queuePastedRows(page, [
     "Test Thinker Alpha|1901|1977|Philosophy|A pasted import note",
     "Test Thinker Beta|1920||Mathematics|Another pasted import note",
-  ].join("\n"));
-  await page.getByTestId("queue-pasted-import-rows").click();
+  ]);
 
   await expect(page.getByTestId("import-review-queue-item")).toHaveCount(2);
   await expect(page.getByTestId("import-review-queue")).toContainText("Test Thinker Alpha");
@@ -22,4 +30,19 @@ test("queues pasted batch import rows for review", async ({ page }) => {
     "Test Thinker Alpha",
     "Test Thinker Beta",
   ]);
+});
+
+test("accepts a queued candidate into the atlas", async ({ page }) => {
+  await openImportActivity(page);
+  await queuePastedRows(page, [
+    "Accepted Test Thinker|2500||Philosophy|Accepted from a pasted queue row",
+  ]);
+
+  await page.getByTestId("accept-import-review-item").click();
+
+  await expect(page.getByTestId("import-review-queue-item")).toHaveCount(0);
+  const storedPeople = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_people_v6") || "[]"));
+  const storedQueue = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_import_queue_v2") || "{}"));
+  expect(storedPeople.some((person: { name: string }) => person.name === "Accepted Test Thinker")).toBe(true);
+  expect(storedQueue.items).toEqual([]);
 });
