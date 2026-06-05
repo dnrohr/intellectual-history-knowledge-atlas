@@ -2133,7 +2133,6 @@ export default function App() {
   const chromeDensityOptions: Array<{ id: ChromeDensity; label: string }> = [
     { id: "comfortable", label: "Comfort" },
     { id: "compact", label: "Compact" },
-    { id: "focus", label: "Focus" },
     { id: "curation", label: "Curate" },
     { id: "demo", label: "Demo" },
   ];
@@ -3052,16 +3051,6 @@ export default function App() {
                   <span className="flex-1">Source Gaps</span>
                   <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt G</span>
                   <span className="rounded bg-violet-400/10 px-1.5 py-0.5 text-[8.5px] text-violet-200">{sourceGapEdges.length}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setCommandMenuOpen(false);
-                    applyWorkspace("sources");
-                  }}
-                  className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
-                >
-                  <Filter className="w-3.5 h-3.5 text-violet-300" />
-                  <span className="flex-1">Source Studio</span>
                 </button>
                 <div className="mx-2 my-1 rounded border border-[#22273b] bg-[#090b10] px-2 py-1.5 font-mono text-[8.5px] text-slate-500">
                   <div className="mb-1 uppercase tracking-wider text-slate-600">Shortcuts</div>

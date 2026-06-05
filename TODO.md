@@ -240,7 +240,7 @@ Status notation:
   - lens
   - mutate
   - utility
-- [ ] Remove duplicate or overlapping controls after the button audit.
+- [x] Remove duplicate or overlapping controls after the button audit.
 - [ ] Add mobile-first panel behavior:
   - one primary view at a time
   - dossier bottom sheet
