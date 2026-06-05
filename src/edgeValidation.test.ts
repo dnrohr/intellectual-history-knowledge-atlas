@@ -3,6 +3,7 @@ import {
   BulkEdgeValidationResult,
   createBulkEdgeValidationResult,
   createExistingEdgeValidationSubject,
+  deduplicateMissingEdgeCandidates,
   generateMissingEdgeCandidates,
   validateBulkEdgeEvidence,
   validateBulkEdgeRelationshipRules,
@@ -424,5 +425,53 @@ describe("bulk edge validation model", () => {
     ]);
     expect(candidates.find((candidate) => candidate.id === "candidate:metadata:a:influence:b")).toBeUndefined();
     expect(candidates.find((candidate) => candidate.id === "candidate:thread:thread:test:a:c")?.threadIds).toEqual(["thread:test"]);
+  });
+
+  it("deduplicates discovered candidates against existing edges and each other", () => {
+    const candidates = deduplicateMissingEdgeCandidates(
+      [
+        {
+          id: "candidate:one",
+          source: "a",
+          target: "b",
+          type: "Collaboration",
+          strength: 3,
+          confidence: 0.7,
+          claimIds: ["claim:one"],
+          note: "coauthorship evidence",
+        },
+        {
+          id: "candidate:two",
+          source: "b",
+          target: "a",
+          type: "Collaboration",
+          strength: 3,
+          confidence: 0.8,
+          claimIds: ["claim:two"],
+          note: "correspondence evidence",
+        },
+        {
+          id: "candidate:existing",
+          source: "a",
+          target: "c",
+          type: "Influence",
+          strength: 3,
+          confidence: 0.9,
+        },
+      ],
+      [
+        { source: "a", target: "c", type: "Influence", strength: 3 },
+      ]
+    );
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]).toMatchObject({
+      source: "a",
+      target: "b",
+      type: "Collaboration",
+      confidence: 0.83,
+      claimIds: ["claim:one", "claim:two"],
+    });
+    expect(candidates[0].note).toBe("coauthorship evidence; correspondence evidence");
   });
 });

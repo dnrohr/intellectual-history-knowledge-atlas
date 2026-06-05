@@ -301,28 +301,64 @@ const relationshipRuleReasons = (
 const candidateKey = (source: string, target: string, type: string) =>
   `${source}->${target}:${type}`;
 
+const canonicalCandidateKey = (source: string, target: string, type: string) =>
+  NON_DIRECTIONAL_RELATIONSHIP_TYPES.has(type)
+    ? `${[source, target].sort().join("<->")}:${type}`
+    : candidateKey(source, target, type);
+
 const existingEdgeKeys = (edges: InfluenceEdge[]) =>
-  new Set(edges.map((edge) => candidateKey(edge.source, edge.target, String(edge.type))));
+  new Set(edges.map((edge) => canonicalCandidateKey(edge.source, edge.target, String(edge.type))));
 
 const addMissingCandidate = (
   candidates: Map<string, InfluenceEdge>,
   existingKeys: Set<string>,
   edge: InfluenceEdge
 ) => {
-  const key = candidateKey(edge.source, edge.target, String(edge.type));
+  const key = canonicalCandidateKey(edge.source, edge.target, String(edge.type));
   if (existingKeys.has(key)) return;
   const existing = candidates.get(key);
   if (!existing) {
     candidates.set(key, edge);
     return;
   }
-  candidates.set(key, {
-    ...existing,
-    confidence: Math.min(0.98, Math.max(existing.confidence ?? 0.5, edge.confidence ?? 0.5) + 0.03),
+    candidates.set(key, {
+      ...existing,
+      confidence: Number(Math.min(0.98, Math.max(existing.confidence ?? 0.5, edge.confidence ?? 0.5) + 0.03).toFixed(3)),
     claimIds: Array.from(new Set([...(existing.claimIds || []), ...(edge.claimIds || [])])),
     sourceClaims: Array.from(new Set([...(existing.sourceClaims || []), ...(edge.sourceClaims || [])])),
     note: Array.from(new Set([existing.note, edge.note].filter(Boolean))).join("; "),
   });
+};
+
+export const deduplicateMissingEdgeCandidates = (
+  candidates: InfluenceEdge[],
+  existingEdges: InfluenceEdge[] = []
+): InfluenceEdge[] => {
+  const existingKeys = existingEdgeKeys(existingEdges);
+  const deduped = new Map<string, InfluenceEdge>();
+  candidates.forEach((candidate) => {
+    const key = canonicalCandidateKey(candidate.source, candidate.target, String(candidate.type));
+    if (existingKeys.has(key)) return;
+    const existing = deduped.get(key);
+    if (!existing) {
+      deduped.set(key, candidate);
+      return;
+    }
+    deduped.set(key, {
+      ...existing,
+      confidence: Number(Math.min(0.98, Math.max(existing.confidence ?? 0.5, candidate.confidence ?? 0.5) + 0.03).toFixed(3)),
+      claimIds: Array.from(new Set([...(existing.claimIds || []), ...(candidate.claimIds || [])])),
+      sourceClaims: Array.from(new Set([...(existing.sourceClaims || []), ...(candidate.sourceClaims || [])])),
+      threadIds: Array.from(new Set([...(existing.threadIds || []), ...(candidate.threadIds || [])])),
+      note: Array.from(new Set([existing.note, candidate.note].filter(Boolean))).join("; "),
+    });
+  });
+
+  return Array.from(deduped.values()).sort((left, right) =>
+    canonicalCandidateKey(left.source, left.target, String(left.type)).localeCompare(
+      canonicalCandidateKey(right.source, right.target, String(right.type))
+    )
+  );
 };
 
 const candidateFromClaim = (claim: SourceClaimEntity): InfluenceEdge | null => {
@@ -471,9 +507,7 @@ export const generateMissingEdgeCandidates = (
     });
   });
 
-  return Array.from(candidates.values()).sort((left, right) =>
-    candidateKey(left.source, left.target, String(left.type)).localeCompare(candidateKey(right.source, right.target, String(right.type)))
-  );
+  return deduplicateMissingEdgeCandidates(Array.from(candidates.values()), edges);
 };
 
 export const validateBulkEdgeRelationshipRules = (
