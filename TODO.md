@@ -268,7 +268,7 @@ Goal: keep the app easy to share while making data provenance clear.
 
 Goal: validate and expand network edges at scale until the canonical graph contains only confirmed relationships. Existing edges must be confirmed or removed. Missing relationship candidates must be auto-investigated and either added as confirmed edges or discarded. Interim states such as needs-source or conflict must trigger automated source acquisition, rule refinement, or removal; there is no manual review lane.
 
-- [ ] Define a bulk edge validation result model with:
+- [x] Define a bulk edge validation result model with:
   - edge identity and endpoints
   - origin: existing edge or discovered candidate
   - structural status
