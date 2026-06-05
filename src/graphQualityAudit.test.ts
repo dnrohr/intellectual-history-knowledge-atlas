@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSourceClaimEntity } from "./knowledgeModel";
-import { auditGraphQuality, getDryRunRepairJobTriggers } from "./graphQuality";
+import { auditGraphQuality, getDryRunRepairJobTriggers, planIsolatedNodeConnections } from "./graphQuality";
 import { Thinker } from "./types";
 
 const person = (overrides: Partial<Thinker>): Thinker => ({
@@ -66,5 +66,41 @@ describe("graph quality audits", () => {
         findingCodes: ["unsupported-edge", "isolated-node"],
       },
     ]);
+  });
+
+  it("plans isolated-node connections from high-confidence relationship candidates", () => {
+    expect(planIsolatedNodeConnections([
+      person({ id: "a" }),
+      person({ id: "b" }),
+      person({ id: "c" }),
+    ], [
+      { source: "b", target: "c", type: "Influence", strength: 3 },
+    ], [{
+      id: "candidate",
+      category: "direct mentorship",
+      status: "suggested",
+      confidence: 0.9,
+      evidence: ["advisor/student evidence"],
+      relationship: {
+        id: "relationship:person:b:person mentored person:person:a",
+        type: "Relationship",
+        label: "b mentored a",
+        source: { entityId: "person:b", entityType: "Person" },
+        target: { entityId: "person:a", entityType: "Person" },
+        relationshipType: "person mentored person",
+      },
+    }])).toEqual([{
+      action: "add-edge",
+      reason: "Connect isolated node through validated high-confidence relationship candidate.",
+      edge: {
+        source: "b",
+        target: "a",
+        type: "person mentored person",
+        strength: 5,
+        confidence: 0.9,
+        status: "suggested",
+        claimIds: [],
+      },
+    }]);
   });
 });

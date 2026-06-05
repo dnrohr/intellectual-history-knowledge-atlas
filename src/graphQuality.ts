@@ -1,5 +1,6 @@
 import { CanonicalThread, InfluenceEdge, SourceClaimEntity, Thinker } from "./types";
 import { getSourceClaimRecencyDays } from "./knowledgeModel";
+import { RelationshipCandidate } from "./relationshipEvidence";
 
 export interface GraphQualityMetrics {
   sourcedEdgePercentage: number;
@@ -38,6 +39,12 @@ export interface RepairJobTrigger {
   dryRun: true;
   reason: string;
   findingCodes: GraphQualityAuditFinding["code"][];
+}
+
+export interface GraphRepairDiff {
+  action: "add-edge" | "update-edge";
+  reason: string;
+  edge: InfluenceEdge;
 }
 
 const percent = (count: number, total: number) =>
@@ -177,4 +184,34 @@ export const getDryRunRepairJobTriggers = (
   }
 
   return triggers;
+};
+
+export const planIsolatedNodeConnections = (
+  people: Thinker[],
+  edges: InfluenceEdge[],
+  candidates: RelationshipCandidate[],
+  confidenceThreshold = 0.8
+): GraphRepairDiff[] => {
+  const connectedIds = new Set(edges.flatMap((edge) => [edge.source, edge.target]));
+  const isolatedIds = new Set(people.filter((person) => !connectedIds.has(person.id)).map((person) => person.id));
+
+  return candidates
+    .filter((candidate) =>
+      candidate.confidence >= confidenceThreshold &&
+      (isolatedIds.has(candidate.relationship.source.entityId.replace(/^person:/, "")) ||
+        isolatedIds.has(candidate.relationship.target.entityId.replace(/^person:/, "")))
+    )
+    .map((candidate) => ({
+      action: "add-edge" as const,
+      reason: "Connect isolated node through validated high-confidence relationship candidate.",
+      edge: {
+        source: candidate.relationship.source.entityId.replace(/^person:/, ""),
+        target: candidate.relationship.target.entityId.replace(/^person:/, ""),
+        type: String(candidate.relationship.relationshipType),
+        strength: Math.max(1, Math.round(candidate.confidence * 5)),
+        confidence: candidate.confidence,
+        status: "suggested" as const,
+        claimIds: candidate.claimIds || candidate.relationship.claimIds || [],
+      },
+    }));
 };
