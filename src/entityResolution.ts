@@ -34,6 +34,19 @@ export interface WorkMatchProfile {
   };
 }
 
+export interface NamedEntityMatchProfile {
+  id: string;
+  type: "Institution" | "Movement" | "Concept";
+  label: string;
+  alternateLabels?: string[];
+  city?: string | null;
+  start?: number | null;
+  end?: number | null;
+  fields?: string[];
+  broaderTerms?: string[];
+  externalIds?: Record<string, string[] | undefined>;
+}
+
 const normalizeText = (value: string) =>
   value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 
@@ -147,6 +160,59 @@ export const scoreWorkEntityMatch = (
       score += 0.04;
       reasons.push("near-date");
     }
+  }
+
+  return {
+    score: Math.min(1, Number(score.toFixed(3))),
+    reasons,
+  };
+};
+
+export const scoreNamedEntityMatch = (
+  candidate: NamedEntityMatchProfile,
+  existing: NamedEntityMatchProfile
+): EntityMatchScore => {
+  if (candidate.type !== existing.type) return { score: 0, reasons: ["type-mismatch"] };
+
+  let score = 0;
+  const reasons: string[] = [];
+  const candidateLabels = [candidate.label, ...(candidate.alternateLabels || [])].map(normalizeText);
+  const existingLabels = [existing.label, ...(existing.alternateLabels || [])].map(normalizeText);
+
+  if (candidateLabels.some((label) => existingLabels.includes(label))) {
+    score += 0.4;
+    reasons.push("label");
+  }
+
+  const idMatches = externalIdOverlap(candidate.externalIds, existing.externalIds);
+  if (idMatches > 0) {
+    score += Math.min(0.3, idMatches * 0.15);
+    reasons.push("external-id");
+  }
+
+  if (candidate.type === "Institution" && candidate.city && existing.city && normalizeText(candidate.city) === normalizeText(existing.city)) {
+    score += 0.15;
+    reasons.push("city");
+  }
+
+  if (candidate.type === "Movement") {
+    const startsOverlap = candidate.start !== undefined && candidate.start !== null && existing.start !== undefined && existing.start !== null && Math.abs(candidate.start - existing.start) <= 10;
+    const endsOverlap = candidate.end !== undefined && candidate.end !== null && existing.end !== undefined && existing.end !== null && Math.abs(candidate.end - existing.end) <= 10;
+    if (startsOverlap || endsOverlap) {
+      score += startsOverlap && endsOverlap ? 0.2 : 0.1;
+      reasons.push("chronology");
+    }
+  }
+
+  if (candidate.type === "Concept" && overlapCount(candidate.broaderTerms, existing.broaderTerms) > 0) {
+    score += 0.15;
+    reasons.push("broader-term");
+  }
+
+  const fieldMatches = overlapCount(candidate.fields, existing.fields);
+  if (fieldMatches > 0) {
+    score += Math.min(0.1, fieldMatches * 0.05);
+    reasons.push("field");
   }
 
   return {

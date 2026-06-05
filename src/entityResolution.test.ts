@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
+import { scoreNamedEntityMatch, scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
 
 describe("entity resolution", () => {
   it("scores person matches from names, dates, external IDs, and context overlap", () => {
@@ -78,5 +78,65 @@ describe("entity resolution", () => {
       title: "Another Work",
       date: 1781,
     }).score).toBe(0.1);
+  });
+
+  it("scores institution matches using name, city, and external IDs", () => {
+    expect(scoreNamedEntityMatch({
+      id: "candidate",
+      type: "Institution",
+      label: "Institute for Advanced Study",
+      city: "Princeton",
+      externalIds: { ror: ["https://ror.org/00hx57361"] },
+    }, {
+      id: "existing",
+      type: "Institution",
+      label: "IAS",
+      alternateLabels: ["Institute for Advanced Study"],
+      city: "Princeton",
+      externalIds: { ror: ["https://ror.org/00hx57361"] },
+    })).toEqual({
+      score: 0.7,
+      reasons: ["label", "external-id", "city"],
+    });
+  });
+
+  it("scores movement matches using labels, chronology, and fields", () => {
+    expect(scoreNamedEntityMatch({
+      id: "candidate",
+      type: "Movement",
+      label: "German Idealism",
+      start: 1780,
+      end: 1850,
+      fields: ["Philosophy"],
+    }, {
+      id: "existing",
+      type: "Movement",
+      label: "German Idealism",
+      start: 1785,
+      end: 1845,
+      fields: ["Philosophy"],
+    })).toEqual({
+      score: 0.65,
+      reasons: ["label", "chronology", "field"],
+    });
+  });
+
+  it("scores concept matches using labels, fields, and broader terms", () => {
+    expect(scoreNamedEntityMatch({
+      id: "candidate",
+      type: "Concept",
+      label: "Public sphere",
+      fields: ["Political Thought"],
+      broaderTerms: ["Democracy"],
+    }, {
+      id: "existing",
+      type: "Concept",
+      label: "Public sphere",
+      fields: ["Political Thought"],
+      broaderTerms: ["Democracy"],
+    })).toEqual({
+      score: 0.6,
+      reasons: ["label", "broader-term", "field"],
+    });
   });
 });
