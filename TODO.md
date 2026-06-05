@@ -63,7 +63,7 @@ Goal: expand the atlas from person-to-person influence into a typed, source-back
 Goal: make every fact auditable before automating acceptance.
 
 - [x] Add structured `SourceClaim` records.
-- [ ] Add claim IDs to people, works, institutions, concepts, movements, and relationships.
+- [x] Add claim IDs to people, works, institutions, concepts, movements, and relationships.
 - [ ] Split raw source observations from accepted atlas records.
 - [ ] Represent claim status: `observed`, `candidate`, `accepted`, `rejected`, `stale`, `conflicting`.
 - [ ] Track source type: reference, encyclopedia, bibliographic, primary text, institutional, citation index, curated dataset.

@@ -87,12 +87,14 @@ describe("knowledge model entities", () => {
       birth: 1906,
       death: 1975,
       fields: ["Philosophy"],
+      claimIds: ["claim:arendt:identity"],
     }];
 
     expect(buildPersonEntitiesFromThinkers(people)).toEqual([{
       id: "person:arendt",
       type: "Person",
       label: "Hannah Arendt",
+      claimIds: ["claim:arendt:identity"],
       thinkerId: "arendt",
       birth: 1906,
       death: 1975,
@@ -203,12 +205,14 @@ describe("knowledge model entities", () => {
         id: "concept:public-sphere",
         type: "Concept",
         label: "Public sphere",
+        claimIds: [],
         fields: ["Philosophy", "Sociology"],
       },
       {
         id: "concept:totalitarianism",
         type: "Concept",
         label: "Totalitarianism",
+        claimIds: [],
         fields: ["Philosophy"],
       },
     ]);
@@ -236,12 +240,13 @@ describe("knowledge model entities", () => {
 
     expect(getMovementEntityId("German Idealism")).toBe("movement:german-idealism");
     expect(buildMovementEntities(people, [
-      { name: "German Idealism", start: 1780, end: 1850, core: "Mind and history", fields: ["Philosophy"] },
+      { name: "German Idealism", start: 1780, end: 1850, core: "Mind and history", fields: ["Philosophy"], claimIds: ["claim:german-idealism"] },
     ])).toEqual([
       {
         id: "movement:frankfurt-school",
         type: "Movement",
         label: "Frankfurt School",
+        claimIds: [],
         start: null,
         end: null,
         fields: ["Sociology"],
@@ -250,6 +255,7 @@ describe("knowledge model entities", () => {
         id: "movement:german-idealism",
         type: "Movement",
         label: "German Idealism",
+        claimIds: ["claim:german-idealism"],
         start: 1780,
         end: 1850,
         fields: ["Philosophy"],
@@ -260,13 +266,14 @@ describe("knowledge model entities", () => {
   it("projects curated institutions into first-class institution nodes", () => {
     expect(getInstitutionEntityId("Princeton IAS")).toBe("institution:princeton-ias");
     expect(buildInstitutionEntities([
-      { name: "Princeton IAS", city: "Princeton NJ", peak_start: 1933, peak_end: 1970, figures: ["einstein", "godel"] },
+      { name: "Princeton IAS", city: "Princeton NJ", peak_start: 1933, peak_end: 1970, figures: ["einstein", "godel"], claimIds: ["claim:princeton"] },
       { name: "Bell Laboratories", city: "Murray Hill NJ", peak_start: 1925, peak_end: 1985, figures: ["shannon"] },
     ])).toEqual([
       {
         id: "institution:bell-laboratories",
         type: "Institution",
         label: "Bell Laboratories",
+        claimIds: [],
         city: "Murray Hill NJ",
         figureIds: ["person:shannon"],
       },
@@ -274,6 +281,7 @@ describe("knowledge model entities", () => {
         id: "institution:princeton-ias",
         type: "Institution",
         label: "Princeton IAS",
+        claimIds: ["claim:princeton"],
         city: "Princeton NJ",
         figureIds: ["person:einstein", "person:godel"],
       },

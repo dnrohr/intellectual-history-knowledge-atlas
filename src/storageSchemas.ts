@@ -53,6 +53,7 @@ export const normalizeStoredPeople = (value: unknown): Thinker[] => {
         bridge_score: isFiniteNumber(item.bridge_score) ? item.bridge_score : undefined,
         works: isStringArray(item.works) ? item.works : [],
         influenced: isStringArray(item.influenced) ? item.influenced : [],
+        claimIds: isStringArray(item.claimIds) ? item.claimIds : [],
         notes: normalizeOptionalString(item.notes),
       } satisfies Thinker;
     })

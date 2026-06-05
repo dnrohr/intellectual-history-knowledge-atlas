@@ -408,6 +408,7 @@ export const buildPersonEntitiesFromThinkers = (people: Thinker[]): PersonEntity
     id: `person:${person.id}`,
     type: "Person",
     label: person.name,
+    claimIds: person.claimIds || [],
     thinkerId: person.id,
     birth: person.birth,
     death: person.death,
@@ -468,6 +469,7 @@ export const buildConceptEntitiesFromThinkers = (people: Thinker[]): ConceptEnti
         id,
         type: "Concept",
         label: trimmedLabel,
+        claimIds: existing?.claimIds || [],
         fields: Array.from(fields).sort(),
       });
     });
@@ -488,6 +490,7 @@ export const buildMovementEntities = (
       id,
       type: "Movement",
       label: movement.name,
+      claimIds: movement.claimIds || [],
       start: movement.start,
       end: movement.end,
       fields: [...movement.fields].sort(),
@@ -503,6 +506,7 @@ export const buildMovementEntities = (
       id,
       type: "Movement",
       label: existing?.label || person.movement,
+      claimIds: existing?.claimIds || [],
       start: existing?.start ?? null,
       end: existing?.end ?? null,
       fields: Array.from(fields).sort(),
@@ -518,6 +522,7 @@ export const buildInstitutionEntities = (institutions: Institution[]): Instituti
       id: getInstitutionEntityId(institution.name),
       type: "Institution" as const,
       label: institution.name,
+      claimIds: institution.claimIds || [],
       city: institution.city,
       figureIds: institution.figures.map(getPersonEntityId),
     }))

@@ -27,6 +27,7 @@ export interface Thinker {
   bridge_score?: number;
   works?: string[];
   influenced?: string[];
+  claimIds?: string[];
   notes?: string | null;
 }
 
@@ -178,6 +179,7 @@ export interface Movement {
   end: number;
   core: string;
   fields: string[];
+  claimIds?: string[];
 }
 
 export interface Institution {
@@ -186,6 +188,7 @@ export interface Institution {
   peak_start: number;
   peak_end: number;
   figures: string[];
+  claimIds?: string[];
 }
 
 export interface AppState {

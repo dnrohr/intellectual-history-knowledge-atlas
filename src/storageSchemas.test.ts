@@ -4,7 +4,7 @@ import { normalizeStoredEdges, normalizeStoredPeople } from "./storageSchemas";
 describe("localStorage schema normalization", () => {
   it("keeps valid people and drops malformed people", () => {
     const people = normalizeStoredPeople([
-      { id: "valid", name: "Valid Person", birth: 1900, death: null, fields: ["Philosophy"], subfields: ["Ethics"] },
+      { id: "valid", name: "Valid Person", birth: 1900, death: null, fields: ["Philosophy"], subfields: ["Ethics"], claimIds: ["claim:valid"] },
       { id: "missing-name", birth: 1900, death: null, fields: ["Philosophy"] },
       { id: "bad-birth", name: "Bad Birth", birth: "1900", death: null, fields: ["Philosophy"] },
       null,
@@ -13,6 +13,7 @@ describe("localStorage schema normalization", () => {
     expect(people).toHaveLength(1);
     expect(people[0].id).toBe("valid");
     expect(people[0].subfields).toEqual(["Ethics"]);
+    expect(people[0].claimIds).toEqual(["claim:valid"]);
   });
 
   it("normalizes optional people fields", () => {
