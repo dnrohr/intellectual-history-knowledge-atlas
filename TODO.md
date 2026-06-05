@@ -64,7 +64,7 @@ Goal: make every fact auditable before automating acceptance.
 
 - [x] Add structured `SourceClaim` records.
 - [x] Add claim IDs to people, works, institutions, concepts, movements, and relationships.
-- [ ] Split raw source observations from accepted atlas records.
+- [x] Split raw source observations from accepted atlas records.
 - [ ] Represent claim status: `observed`, `candidate`, `accepted`, `rejected`, `stale`, `conflicting`.
 - [ ] Track source type: reference, encyclopedia, bibliographic, primary text, institutional, citation index, curated dataset.
 - [ ] Track source reliability and recency.

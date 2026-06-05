@@ -20,6 +20,7 @@ import {
   normalizeKnowledgeEntities,
   relationshipEndpointsMatchType,
   RELATIONSHIP_TYPE_DEFINITIONS,
+  splitRawObservationsFromAcceptedRecords,
 } from "./knowledgeModel";
 import { Thinker } from "./types";
 
@@ -354,6 +355,51 @@ describe("knowledge model entities", () => {
       confidence: 1,
       status: "candidate",
     });
+  });
+
+  it("keeps raw source observations separate from accepted atlas records", () => {
+    const acceptedRecords = buildPersonEntitiesFromThinkers([{
+      id: "arendt",
+      name: "Hannah Arendt",
+      birth: 1906,
+      death: 1975,
+      fields: ["Philosophy"],
+    }]);
+
+    const split = splitRawObservationsFromAcceptedRecords([
+      {
+        id: "observation:1",
+        sourceName: "Wikidata",
+        sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+        observedAt: "2026-06-05T00:00:00.000Z",
+        raw: { id: "Q60025", birth: 1906 },
+        normalizedClaims: [{
+          sourceName: "Wikidata",
+          sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+          subjectEntityId: "person:arendt",
+          subjectEntityType: "Person",
+          field: "birth",
+          value: "1906",
+          confidence: 0.8,
+        }],
+      },
+    ], acceptedRecords);
+
+    expect(split.rawObservations).toHaveLength(1);
+    expect(split.acceptedRecords).toEqual(acceptedRecords);
+    expect(split.candidateClaims).toEqual([{
+      id: "claim:person-arendt:birth:wikidata:1906",
+      type: "SourceClaim",
+      label: "Wikidata: birth",
+      sourceName: "Wikidata",
+      sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+      subjectEntityId: "person:arendt",
+      subjectEntityType: "Person",
+      field: "birth",
+      value: "1906",
+      confidence: 0.8,
+      status: "observed",
+    }]);
   });
 
   it("builds expanded knowledge entities from the current atlas state", () => {

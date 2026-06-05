@@ -15,6 +15,7 @@ import {
   SourceClaimDraft,
   SourceClaimStatus,
   SourceClaimEntity,
+  SourceObservation,
   Thinker,
   WorkEntity,
 } from "./types";
@@ -345,6 +346,26 @@ export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEnt
     status: draft.status || "observed",
   };
 };
+
+export interface ObservationSplit {
+  rawObservations: SourceObservation[];
+  acceptedRecords: KnowledgeEntity[];
+  candidateClaims: SourceClaimEntity[];
+}
+
+export const splitRawObservationsFromAcceptedRecords = (
+  observations: SourceObservation[],
+  acceptedRecords: KnowledgeEntity[]
+): ObservationSplit => ({
+  rawObservations: observations,
+  acceptedRecords,
+  candidateClaims: observations.flatMap((observation) =>
+    observation.normalizedClaims.map((claim) => createSourceClaimEntity({
+      ...claim,
+      status: claim.status || "observed",
+    }))
+  ),
+});
 
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";

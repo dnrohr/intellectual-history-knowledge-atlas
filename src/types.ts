@@ -152,6 +152,16 @@ export interface SourceClaimDraft {
   status?: SourceClaimStatus;
 }
 
+export interface SourceObservation {
+  id: string;
+  sourceName: string;
+  sourceUrl?: string;
+  observedAt: string;
+  raw: unknown;
+  normalizedClaims: SourceClaimDraft[];
+  acceptedEntityIds?: string[];
+}
+
 export interface SourceClaim {
   id: string;
   sourceName: string;
