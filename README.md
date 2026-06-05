@@ -542,6 +542,20 @@ When adding a canonical thread:
 - If a thread references a person ID, make sure that person exists in `src/data.ts`.
 - Use `TODO.md` status markers to keep roadmap progress visible.
 
+## Deployment Evaluation
+
+The current recommended target is **Render**. The app already builds to a Vite static bundle plus a bundled Express server, and `render.yaml` can run that shape directly with `npm run build` and `npm run start`.
+
+Evaluated options:
+
+- [Render Blueprint](https://render.com/docs/blueprint-spec): best fit for the current Express server with minimal restructuring.
+- [Railway](https://docs.railway.com/quick-start): also compatible with a GitHub-connected Node service, but would need dashboard/project setup rather than a repo-native blueprint in this pass.
+- [Fly.io](https://www.fly.io/docs/launch/): strong for containerized/global deployment, but adds `flyctl`, app naming, and machine configuration overhead.
+- [Vercel Express](https://vercel.com/guides/using-express-with-vercel): possible, but the API would need to be adapted to serverless functions.
+- [Netlify Express](https://docs.netlify.com/build/frameworks/framework-setup-guides/express/): possible, but similarly requires a function/redirect wrapper instead of the current long-running Express server.
+
+Keep Render as the default until the server is intentionally refactored into serverless API handlers or a container-first deployment.
+
 ## Troubleshooting
 
 ### The App Opens But Shows Old Data

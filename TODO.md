@@ -433,11 +433,11 @@ Status notation:
 
 - [x] Add production deployment target.
 - Evaluate:
-  - Render
-  - Railway
-  - Fly.io
-  - Vercel plus serverless API
-  - Netlify plus serverless API
+  - [x] Render
+  - [x] Railway
+  - [x] Fly.io
+  - [x] Vercel plus serverless API
+  - [x] Netlify plus serverless API
 - Add GitHub Actions workflow for build verification.
 - Add auto-deploy from `main`.
 - Add environment variable documentation.
