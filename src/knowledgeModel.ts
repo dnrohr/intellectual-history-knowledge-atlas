@@ -4,6 +4,7 @@ import {
   InstitutionEntity,
   KnowledgeEntity,
   KnowledgeEntityType,
+  Movement,
   MovementEntity,
   PersonEntity,
   RelationshipEntity,
@@ -224,6 +225,9 @@ export const getWorkEntityId = (personId: string, title: string) =>
 export const getConceptEntityId = (label: string) =>
   `concept:${normalizeIdPart(label)}`;
 
+export const getMovementEntityId = (label: string) =>
+  `movement:${normalizeIdPart(label)}`;
+
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
   const targetEntityType = edge.targetEntityType || "Person";
@@ -349,4 +353,40 @@ export const buildConceptEntitiesFromThinkers = (people: Thinker[]): ConceptEnti
   });
 
   return Array.from(concepts.values()).sort((a, b) => a.label.localeCompare(b.label));
+};
+
+export const buildMovementEntities = (
+  people: Thinker[],
+  curatedMovements: Movement[] = []
+): MovementEntity[] => {
+  const movements = new Map<string, MovementEntity>();
+
+  curatedMovements.forEach((movement) => {
+    const id = getMovementEntityId(movement.name);
+    movements.set(id, {
+      id,
+      type: "Movement",
+      label: movement.name,
+      start: movement.start,
+      end: movement.end,
+      fields: [...movement.fields].sort(),
+    });
+  });
+
+  people.forEach((person) => {
+    if (!person.movement) return;
+    const id = getMovementEntityId(person.movement);
+    const existing = movements.get(id);
+    const fields = new Set([...(existing?.fields || []), ...(person.fields || [])]);
+    movements.set(id, {
+      id,
+      type: "Movement",
+      label: existing?.label || person.movement,
+      start: existing?.start ?? null,
+      end: existing?.end ?? null,
+      fields: Array.from(fields).sort(),
+    });
+  });
+
+  return Array.from(movements.values()).sort((a, b) => a.label.localeCompare(b.label));
 };

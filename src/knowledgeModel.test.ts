@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   buildRelationshipEntityFromInfluenceEdge,
   buildConceptEntitiesFromThinkers,
+  buildMovementEntities,
   buildPersonEntitiesFromThinkers,
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
   getConceptEntityId,
+  getMovementEntityId,
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
@@ -181,6 +183,49 @@ describe("knowledge model entities", () => {
         id: "concept:totalitarianism",
         type: "Concept",
         label: "Totalitarianism",
+        fields: ["Philosophy"],
+      },
+    ]);
+  });
+
+  it("projects curated and thinker movement labels into first-class movement nodes", () => {
+    const people: Thinker[] = [
+      {
+        id: "hegel",
+        name: "G. W. F. Hegel",
+        birth: 1770,
+        death: 1831,
+        fields: ["Philosophy"],
+        movement: "German Idealism",
+      },
+      {
+        id: "adorno",
+        name: "Theodor W. Adorno",
+        birth: 1903,
+        death: 1969,
+        fields: ["Sociology"],
+        movement: "Frankfurt School",
+      },
+    ];
+
+    expect(getMovementEntityId("German Idealism")).toBe("movement:german-idealism");
+    expect(buildMovementEntities(people, [
+      { name: "German Idealism", start: 1780, end: 1850, core: "Mind and history", fields: ["Philosophy"] },
+    ])).toEqual([
+      {
+        id: "movement:frankfurt-school",
+        type: "Movement",
+        label: "Frankfurt School",
+        start: null,
+        end: null,
+        fields: ["Sociology"],
+      },
+      {
+        id: "movement:german-idealism",
+        type: "Movement",
+        label: "German Idealism",
+        start: 1780,
+        end: 1850,
         fields: ["Philosophy"],
       },
     ]);
