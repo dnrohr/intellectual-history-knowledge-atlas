@@ -15,7 +15,7 @@ Status notation:
 - Keep the Influence Atlas and scholar dossier as the primary exploration experience.
 - Reframe Source Studio as an automation, evidence, conflict, and override console rather than the main growth path for the dataset.
 - Make threads, paths, and lineages evidence-aware once typed relationships and claim records exist.
-- Add bulk edge validation so every relationship in the network can be structurally checked, evidence-scored, and routed to acceptance, repair, or review.
+- Add bulk edge validation so every relationship in the network can be confirmed with adequate evidence or removed from the canonical graph.
 
 Reference documents:
 - `docs/automated-validation-roadmap.md`
@@ -266,7 +266,7 @@ Goal: keep the app easy to share while making data provenance clear.
 
 ### 13. Bulk Edge Validation
 
-Goal: validate every network edge at scale, separating fast structural failures from source-backed historical/evidentiary review.
+Goal: validate every network edge at scale until each edge has a final disposition: confirmed in the canonical graph or removed from it. Interim states such as needs-source, conflict, or manual review are work queues, not completion states.
 
 - [ ] Define a bulk edge validation result model with:
   - edge identity and endpoints
@@ -275,7 +275,8 @@ Goal: validate every network edge at scale, separating fast structural failures 
   - chronology status
   - source-claim coverage
   - confidence score
-  - recommended action
+  - recommended action: confirm, remove, or investigate
+  - final disposition: confirmed or removed
   - blocking reasons
 - [ ] Add a deterministic validator for structural edge checks:
   - schema errors
@@ -300,13 +301,13 @@ Goal: validate every network edge at scale, separating fast structural failures 
   - parallel development
   - canonical-thread edges
 - [ ] Generate a bulk validation report grouped by:
-  - accepted
-  - needs source
-  - demote to provisional
-  - reject
-  - conflicting
-  - manual review required
+  - confirmed
+  - removed
+  - needs source before final disposition
+  - conflicting before final disposition
+  - manual review required before final disposition
 - [ ] Add dry-run repair decisions from bulk validation findings.
+- [ ] Add an acceptance gate that fails while any edge lacks a confirmed or removed final disposition.
 - [ ] Add snapshot and boundary tests for the bulk edge validator.
 - [ ] Wire bulk edge validation into CI for structural failures.
 - [ ] Add Source Studio visibility for bulk validation status, report export, and repair preview actions.
