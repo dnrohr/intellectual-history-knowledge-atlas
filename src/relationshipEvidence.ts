@@ -35,6 +35,11 @@ export interface RelationshipCandidate {
   evidence: string[];
 }
 
+export interface RelationshipCandidateStore {
+  candidates: RelationshipCandidate[];
+  acceptedRelationships: RelationshipEntity[];
+}
+
 export interface RelationshipDirectionValidationInput {
   sourceId: string;
   targetId: string;
@@ -384,4 +389,15 @@ export const classifyRelationshipSuggestion = (
   if (relationshipType === "Source-context neighbor" || text.includes("source proximity")) return "source-context neighbor";
   if (text.includes("influenced") || text.includes("influence") || text.includes("citation") || text.includes("reception")) return "likely influence";
   return "needs review";
+};
+
+export const buildRelationshipCandidateStore = (
+  candidates: RelationshipCandidate[],
+  acceptedRelationships: RelationshipEntity[] = []
+): RelationshipCandidateStore => {
+  const acceptedIds = new Set(acceptedRelationships.map((relationship) => relationship.id));
+  return {
+    acceptedRelationships,
+    candidates: candidates.filter((candidate) => !acceptedIds.has(candidate.relationship.id)),
+  };
 };

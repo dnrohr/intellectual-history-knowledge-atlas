@@ -6,6 +6,7 @@ import {
   generateParallelDevelopmentCandidates,
   generateSourceContextNeighborCandidates,
   classifyRelationshipSuggestion,
+  buildRelationshipCandidateStore,
   validateRelationshipDirection,
 } from "./relationshipEvidence";
 
@@ -176,5 +177,14 @@ describe("relationship evidence", () => {
     expect(classifyRelationshipSuggestion("Source-context neighbor", ["source proximity without influence claim: sep:logic"])).toBe("source-context neighbor");
     expect(classifyRelationshipSuggestion("person influenced person", ["citation path evidence"])).toBe("likely influence");
     expect(classifyRelationshipSuggestion("unknown relationship")).toBe("needs review");
+  });
+
+  it("stores relationship candidates separately from accepted relationships", () => {
+    const [candidate] = generateMentorshipCandidates([{ personId: "student", advisors: ["mentor"] }]);
+    const store = buildRelationshipCandidateStore([candidate], [candidate.relationship]);
+
+    expect(store.acceptedRelationships).toEqual([candidate.relationship]);
+    expect(store.candidates).toEqual([]);
+    expect(buildRelationshipCandidateStore([candidate]).candidates).toEqual([candidate]);
   });
 });

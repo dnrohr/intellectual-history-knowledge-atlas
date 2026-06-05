@@ -132,7 +132,7 @@ Goal: generate, classify, and explain relationship candidates from evidence.
   - parallel development
   - source-context neighbor
   - needs review
-- [ ] Add candidate records separate from accepted relationships.
+- [x] Add candidate records separate from accepted relationships.
 - [ ] Add relationship source URLs and claim-level provenance.
 - [ ] Add relationship status: `suggested`, `accepted`, `rejected`, `needs_source`.
 - [ ] Add "why this link?" evidence explanations.
