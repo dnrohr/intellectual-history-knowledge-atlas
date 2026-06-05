@@ -15,7 +15,7 @@ import PathFinder from "./components/PathFinder";
 import EmptyState from "./components/EmptyState";
 import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
-import { CANONICAL_THREADS } from "./threads";
+import { CANONICAL_THREADS, tagRelationshipsWithThreads } from "./threads";
 import { SourceAdapterRunRecord, summarizeSourceAdapterRuns } from "./sourceAdapters";
 import {
   IMPORT_QUEUE_SCHEMA_VERSION,
@@ -2620,7 +2620,8 @@ export default function App() {
 
     return true;
   };
-  const filteredEdges = edges.filter(edgeMatchesReviewFilters);
+  const threadTaggedEdges = tagRelationshipsWithThreads(edges, CANONICAL_THREADS);
+  const filteredEdges = threadTaggedEdges.filter(edgeMatchesReviewFilters);
   const hasActiveEdgeFilters = edgeTypeFilter !== "all" || (isSourceStudio && (edgeSourceFilter !== "all" || edgeConfidenceFilter > 0));
   const selectedLensLabels = selectedThinker
     ? Array.from(new Set(Object.values(inferLensTags(selectedThinker)).flat())).map(getLensOptionLabel).slice(0, 8)

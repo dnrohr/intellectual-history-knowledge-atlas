@@ -1,4 +1,4 @@
-import { CanonicalThread, Thread, ThreadSourceStatus } from "./types";
+import { CanonicalThread, InfluenceEdge, Thread, ThreadSourceStatus } from "./types";
 
 const inferThreadSourceStatus = (thread: CanonicalThread): ThreadSourceStatus => {
   if (thread.sourceStatus) return thread.sourceStatus;
@@ -21,6 +21,26 @@ export const buildThreadFromCanonical = (thread: CanonicalThread): Thread => ({
   confidence: thread.confidence,
   sourceStatus: inferThreadSourceStatus(thread),
 });
+
+const edgeMatchesThreadPair = (edge: InfluenceEdge, leftId: string, rightId: string) =>
+  (edge.source === leftId && edge.target === rightId) ||
+  (edge.source === rightId && edge.target === leftId);
+
+export const tagRelationshipsWithThreads = (
+  edges: InfluenceEdge[],
+  threads: CanonicalThread[]
+): InfluenceEdge[] =>
+  edges.map((edge) => {
+    const matchingThreadIds = threads
+      .filter((thread) =>
+        thread.people
+          .slice(0, -1)
+          .some((personId, index) => edgeMatchesThreadPair(edge, personId, thread.people[index + 1]))
+      )
+      .map((thread) => thread.id);
+    const threadIds = Array.from(new Set([...(edge.threadIds || []), ...matchingThreadIds]));
+    return threadIds.length > 0 ? { ...edge, threadIds } : edge;
+  });
 
 export const CANONICAL_THREADS: CanonicalThread[] = [
   {

@@ -109,6 +109,7 @@ export interface InfluenceEdge {
   confidence?: number;
   sourceClaims?: string[];
   claimIds?: string[];
+  threadIds?: string[];
   status?: "suggested" | "accepted" | "rejected" | "needs_source";
 }
 
@@ -119,6 +120,7 @@ export interface RelationshipEntity extends KnowledgeEntityBase {
   relationshipType: string | KnownRelationshipType;
   strength?: number;
   confidence?: number;
+  threadIds?: string[];
   status?: InfluenceEdge["status"];
 }
 

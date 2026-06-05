@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildThreadFromCanonical, THREADS } from "./threads";
+import { buildThreadFromCanonical, tagRelationshipsWithThreads, THREADS } from "./threads";
 import { CanonicalThread } from "./types";
 
 describe("threads", () => {
@@ -43,5 +43,38 @@ describe("threads", () => {
       edgeTypes: expect.any(Array),
       sourceStatus: expect.any(String),
     });
+  });
+
+  it("adds thread labels to relationships and preserves multi-thread membership", () => {
+    const tagged = tagRelationshipsWithThreads([
+      { source: "a", target: "b", type: "Influence", strength: 3, threadIds: ["existing"] },
+      { source: "b", target: "c", type: "Influence", strength: 3 },
+      { source: "x", target: "y", type: "Influence", strength: 3 },
+    ], [
+      {
+        id: "thread-one",
+        title: "Thread One",
+        field: "Logic",
+        purpose: "One path",
+        people: ["a", "b", "c"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+      {
+        id: "thread-two",
+        title: "Thread Two",
+        field: "Logic",
+        purpose: "Second path",
+        people: ["b", "a"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+    ]);
+
+    expect(tagged[0].threadIds).toEqual(["existing", "thread-one", "thread-two"]);
+    expect(tagged[1].threadIds).toEqual(["thread-one"]);
+    expect(tagged[2].threadIds).toBeUndefined();
   });
 });
