@@ -328,7 +328,7 @@ const buildDefaultCuratedAtlasViews = (people: Thinker[]): SavedAtlasView[] =>
       name: definition.name,
       createdAt: "default",
       activity: "explore",
-      viewMode: "split",
+      viewMode: "network",
       chromeDensity: "comfortable",
       selectedId: collectionIds[0] || null,
       selectedFields: definition.selectedFields || [],
@@ -393,7 +393,7 @@ export default function App() {
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace>("atlas");
   const [activeActivity, setActiveActivity] = useState<WorkspaceActivity>("explore");
   const [viewMode, setViewMode] = useState<"timeline" | "network" | "split">("network");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
