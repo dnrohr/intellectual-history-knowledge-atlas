@@ -9,10 +9,12 @@ import {
   buildPersonEntitiesFromThinkers,
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
+  createSourceClaimEntity,
   getConceptEntityId,
   getAggregatedClaimIdsForSubject,
   getInstitutionEntityId,
   getMovementEntityId,
+  getSourceClaimEntityId,
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
@@ -318,6 +320,32 @@ describe("knowledge model entities", () => {
       },
     ]);
     expect(getAggregatedClaimIdsForSubject(aggregations, "relationship:1", "Relationship")).toEqual(["claim:relationship:1"]);
+  });
+
+  it("creates structured source claim records from drafts", () => {
+    expect(getSourceClaimEntityId("person:arendt", "birth", "SEP", "1906")).toBe("claim:person-arendt:birth:sep:1906");
+    expect(createSourceClaimEntity({
+      sourceName: "SEP",
+      sourceUrl: "https://plato.stanford.edu/",
+      subjectEntityId: "person:arendt",
+      subjectEntityType: "Person",
+      field: "birth",
+      value: "1906",
+      confidence: 1.2,
+      status: "candidate",
+    })).toEqual({
+      id: "claim:person-arendt:birth:sep:1906",
+      type: "SourceClaim",
+      label: "SEP: birth",
+      sourceName: "SEP",
+      sourceUrl: "https://plato.stanford.edu/",
+      subjectEntityId: "person:arendt",
+      subjectEntityType: "Person",
+      field: "birth",
+      value: "1906",
+      confidence: 1,
+      status: "candidate",
+    });
   });
 
   it("builds expanded knowledge entities from the current atlas state", () => {

@@ -138,6 +138,19 @@ export interface SourceClaimEntity extends KnowledgeEntityBase {
   status: SourceClaimStatus;
 }
 
+export interface SourceClaimDraft {
+  id?: string;
+  label?: string;
+  sourceName: string;
+  sourceUrl?: string;
+  subjectEntityId: string;
+  subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
+  field: string;
+  value: string;
+  confidence?: number;
+  status?: SourceClaimStatus;
+}
+
 export interface SourceClaim {
   id: string;
   sourceName: string;

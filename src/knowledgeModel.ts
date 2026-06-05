@@ -12,6 +12,7 @@ import {
   RelationshipEntity,
   RelationshipEndpointType,
   RelationshipTypeDefinition,
+  SourceClaimDraft,
   SourceClaimStatus,
   SourceClaimEntity,
   Thinker,
@@ -47,6 +48,9 @@ const hasEntityBase = <T extends KnowledgeEntityType>(
 
 const normalizeConfidence = (value: unknown) =>
   isFiniteNumber(value) ? Math.max(0, Math.min(1, value)) : undefined;
+
+const normalizeRequiredConfidence = (value: unknown) =>
+  normalizeConfidence(value) ?? 0.5;
 
 const normalizeNullableYear = (value: unknown): number | null =>
   isFiniteNumber(value) ? value : null;
@@ -235,6 +239,13 @@ export const getMovementEntityId = (label: string) =>
 export const getInstitutionEntityId = (label: string) =>
   `institution:${normalizeIdPart(label)}`;
 
+export const getSourceClaimEntityId = (
+  subjectEntityId: string,
+  field: string,
+  sourceName: string,
+  value: string
+) => `claim:${normalizeIdPart(subjectEntityId)}:${normalizeIdPart(field)}:${normalizeIdPart(sourceName)}:${normalizeIdPart(value)}`;
+
 export const RELATIONSHIP_TYPE_DEFINITIONS: RelationshipTypeDefinition[] = [
   { type: "person authored work", sourceType: "Person", targetType: "Work" },
   { type: "work introduced concept", sourceType: "Work", targetType: "Concept" },
@@ -317,6 +328,23 @@ export const getAggregatedClaimIdsForSubject = (
     aggregation.subjectEntityId === subjectEntityId &&
     aggregation.subjectEntityType === subjectEntityType
   )?.claimIds || [];
+
+export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEntity => {
+  const id = draft.id || getSourceClaimEntityId(draft.subjectEntityId, draft.field, draft.sourceName, draft.value);
+  return {
+    id,
+    type: "SourceClaim",
+    label: draft.label || `${draft.sourceName}: ${draft.field}`,
+    sourceName: draft.sourceName,
+    sourceUrl: draft.sourceUrl,
+    subjectEntityId: draft.subjectEntityId,
+    subjectEntityType: draft.subjectEntityType,
+    field: draft.field,
+    value: draft.value,
+    confidence: normalizeRequiredConfidence(draft.confidence),
+    status: draft.status || "observed",
+  };
+};
 
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
