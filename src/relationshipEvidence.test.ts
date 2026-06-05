@@ -8,6 +8,7 @@ import {
   classifyRelationshipSuggestion,
   attachRelationshipCandidateProvenance,
   buildRelationshipCandidateStore,
+  explainRelationshipCandidate,
   getRelationshipCandidateProvenance,
   normalizeRelationshipStatus,
   RELATIONSHIP_STATUSES,
@@ -212,5 +213,16 @@ describe("relationship evidence", () => {
       claimIds: ["claim:mentor-student"],
       evidence: ["advisor/student evidence"],
     });
+  });
+
+  it("explains why a relationship candidate exists", () => {
+    const [candidate] = generateMentorshipCandidates([{ personId: "student", advisors: ["mentor"] }]);
+    const withProvenance = attachRelationshipCandidateProvenance(candidate, {
+      sourceUrls: ["https://example.com/source"],
+    });
+
+    expect(explainRelationshipCandidate(withProvenance)).toBe(
+      "direct mentorship: person:mentor -> person:student (85%). Evidence: advisor/student evidence. Sources: https://example.com/source."
+    );
   });
 });

@@ -438,3 +438,13 @@ export const getRelationshipCandidateProvenance = (
   claimIds: candidate.claimIds || candidate.relationship.claimIds || [],
   evidence: candidate.evidence,
 });
+
+export const explainRelationshipCandidate = (candidate: RelationshipCandidate) => {
+  const evidenceText = candidate.evidence.length > 0
+    ? candidate.evidence.join("; ")
+    : "no evidence details recorded";
+  const provenanceText = candidate.sourceUrls?.length
+    ? ` Sources: ${candidate.sourceUrls.join(", ")}.`
+    : "";
+  return `${candidate.category}: ${candidate.relationship.source.entityId} -> ${candidate.relationship.target.entityId} (${Math.round(candidate.confidence * 100)}%). Evidence: ${evidenceText}.${provenanceText}`;
+};
