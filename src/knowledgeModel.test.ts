@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildRelationshipEntityFromInfluenceEdge,
   buildPersonEntitiesFromThinkers,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
@@ -27,7 +28,7 @@ describe("knowledge model entities", () => {
       { id: "movement:phenomenology", type: "Movement", label: "Phenomenology", start: 1900, end: 1970 },
       { id: "institution:new-school", type: "Institution", label: "The New School", city: "New York", figureIds: ["person:arendt"] },
       { id: "claim:1", type: "SourceClaim", label: "SEP claim", sourceName: "Stanford Encyclopedia of Philosophy", sourceUrl: "https://plato.stanford.edu/", subjectEntityType: "Person", subjectEntityId: "person:arendt", field: "birth", value: "1906", confidence: 1.5, status: "accepted" },
-      { id: "relationship:1", type: "Relationship", label: "Arendt authored Origins", sourceId: "person:arendt", targetId: "work:origins", relationshipType: "person authored work", confidence: 0.9, status: "accepted" },
+      { id: "relationship:1", type: "Relationship", label: "Arendt authored Origins", source: { entityType: "Person", entityId: "person:arendt" }, target: { entityType: "Work", entityId: "work:origins" }, relationshipType: "person authored work", confidence: 0.9, status: "accepted" },
       { id: "bad", type: "Person", label: "Missing fields", thinkerId: "bad", birth: "1900", death: null, fields: ["Philosophy"] },
     ]);
 
@@ -64,5 +65,26 @@ describe("knowledge model entities", () => {
       death: 1975,
       fields: ["Philosophy"],
     }]);
+  });
+
+  it("converts legacy person-to-person edges into typed relationship records", () => {
+    const relationship = buildRelationshipEntityFromInfluenceEdge({
+      source: "arendt",
+      target: "habermas",
+      type: "Indirect influence",
+      strength: 4,
+      confidence: 0.75,
+      status: "accepted",
+      sourceClaims: ["claim:arendt-habermas"],
+    });
+
+    expect(relationship).toMatchObject({
+      id: "relationship:person:arendt:Indirect influence:person:habermas",
+      type: "Relationship",
+      source: { entityType: "Person", entityId: "person:arendt" },
+      target: { entityType: "Person", entityId: "person:habermas" },
+      relationshipType: "Indirect influence",
+      claimIds: ["claim:arendt-habermas"],
+    });
   });
 });

@@ -1,6 +1,7 @@
-import { InfluenceEdge, Thinker } from "./types";
+import { InfluenceEdge, RelationshipEndpointType, Thinker } from "./types";
 
 const EDGE_STATUSES: Array<NonNullable<InfluenceEdge["status"]>> = ["suggested", "accepted", "rejected", "needs_source"];
+const RELATIONSHIP_ENDPOINT_TYPES: RelationshipEndpointType[] = ["Person", "Work", "Concept", "Movement", "Institution"];
 
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value);
@@ -10,6 +11,17 @@ const isStringArray = (value: unknown): value is string[] =>
 
 const normalizeOptionalString = (value: unknown) =>
   typeof value === "string" ? value : null;
+
+const normalizeEndpointType = (value: unknown): RelationshipEndpointType =>
+  typeof value === "string" && RELATIONSHIP_ENDPOINT_TYPES.includes(value as RelationshipEndpointType)
+    ? value as RelationshipEndpointType
+    : "Person";
+
+const hasValidEndpoint = (
+  id: unknown,
+  type: RelationshipEndpointType,
+  peopleIds: Set<string>
+) => typeof id === "string" && (type !== "Person" || peopleIds.has(id));
 
 export const normalizeStoredPeople = (value: unknown): Thinker[] => {
   if (!Array.isArray(value)) return [];
@@ -54,13 +66,15 @@ export const normalizeStoredEdges = (value: unknown, people: Thinker[]): Influen
   return value
     .filter((item): item is Partial<InfluenceEdge> => Boolean(item) && typeof item === "object")
     .map((item): InfluenceEdge | null => {
+      const sourceEntityType = normalizeEndpointType(item.sourceEntityType);
+      const targetEntityType = normalizeEndpointType(item.targetEntityType);
       if (
         typeof item.source !== "string" ||
         typeof item.target !== "string" ||
         typeof item.type !== "string" ||
         !isFiniteNumber(item.strength) ||
-        !peopleIds.has(item.source) ||
-        !peopleIds.has(item.target)
+        !hasValidEndpoint(item.source, sourceEntityType, peopleIds) ||
+        !hasValidEndpoint(item.target, targetEntityType, peopleIds)
       ) {
         return null;
       }
@@ -70,8 +84,11 @@ export const normalizeStoredEdges = (value: unknown, people: Thinker[]): Influen
         : undefined;
 
       return {
+        id: typeof item.id === "string" ? item.id : `${item.source}:${item.type}:${item.target}`,
         source: item.source,
         target: item.target,
+        sourceEntityType,
+        targetEntityType,
         type: item.type,
         strength: item.strength,
         note: normalizeOptionalString(item.note),

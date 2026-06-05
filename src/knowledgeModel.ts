@@ -1,11 +1,13 @@
 import {
   ConceptEntity,
+  InfluenceEdge,
   InstitutionEntity,
   KnowledgeEntity,
   KnowledgeEntityType,
   MovementEntity,
   PersonEntity,
   RelationshipEntity,
+  RelationshipEndpointType,
   SourceClaimEntity,
   Thinker,
   WorkEntity,
@@ -157,9 +159,11 @@ const normalizeSourceClaimEntity = (value: Record<string, unknown>): SourceClaim
 const normalizeRelationshipEntity = (value: Record<string, unknown>): RelationshipEntity | null => {
   if (!hasEntityBase(value, "Relationship")) return null;
   const relationshipStatuses = ["suggested", "accepted", "rejected", "needs_source"];
+  const source = normalizeRelationshipEndpoint(value.source);
+  const target = normalizeRelationshipEndpoint(value.target);
   if (
-    typeof value.sourceId !== "string" ||
-    typeof value.targetId !== "string" ||
+    !source ||
+    !target ||
     typeof value.relationshipType !== "string"
   ) {
     return null;
@@ -170,12 +174,64 @@ const normalizeRelationshipEntity = (value: Record<string, unknown>): Relationsh
     type: "Relationship",
     label: value.label,
     claimIds: normalizeClaimIds(value.claimIds),
-    sourceId: value.sourceId,
-    targetId: value.targetId,
+    source,
+    target,
     relationshipType: value.relationshipType,
     strength: isFiniteNumber(value.strength) ? value.strength : undefined,
     confidence: normalizeConfidence(value.confidence),
     status: relationshipStatuses.includes(String(value.status)) ? value.status as RelationshipEntity["status"] : undefined,
+  };
+};
+
+const RELATIONSHIP_ENDPOINT_TYPES: RelationshipEndpointType[] = [
+  "Person",
+  "Work",
+  "Concept",
+  "Movement",
+  "Institution",
+];
+
+const normalizeRelationshipEndpoint = (value: unknown) => {
+  if (!isRecord(value) || typeof value.entityId !== "string") return null;
+  if (!RELATIONSHIP_ENDPOINT_TYPES.includes(value.entityType as RelationshipEndpointType)) return null;
+  return {
+    entityId: value.entityId,
+    entityType: value.entityType as RelationshipEndpointType,
+  };
+};
+
+export const getRelationshipRecordId = (
+  sourceId: string,
+  targetId: string,
+  relationshipType: string
+) => `relationship:${sourceId}:${relationshipType}:${targetId}`;
+
+const getPersonEntityId = (personId: string) =>
+  personId.startsWith("person:") ? personId : `person:${personId}`;
+
+export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
+  const sourceEntityType = edge.sourceEntityType || "Person";
+  const targetEntityType = edge.targetEntityType || "Person";
+  const sourceEntityId = sourceEntityType === "Person" ? getPersonEntityId(edge.source) : edge.source;
+  const targetEntityId = targetEntityType === "Person" ? getPersonEntityId(edge.target) : edge.target;
+
+  return {
+    id: edge.id || getRelationshipRecordId(sourceEntityId, targetEntityId, edge.type),
+    type: "Relationship",
+    label: `${sourceEntityId} ${edge.type} ${targetEntityId}`,
+    source: {
+      entityId: sourceEntityId,
+      entityType: sourceEntityType,
+    },
+    target: {
+      entityId: targetEntityId,
+      entityType: targetEntityType,
+    },
+    relationshipType: edge.type,
+    strength: edge.strength,
+    confidence: edge.confidence,
+    status: edge.status,
+    claimIds: edge.sourceClaims || [],
   };
 };
 

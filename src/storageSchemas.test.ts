@@ -38,7 +38,27 @@ describe("localStorage schema normalization", () => {
     ], people);
 
     expect(edges).toHaveLength(1);
+    expect(edges[0].id).toBe("source:Influence:target");
+    expect(edges[0].sourceEntityType).toBe("Person");
+    expect(edges[0].targetEntityType).toBe("Person");
     expect(edges[0].confidence).toBe(1);
     expect(edges[0].sourceClaims).toEqual(["https://example.com"]);
+  });
+
+  it("preserves typed relationship endpoints for expanded graph records", () => {
+    const people = normalizeStoredPeople([
+      { id: "source", name: "Source", birth: 1900, death: null, fields: ["Philosophy"] },
+      { id: "target", name: "Target", birth: 1910, death: null, fields: ["Philosophy"] },
+    ]);
+
+    const edges = normalizeStoredEdges([
+      { id: "relationship:work-person", source: "work:book", target: "target", sourceEntityType: "Work", targetEntityType: "Person", type: "work influenced person", strength: 4 },
+    ], people);
+
+    expect(edges[0]).toMatchObject({
+      id: "relationship:work-person",
+      sourceEntityType: "Work",
+      targetEntityType: "Person",
+    });
   });
 });

@@ -65,9 +65,19 @@ export interface InstitutionEntity extends KnowledgeEntityBase {
   figureIds?: string[];
 }
 
+export type RelationshipEndpointType = Exclude<KnowledgeEntityType, "SourceClaim" | "Relationship">;
+
+export interface RelationshipEndpoint {
+  entityId: string;
+  entityType: RelationshipEndpointType;
+}
+
 export interface InfluenceEdge {
+  id?: string;
   source: string;
   target: string;
+  sourceEntityType?: RelationshipEndpointType;
+  targetEntityType?: RelationshipEndpointType;
   type: string;
   strength: number;
   note?: string | null;
@@ -78,8 +88,8 @@ export interface InfluenceEdge {
 
 export interface RelationshipEntity extends KnowledgeEntityBase {
   type: "Relationship";
-  sourceId: string;
-  targetId: string;
+  source: RelationshipEndpoint;
+  target: RelationshipEndpoint;
   relationshipType: string;
   strength?: number;
   confidence?: number;
