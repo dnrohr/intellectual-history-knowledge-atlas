@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  aggregateSourceClaimsBySubject,
   buildRelationshipEntityFromInfluenceEdge,
   buildConceptEntitiesFromThinkers,
   buildInstitutionEntities,
@@ -8,6 +9,7 @@ import {
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
   getConceptEntityId,
+  getAggregatedClaimIdsForSubject,
   getInstitutionEntityId,
   getMovementEntityId,
   getWorkEntityId,
@@ -273,5 +275,47 @@ describe("knowledge model entities", () => {
         figureIds: ["person:einstein", "person:godel"],
       },
     ]);
+  });
+
+  it("aggregates source claims per entity or relationship subject", () => {
+    const claims = normalizeKnowledgeEntities([
+      { id: "claim:person:1", type: "SourceClaim", label: "Birth claim", sourceName: "SEP", subjectEntityType: "Person", subjectEntityId: "person:arendt", field: "birth", value: "1906", confidence: 1, status: "accepted" },
+      { id: "claim:person:2", type: "SourceClaim", label: "Field claim", sourceName: "Wikidata", subjectEntityType: "Person", subjectEntityId: "person:arendt", field: "field", value: "Philosophy", confidence: 0.8, status: "candidate" },
+      { id: "claim:relationship:1", type: "SourceClaim", label: "Influence claim", sourceName: "Manual", subjectEntityType: "Relationship", subjectEntityId: "relationship:1", field: "relationshipType", value: "person influenced person", confidence: 0.6, status: "conflicting" },
+    ]).filter((entity) => entity.type === "SourceClaim");
+
+    const aggregations = aggregateSourceClaimsBySubject(claims);
+
+    expect(aggregations).toEqual([
+      {
+        subjectEntityId: "person:arendt",
+        subjectEntityType: "Person",
+        claimIds: ["claim:person:1", "claim:person:2"],
+        statusCounts: {
+          observed: 0,
+          candidate: 1,
+          accepted: 1,
+          rejected: 0,
+          stale: 0,
+          conflicting: 0,
+        },
+        averageConfidence: 0.9,
+      },
+      {
+        subjectEntityId: "relationship:1",
+        subjectEntityType: "Relationship",
+        claimIds: ["claim:relationship:1"],
+        statusCounts: {
+          observed: 0,
+          candidate: 0,
+          accepted: 0,
+          rejected: 0,
+          stale: 0,
+          conflicting: 1,
+        },
+        averageConfidence: 0.6,
+      },
+    ]);
+    expect(getAggregatedClaimIdsForSubject(aggregations, "relationship:1", "Relationship")).toEqual(["claim:relationship:1"]);
   });
 });

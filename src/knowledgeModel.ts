@@ -12,6 +12,7 @@ import {
   RelationshipEntity,
   RelationshipEndpointType,
   RelationshipTypeDefinition,
+  SourceClaimStatus,
   SourceClaimEntity,
   Thinker,
   WorkEntity,
@@ -261,6 +262,61 @@ export const relationshipEndpointsMatchType = (
   if (!definition) return true;
   return definition.sourceType === sourceType && definition.targetType === targetType;
 };
+
+export interface SourceClaimAggregation {
+  subjectEntityId: string;
+  subjectEntityType: SourceClaimEntity["subjectEntityType"];
+  claimIds: string[];
+  statusCounts: Record<SourceClaimStatus, number>;
+  averageConfidence: number;
+}
+
+const emptyStatusCounts = (): Record<SourceClaimStatus, number> => ({
+  observed: 0,
+  candidate: 0,
+  accepted: 0,
+  rejected: 0,
+  stale: 0,
+  conflicting: 0,
+});
+
+export const aggregateSourceClaimsBySubject = (
+  claims: SourceClaimEntity[]
+): SourceClaimAggregation[] => {
+  const aggregations = new Map<string, SourceClaimAggregation & { confidenceTotal: number }>();
+
+  claims.forEach((claim) => {
+    const key = `${claim.subjectEntityType}:${claim.subjectEntityId}`;
+    const existing = aggregations.get(key) || {
+      subjectEntityId: claim.subjectEntityId,
+      subjectEntityType: claim.subjectEntityType,
+      claimIds: [],
+      statusCounts: emptyStatusCounts(),
+      averageConfidence: 0,
+      confidenceTotal: 0,
+    };
+
+    existing.claimIds.push(claim.id);
+    existing.statusCounts[claim.status] += 1;
+    existing.confidenceTotal += claim.confidence;
+    existing.averageConfidence = existing.confidenceTotal / existing.claimIds.length;
+    aggregations.set(key, existing);
+  });
+
+  return Array.from(aggregations.values())
+    .map(({ confidenceTotal: _confidenceTotal, ...aggregation }) => aggregation)
+    .sort((a, b) => `${a.subjectEntityType}:${a.subjectEntityId}`.localeCompare(`${b.subjectEntityType}:${b.subjectEntityId}`));
+};
+
+export const getAggregatedClaimIdsForSubject = (
+  aggregations: SourceClaimAggregation[],
+  subjectEntityId: string,
+  subjectEntityType: SourceClaimEntity["subjectEntityType"]
+) =>
+  aggregations.find((aggregation) =>
+    aggregation.subjectEntityId === subjectEntityId &&
+    aggregation.subjectEntityType === subjectEntityType
+  )?.claimIds || [];
 
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
