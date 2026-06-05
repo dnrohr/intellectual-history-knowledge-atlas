@@ -207,7 +207,7 @@ Goal: make curated threads evidence-aware and reusable after typed relationships
   - confidence/source status
 - [x] Add thread labels to relationships so a single relationship can belong to multiple curated paths.
 - [x] Add a thread viewer that steps through a chain one relationship at a time.
-- [ ] Add thread-aware graph highlighting:
+- [x] Add thread-aware graph highlighting:
   - highlight the full thread
   - dim unrelated graph regions
   - show predecessor/current/successor context

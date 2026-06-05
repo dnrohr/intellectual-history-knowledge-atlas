@@ -2603,7 +2603,7 @@ export default function App() {
     const pairPath = path.slice(nextStep, nextStep + 2);
     setSelectedThreadId(thread.id);
     setSelectedThreadStep(nextStep);
-    setHighlightPath(pairPath);
+    setHighlightPath(path);
     selectPerson(pairPath[0], { preserveHighlight: true });
     setViewMode("split");
   };
