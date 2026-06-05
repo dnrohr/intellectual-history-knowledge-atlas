@@ -2568,6 +2568,7 @@ export default function App() {
     );
     return {
       ...thread,
+      stepEdges: pairEdges,
       edgeGapCount: pairEdges.filter((edge) => !edge).length,
       weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || (edge.sourceClaims || []).length === 0)).length,
     };
@@ -2595,18 +2596,19 @@ export default function App() {
   const removeTimelineBookmark = (id: string) => {
     setCustomTimelineBookmarks((current) => current.filter((bookmark) => bookmark.id !== id));
   };
-  const focusCanonicalThreadStep = (thread: (typeof canonicalThreads)[number], step: number) => {
+  const focusCanonicalThreadRelationshipStep = (thread: (typeof canonicalThreads)[number], step: number) => {
     const path = thread.resolvedPeople.map((person) => person.id);
-    const nextStep = Math.max(0, Math.min(thread.resolvedPeople.length - 1, step));
-    const contextPath = path.slice(Math.max(0, nextStep - 1), Math.min(path.length, nextStep + 2));
+    const maxRelationshipStep = Math.max(0, thread.resolvedPeople.length - 2);
+    const nextStep = Math.max(0, Math.min(maxRelationshipStep, step));
+    const pairPath = path.slice(nextStep, nextStep + 2);
     setSelectedThreadId(thread.id);
     setSelectedThreadStep(nextStep);
-    setHighlightPath(contextPath);
-    selectPerson(path[nextStep], { preserveHighlight: true });
+    setHighlightPath(pairPath);
+    selectPerson(pairPath[0], { preserveHighlight: true });
     setViewMode("split");
   };
   const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
-    focusCanonicalThreadStep(thread, 0);
+    focusCanonicalThreadRelationshipStep(thread, 0);
   };
   const edgeTypeOptions = Array.from(new Set(edges.map((edge) => edge.type).filter(Boolean))).sort();
   const edgeMatchesReviewFilters = (edge: InfluenceEdge) => {
@@ -4579,19 +4581,49 @@ export default function App() {
                             <div className="truncate font-mono text-[9px] uppercase tracking-wider text-slate-500">{activeCanonicalThread.title}</div>
                             <div className="mt-0.5 truncate text-[10px] font-mono text-slate-300">
                               {activeCanonicalThread.resolvedPeople[selectedThreadStep]?.name}
+                              {" -> "}
+                              {activeCanonicalThread.resolvedPeople[selectedThreadStep + 1]?.name || "End"}
                             </div>
                           </div>
                           <span className="shrink-0 rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500">
-                            {selectedThreadStep + 1} / {activeCanonicalThread.resolvedPeople.length}
+                            {Math.min(selectedThreadStep + 1, activeCanonicalThread.resolvedPeople.length - 1)} / {activeCanonicalThread.resolvedPeople.length - 1}
                           </span>
+                        </div>
+                        <div className="mt-2 rounded border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                          {(() => {
+                            const stepEdge = activeCanonicalThread.stepEdges[selectedThreadStep];
+                            const source = activeCanonicalThread.resolvedPeople[selectedThreadStep];
+                            const target = activeCanonicalThread.resolvedPeople[selectedThreadStep + 1];
+                            return (
+                              <>
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="truncate font-mono text-[9px] text-slate-300">
+                                    {source?.name}{" -> "}{target?.name || "Thread complete"}
+                                  </span>
+                                  <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-mono ${
+                                    stepEdge
+                                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                                      : "border-rose-500/30 bg-rose-500/10 text-rose-300"
+                                  }`}>
+                                    {stepEdge ? "mapped" : "gap"}
+                                  </span>
+                                </div>
+                                <div className="mt-1 truncate font-mono text-[8.5px] text-slate-600">
+                                  {stepEdge
+                                    ? `${stepEdge.type} / confidence ${stepEdge.confidence ?? 0.5} / ${(stepEdge.sourceClaims || stepEdge.claimIds || []).length} source claims`
+                                    : "No relationship edge currently connects this thread step."}
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                         <div className="mt-2 grid grid-cols-3 gap-1.5">
                           <button
-                            onClick={() => focusCanonicalThreadStep(activeCanonicalThread, selectedThreadStep - 1)}
+                            onClick={() => focusCanonicalThreadRelationshipStep(activeCanonicalThread, selectedThreadStep - 1)}
                             disabled={selectedThreadStep === 0}
                             className="rounded border border-[#252a3d] px-2 py-1 text-[8.5px] font-mono text-slate-400 hover:text-slate-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            Prev
+                            Prev Edge
                           </button>
                           <button
                             onClick={() => setHighlightPath(activeCanonicalThread.resolvedPeople.map((person) => person.id))}
@@ -4600,11 +4632,11 @@ export default function App() {
                             Full Thread
                           </button>
                           <button
-                            onClick={() => focusCanonicalThreadStep(activeCanonicalThread, selectedThreadStep + 1)}
-                            disabled={selectedThreadStep >= activeCanonicalThread.resolvedPeople.length - 1}
+                            onClick={() => focusCanonicalThreadRelationshipStep(activeCanonicalThread, selectedThreadStep + 1)}
+                            disabled={selectedThreadStep >= activeCanonicalThread.resolvedPeople.length - 2}
                             className="rounded border border-[#252a3d] px-2 py-1 text-[8.5px] font-mono text-slate-400 hover:text-slate-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            Next
+                            Next Edge
                           </button>
                         </div>
                         <div className="mt-2 truncate text-[8.5px] font-mono text-slate-600">
