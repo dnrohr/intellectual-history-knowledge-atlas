@@ -4398,6 +4398,7 @@ export default function App() {
                 ] as const).map(([tab, label]) => (
                   <button
                     key={tab}
+                    data-testid={`source-studio-tab-${tab}`}
                     onClick={() => setWorkbenchTab(tab)}
                     className={`rounded px-3 py-1.5 text-[10px] font-mono transition-colors cursor-pointer ${
                       workbenchTab === tab

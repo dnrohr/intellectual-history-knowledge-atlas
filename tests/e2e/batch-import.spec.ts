@@ -5,7 +5,7 @@ const openImportActivity = async (page: Page) => {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByTestId("workspace-sources").click();
-  await page.getByRole("button", { name: /Import/ }).click();
+  await page.getByTestId("source-studio-tab-manualOverrides").click();
 };
 
 const queuePastedRows = async (page: Page, rows: string[]) => {
@@ -14,7 +14,7 @@ const queuePastedRows = async (page: Page, rows: string[]) => {
 };
 
 const getStoredAtlasState = async (page: Page) =>
-  page.evaluate(() => JSON.parse(localStorage.getItem("atlas_state_v7") || "{}"));
+  page.evaluate(() => JSON.parse(localStorage.getItem("atlas_state_v8") || "{}"));
 
 test("queues pasted batch import rows for review", async ({ page }) => {
   await openImportActivity(page);

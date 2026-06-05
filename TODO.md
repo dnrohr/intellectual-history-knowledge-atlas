@@ -229,7 +229,7 @@ Goal: keep the UI aligned with the network-first, dossier-centered product direc
 - [x] Convert index, filters, path tools, and saved views into drawers, sheets, or command-menu surfaces.
 - [x] Add mobile-first panel behavior.
 - [x] Fix hop controls, label density controls, oversized toolbar behavior, and graph clamping issues.
-- [ ] Continue interaction QA for layout overflow, unreachable controls, hidden scroll regions, overlay collisions, and non-working buttons.
+- [x] Continue interaction QA for layout overflow, unreachable controls, hidden scroll regions, overlay collisions, and non-working buttons.
 - [ ] Add regression coverage whenever a visual control bug is found.
 - [ ] Revisit minimap/overview behavior for dense graph states after typed entities expand the graph.
 
