@@ -24,6 +24,10 @@ export type WikidataCandidate = {
   memberOf?: string[];
   sourceUrl: string;
   wikipediaUrl: string | null;
+  authorityIds?: {
+    viaf?: string[];
+    loc?: string[];
+  };
   wikidataClaims?: {
     instanceOf?: string[];
     occupations?: string[];
@@ -37,6 +41,8 @@ export type WikidataCandidate = {
     advisors?: string[];
     students?: string[];
     influencedBy?: string[];
+    viaf?: string[];
+    loc?: string[];
   };
 };
 

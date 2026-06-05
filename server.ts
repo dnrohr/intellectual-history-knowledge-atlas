@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import { normalizeAuthorityIdentifiers } from "./src/authorityIdentifiers";
 import { inferWikidataEntityType } from "./src/wikidataMapping";
 
 dotenv.config();
@@ -30,6 +31,12 @@ const claimIds = (claims: Record<string, any[]>, property: string, limit = 8) =>
     .slice(0, limit)
     .map((claim: any) => getEnglishValue(claim)?.id)
     .filter(Boolean);
+
+const claimStringValues = (claims: Record<string, any[]>, property: string, limit = 8) =>
+  (claims[property] || [])
+    .slice(0, limit)
+    .map((claim: any) => getEnglishValue(claim))
+    .filter((value: any) => typeof value === "string" && value.trim().length > 0);
 
 const getEntityLabels = async (ids: string[]) => {
   const uniqueIds = Array.from(new Set(ids)).filter(Boolean);
@@ -166,6 +173,10 @@ app.get("/api/import/wikidata/search", async (req, res) => {
       const employers = claimIds(claims, "P108", 6).map((claimId) => labels.get(claimId) || claimId);
       const educatedAt = claimIds(claims, "P69", 6).map((claimId) => labels.get(claimId) || claimId);
       const memberOf = claimIds(claims, "P463", 6).map((claimId) => labels.get(claimId) || claimId);
+      const authorityIds = normalizeAuthorityIdentifiers({
+        viaf: claimStringValues(claims, "P214", 4),
+        loc: claimStringValues(claims, "P244", 4),
+      });
       const text = [
         entity?.descriptions?.en?.value || "",
         ...occupations,
@@ -202,6 +213,7 @@ app.get("/api/import/wikidata/search", async (req, res) => {
         employers,
         educatedAt,
         memberOf,
+        authorityIds,
         wikidataClaims: {
           instanceOf,
           occupations,
@@ -215,6 +227,8 @@ app.get("/api/import/wikidata/search", async (req, res) => {
           advisors,
           students: [...doctoralStudents, ...students],
           influencedBy,
+          viaf: authorityIds.viaf,
+          loc: authorityIds.loc,
         },
         sourceUrl: `https://www.wikidata.org/wiki/${id}`,
         wikipediaUrl: entity?.sitelinks?.enwiki?.title
