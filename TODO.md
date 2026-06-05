@@ -15,6 +15,7 @@ Status notation:
 - Keep the Influence Atlas and scholar dossier as the primary exploration experience.
 - Reframe Source Studio as an automation, evidence, conflict, and override console rather than the main growth path for the dataset.
 - Make threads, paths, and lineages evidence-aware once typed relationships and claim records exist.
+- Add bulk edge validation so every relationship in the network can be structurally checked, evidence-scored, and routed to acceptance, repair, or review.
 
 Reference documents:
 - `docs/automated-validation-roadmap.md`
@@ -262,6 +263,54 @@ Goal: keep the app easy to share while making data provenance clear.
 - [x] Add private local data warning where appropriate.
 - [x] Add import/export so users can carry data between local, Codespaces, and hosted instances.
 - [x] Revisit hosted demo persistence once automated validation and canonical dataset generation are in place.
+
+### 13. Bulk Edge Validation
+
+Goal: validate every network edge at scale, separating fast structural failures from source-backed historical/evidentiary review.
+
+- [ ] Define a bulk edge validation result model with:
+  - edge identity and endpoints
+  - structural status
+  - evidence status
+  - chronology status
+  - source-claim coverage
+  - confidence score
+  - recommended action
+  - blocking reasons
+- [ ] Add a deterministic validator for structural edge checks:
+  - schema errors
+  - missing source or target IDs
+  - self-links
+  - impossible chronology
+  - duplicate same-direction edges
+  - duplicate opposite-direction conflicts
+  - invalid relationship types
+- [ ] Add evidence coverage checks for every edge:
+  - missing claim IDs or source URLs
+  - stale source claims
+  - rejected or conflicting claims attached to accepted edges
+  - weak confidence on high-impact edges
+  - source claims that support only endpoint existence rather than the relationship
+- [ ] Add relationship-type-specific validation rules for:
+  - direct influence
+  - indirect influence
+  - mentorship
+  - collaboration
+  - source-context neighbor
+  - parallel development
+  - canonical-thread edges
+- [ ] Generate a bulk validation report grouped by:
+  - accepted
+  - needs source
+  - demote to provisional
+  - reject
+  - conflicting
+  - manual review required
+- [ ] Add dry-run repair decisions from bulk validation findings.
+- [ ] Add snapshot and boundary tests for the bulk edge validator.
+- [ ] Wire bulk edge validation into CI for structural failures.
+- [ ] Add Source Studio visibility for bulk validation status, report export, and repair preview actions.
+- [ ] Add documentation for the edge validation policy and review workflow.
 
 ## Completed Milestones
 
