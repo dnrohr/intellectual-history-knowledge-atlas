@@ -170,3 +170,47 @@ export const createAcceptedByPolicyMetadata = (
   score,
   threshold,
 });
+
+export type AcceptanceDecision = "accepted" | "provisional" | "rejected";
+
+export interface EvaluateAcceptanceInput {
+  policyName: string;
+  score: number;
+  threshold: AcceptanceThreshold;
+  dryRun?: boolean;
+  rejectionReasons?: string[];
+  now?: string;
+}
+
+export interface AcceptanceEvaluation {
+  decision: AcceptanceDecision;
+  dryRun: boolean;
+  rejectionReasons: string[];
+  metadata?: AcceptedByPolicyMetadata;
+}
+
+export const evaluateAcceptancePolicy = ({
+  policyName,
+  score,
+  threshold,
+  dryRun = false,
+  rejectionReasons = [],
+  now,
+}: EvaluateAcceptanceInput): AcceptanceEvaluation => {
+  if (rejectionReasons.length > 0) {
+    return { decision: "rejected", dryRun, rejectionReasons };
+  }
+  if (score >= threshold.accept) {
+    return {
+      decision: "accepted",
+      dryRun,
+      rejectionReasons: [],
+      metadata: dryRun ? undefined : createAcceptedByPolicyMetadata(policyName, score, threshold.accept, now),
+    };
+  }
+  return {
+    decision: score >= threshold.provisional ? "provisional" : "rejected",
+    dryRun,
+    rejectionReasons: [],
+  };
+};

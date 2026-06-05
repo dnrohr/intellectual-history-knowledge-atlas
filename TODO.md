@@ -154,7 +154,7 @@ Goal: decide what can be accepted automatically, what should remain provisional,
 - [x] Use looser thresholds for basic metadata, stable external IDs, works with stable identifiers, and institution affiliations with direct source support.
 - [x] Add automatic rejection for self-links, impossible chronology, duplicate opposite-direction edges, and unsupported direct influence from shared tags alone.
 - [x] Add "accepted by policy" metadata to automatically accepted claims.
-- [ ] Add dry-run mode for automated acceptance.
+- [x] Add dry-run mode for automated acceptance.
 - [ ] Add tests for evidence scoring and acceptance/rejection policy boundaries.
 
 ### 7. Graph Quality Audits And Repair

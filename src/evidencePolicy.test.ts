@@ -5,6 +5,7 @@ import {
   applyStrictAcceptanceModifiers,
   composeEvidenceConfidence,
   createAcceptedByPolicyMetadata,
+  evaluateAcceptancePolicy,
   getAcceptanceThreshold,
   getAutomaticRejectionReasons,
   normalizeEvidenceConfidence,
@@ -92,6 +93,34 @@ describe("evidence policy", () => {
       policyName: "basic-metadata-v1",
       acceptedAt: "2026-06-05T00:00:00.000Z",
       score: 0.82,
+      threshold: 0.75,
+    });
+  });
+
+  it("supports dry-run mode for automated acceptance", () => {
+    expect(evaluateAcceptancePolicy({
+      policyName: "basic-metadata-v1",
+      score: 0.9,
+      threshold: { accept: 0.75, provisional: 0.55 },
+      dryRun: true,
+      now: "2026-06-05T00:00:00.000Z",
+    })).toEqual({
+      decision: "accepted",
+      dryRun: true,
+      rejectionReasons: [],
+      metadata: undefined,
+    });
+
+    expect(evaluateAcceptancePolicy({
+      policyName: "basic-metadata-v1",
+      score: 0.9,
+      threshold: { accept: 0.75, provisional: 0.55 },
+      now: "2026-06-05T00:00:00.000Z",
+    }).metadata).toEqual({
+      acceptedByPolicy: true,
+      policyName: "basic-metadata-v1",
+      acceptedAt: "2026-06-05T00:00:00.000Z",
+      score: 0.9,
       threshold: 0.75,
     });
   });
