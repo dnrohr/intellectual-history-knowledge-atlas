@@ -122,15 +122,39 @@ export interface RelationshipEntity extends KnowledgeEntityBase {
   status?: InfluenceEdge["status"];
 }
 
+export type ThreadConfidence = "high" | "medium" | "needs-review";
+export type ThreadSourceStatus = "sourced" | "partial" | "needs-source";
+
+export interface ThreadEntityRef {
+  entityId: string;
+  entityType: RelationshipEndpointType;
+  label?: string;
+}
+
+export interface Thread {
+  id: string;
+  title: string;
+  shortPurpose: string;
+  orderedEntities: ThreadEntityRef[];
+  keyWorks: string[];
+  keyConcepts: string[];
+  edgeTypes: string[];
+  confidence: ThreadConfidence;
+  sourceStatus: ThreadSourceStatus;
+}
+
 export interface CanonicalThread {
   id: string;
   title: string;
   field: string;
   purpose: string;
+  shortPurpose?: string;
   people: string[];
   concepts: string[];
+  keyWorks?: string[];
   edgeTypes: string[];
-  confidence: "high" | "medium" | "needs-review";
+  confidence: ThreadConfidence;
+  sourceStatus?: ThreadSourceStatus;
 }
 
 export type SourceClaimStatus = "observed" | "candidate" | "accepted" | "rejected" | "stale" | "conflicting";

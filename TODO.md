@@ -198,7 +198,7 @@ Goal: make Source Studio the place to inspect automation state, not the main way
 
 Goal: make curated threads evidence-aware and reusable after typed relationships exist.
 
-- [ ] Define a `Thread` concept for curated followable chains:
+- [x] Define a `Thread` concept for curated followable chains:
   - title
   - short purpose
   - ordered entities

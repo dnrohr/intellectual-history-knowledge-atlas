@@ -1,4 +1,26 @@
-import { CanonicalThread } from "./types";
+import { CanonicalThread, Thread, ThreadSourceStatus } from "./types";
+
+const inferThreadSourceStatus = (thread: CanonicalThread): ThreadSourceStatus => {
+  if (thread.sourceStatus) return thread.sourceStatus;
+  if (thread.confidence === "high") return "sourced";
+  if (thread.confidence === "medium") return "partial";
+  return "needs-source";
+};
+
+export const buildThreadFromCanonical = (thread: CanonicalThread): Thread => ({
+  id: thread.id,
+  title: thread.title,
+  shortPurpose: thread.shortPurpose || thread.purpose,
+  orderedEntities: thread.people.map((personId) => ({
+    entityId: personId,
+    entityType: "Person",
+  })),
+  keyWorks: thread.keyWorks || [],
+  keyConcepts: thread.concepts,
+  edgeTypes: thread.edgeTypes,
+  confidence: thread.confidence,
+  sourceStatus: inferThreadSourceStatus(thread),
+});
 
 export const CANONICAL_THREADS: CanonicalThread[] = [
   {
@@ -342,3 +364,5 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
     confidence: "medium",
   },
 ];
+
+export const THREADS: Thread[] = CANONICAL_THREADS.map(buildThreadFromCanonical);
