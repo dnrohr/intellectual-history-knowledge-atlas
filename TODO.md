@@ -423,7 +423,7 @@ Status notation:
   - [x] timeline drag behavior
 - [x] Add CI with lint/build/test.
 - [x] Add bundle splitting to reduce main JS size.
-- Add error boundaries.
+- [x] Add error boundaries.
 - Add runtime schema checks for localStorage data.
 - Add localStorage migration system.
 - Add development seed reset/import tools.
