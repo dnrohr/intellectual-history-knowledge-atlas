@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scoreNamedEntityMatch, scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
+import { classifyEntityMergeDecision, scoreNamedEntityMatch, scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
 
 describe("entity resolution", () => {
   it("scores person matches from names, dates, external IDs, and context overlap", () => {
@@ -138,5 +138,12 @@ describe("entity resolution", () => {
       score: 0.6,
       reasons: ["label", "broader-term", "field"],
     });
+  });
+
+  it("classifies merge decisions from thresholds and conflicts", () => {
+    expect(classifyEntityMergeDecision({ score: 0.9, reasons: ["doi"] })).toBe("auto-merge");
+    expect(classifyEntityMergeDecision({ score: 0.6, reasons: ["label"] })).toBe("provisional-merge");
+    expect(classifyEntityMergeDecision({ score: 0.2, reasons: [] })).toBe("keep-separate");
+    expect(classifyEntityMergeDecision({ score: 0.95, reasons: ["name"] }, undefined, true)).toBe("conflict");
   });
 });

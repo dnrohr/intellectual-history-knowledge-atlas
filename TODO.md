@@ -107,7 +107,7 @@ Goal: automatically identify when source observations refer to the same underlyi
 - [x] Score person matches using normalized names, alternate names, dates, fields, occupations, external IDs, works, institutions, and movements.
 - [x] Score work matches using title, author, date, DOI, ISBN, OpenAlex ID, Wikidata ID, and translated titles.
 - [x] Score institution, movement, and concept matches with type-specific rules.
-- [ ] Add automatic merge thresholds:
+- [x] Add automatic merge thresholds:
   - auto-merge
   - provisional merge
   - keep separate

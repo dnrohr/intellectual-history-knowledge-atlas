@@ -19,6 +19,13 @@ export interface EntityMatchScore {
   reasons: string[];
 }
 
+export type EntityMergeDecision = "auto-merge" | "provisional-merge" | "keep-separate" | "conflict";
+
+export interface EntityMergeThresholds {
+  autoMerge: number;
+  provisionalMerge: number;
+}
+
 export interface WorkMatchProfile {
   id: string;
   title: string;
@@ -219,4 +226,15 @@ export const scoreNamedEntityMatch = (
     score: Math.min(1, Number(score.toFixed(3))),
     reasons,
   };
+};
+
+export const classifyEntityMergeDecision = (
+  match: EntityMatchScore,
+  thresholds: EntityMergeThresholds = { autoMerge: 0.85, provisionalMerge: 0.55 },
+  hasConflict = false
+): EntityMergeDecision => {
+  if (hasConflict) return "conflict";
+  if (match.score >= thresholds.autoMerge) return "auto-merge";
+  if (match.score >= thresholds.provisionalMerge) return "provisional-merge";
+  return "keep-separate";
 };
