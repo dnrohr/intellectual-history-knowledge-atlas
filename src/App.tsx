@@ -30,6 +30,12 @@ import {
 import { scoreCandidateRelationship } from "./relationshipScoring";
 import { findDuplicateCandidateId, normalizeEntityName } from "./duplicateDetection";
 import { scoreCandidateConfidence } from "./importConfidence";
+import {
+  buildGraphHealthReport,
+  createGraphRepairPreview,
+  getDryRunRepairJobTriggers,
+  planWeakUnsupportedEdgeDemotions,
+} from "./graphQuality";
 import { loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
 import { PUBLIC_DEMO_MODE } from "./runtimeConfig";
 import { 
@@ -2893,6 +2899,21 @@ export default function App() {
   );
   const importQueueDuplicateCount = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate)).length;
   const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < importConfidenceThreshold).length;
+  const graphHealthReport = buildGraphHealthReport(people, edges, [], CANONICAL_THREADS);
+  const graphRepairTriggers = getDryRunRepairJobTriggers(graphHealthReport.findings);
+  const graphRepairPreview = createGraphRepairPreview("repair:source-studio-dry-run", planWeakUnsupportedEdgeDemotions(edges));
+  const evidenceCoveragePercent = Math.round(graphHealthReport.metrics.sourcedEdgePercentage * 100);
+  const conflictFindingCount = graphHealthReport.findings.filter((finding) =>
+    finding.code === "duplicate-entity-risk" ||
+    finding.code === "dangling-reference" ||
+    finding.code === "impossible-dates"
+  ).length;
+  const automationConflictCount = conflictFindingCount + duplicateCandidates.length + importQueueDuplicateCount;
+  const automationHoldCount = sourceGapEdges.length + importQueueLowConfidenceCount + graphHealthReport.summary.warning;
+  const automationAcceptedCount = importQueueAcceptableItems.length + highConfidenceSuggestions.length;
+  const topAutomationFindings = graphHealthReport.findings
+    .filter((finding) => finding.severity !== "info")
+    .slice(0, 4);
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
       
@@ -4131,7 +4152,7 @@ export default function App() {
                 <div>
                   <h4 className="font-mono text-[10px] text-emerald-300 uppercase tracking-wider font-bold">Source Studio</h4>
                   <p className="text-[10px] text-slate-500 font-mono mt-0.5">
-                    {effectiveWorkbenchPanelMode} workspace for imports, review queues, source audit, and export/restore.
+                    {effectiveWorkbenchPanelMode} automation console for evidence coverage, conflicts, repair previews, and admin recovery.
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -4161,9 +4182,9 @@ export default function App() {
 
               <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-1">
                 {([
-                  ["imports", `Import ${importReviewQueue.length} queued`],
                   ["links", `Review ${suggestedLinks.length + unlinkedThinkers.length + sparseThinkers.length + duplicateCandidates.length}`],
                   ["tags", `Sources ${sourceGapEdges.length}`],
+                  ["imports", `Admin import ${importReviewQueue.length}`],
                   ["export", "Export"],
                 ] as const).map(([tab, label]) => (
                   <button
@@ -4178,6 +4199,139 @@ export default function App() {
                     {label}
                   </button>
                 ))}
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
+                <button
+                  onClick={openSourceGapsView}
+                  className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-violet-400/50 hover:bg-[#111520] cursor-pointer"
+                  title="Show relationships that need source coverage or stronger confidence"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Evidence Coverage</span>
+                    <span className="rounded border border-violet-400/30 bg-violet-400/10 px-1.5 py-0.5 text-[8px] font-mono text-violet-200">
+                      {evidenceCoveragePercent}%
+                    </span>
+                  </div>
+                  <div className="mt-2 font-serif text-xl font-bold text-slate-100">{sourceGapEdges.length}</div>
+                  <div className="mt-0.5 truncate font-mono text-[9px] text-slate-600">edges held for source review</div>
+                </button>
+
+                <button
+                  onClick={() => setWorkbenchTab("links")}
+                  className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-emerald-400/50 hover:bg-[#111520] cursor-pointer"
+                  title="Inspect queued and high-confidence relationship candidates"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Candidate Relationships</span>
+                    <span className="rounded border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-mono text-emerald-200">
+                      {linkReviewQueue.length} queued
+                    </span>
+                  </div>
+                  <div className="mt-2 font-serif text-xl font-bold text-slate-100">{automationAcceptedCount}</div>
+                  <div className="mt-0.5 truncate font-mono text-[9px] text-slate-600">ready or high-confidence claims</div>
+                </button>
+
+                <button
+                  onClick={() => setWorkbenchTab("duplicates")}
+                  className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-rose-400/50 hover:bg-[#111520] cursor-pointer"
+                  title="Review duplicate and impossible-reference conflict risk"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Conflicts</span>
+                    <span className="rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[8px] font-mono text-rose-200">
+                      {graphHealthReport.summary.critical} critical
+                    </span>
+                  </div>
+                  <div className="mt-2 font-serif text-xl font-bold text-slate-100">{automationConflictCount}</div>
+                  <div className="mt-0.5 truncate font-mono text-[9px] text-slate-600">duplicate or invalid-record risks</div>
+                </button>
+
+                <button
+                  onClick={() => setWorkbenchTab("tags")}
+                  className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-amber-400/50 hover:bg-[#111520] cursor-pointer"
+                  title="Preview repair jobs before changing canonical data"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Repair Preview</span>
+                    <span className="rounded border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-200">
+                      {graphRepairTriggers.length} triggers
+                    </span>
+                  </div>
+                  <div className="mt-2 font-serif text-xl font-bold text-slate-100">{graphRepairPreview.diffs.length}</div>
+                  <div className="mt-0.5 truncate font-mono text-[9px] text-slate-600">dry-run edge diffs available</div>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+                <div className="rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Automation State</span>
+                    <span className="font-mono text-[8.5px] text-slate-600">{graphHealthReport.findings.length} findings</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div className="rounded border border-emerald-500/25 bg-emerald-500/10 px-2 py-1.5">
+                      <div className="font-mono text-[8px] uppercase text-emerald-300">Accepted</div>
+                      <div className="font-serif text-lg font-bold text-slate-100">{automationAcceptedCount}</div>
+                    </div>
+                    <div className="rounded border border-amber-500/25 bg-amber-500/10 px-2 py-1.5">
+                      <div className="font-mono text-[8px] uppercase text-amber-300">Held</div>
+                      <div className="font-serif text-lg font-bold text-slate-100">{automationHoldCount}</div>
+                    </div>
+                    <div className="rounded border border-rose-500/25 bg-rose-500/10 px-2 py-1.5">
+                      <div className="font-mono text-[8px] uppercase text-rose-300">Conflicting</div>
+                      <div className="font-serif text-lg font-bold text-slate-100">{automationConflictCount}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Conflict Feed</span>
+                    <span className="font-mono text-[8.5px] text-slate-600">{topAutomationFindings.length}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {topAutomationFindings.length > 0 ? topAutomationFindings.map((finding) => (
+                      <div key={`${finding.code}-${finding.targetId}`} className="rounded border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate font-mono text-[9px] text-slate-300">{finding.code}</span>
+                          <span className={`shrink-0 rounded border px-1 py-0.5 text-[7.5px] font-mono ${
+                            finding.severity === "critical"
+                              ? "border-rose-500/30 bg-rose-500/10 text-rose-300"
+                              : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                          }`}>
+                            {finding.severity}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 truncate font-mono text-[8px] text-slate-600">{finding.targetId}</div>
+                      </div>
+                    )) : (
+                      <div className="rounded border border-[#252a3d] bg-[#0e1119] px-2 py-2 font-mono text-[9px] text-slate-600">
+                        No blocking conflict findings.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Repair Diffs</span>
+                    <span className="font-mono text-[8.5px] text-slate-600">{graphRepairPreview.applied ? "applied" : "dry run"}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {graphRepairPreview.diffs.slice(0, 3).map((diff) => (
+                      <div key={`${diff.action}-${diff.edge.source}-${diff.edge.target}`} className="rounded border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                        <div className="truncate font-mono text-[9px] text-slate-300">{diff.edge.source}{" -> "}{diff.edge.target}</div>
+                        <div className="mt-0.5 truncate font-mono text-[8px] text-slate-600">{diff.reason}</div>
+                      </div>
+                    ))}
+                    {graphRepairPreview.diffs.length === 0 && (
+                      <div className="rounded border border-[#252a3d] bg-[#0e1119] px-2 py-2 font-mono text-[9px] text-slate-600">
+                        No weak unsupported edges ready for demotion.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {reviewUndoSnapshot && (

@@ -181,7 +181,7 @@ Goal: detect quality problems and repair common issues when confidence is high e
 
 Goal: make Source Studio the place to inspect automation state, not the main way the graph grows.
 
-- [ ] Replace manual-import emphasis with automation status, evidence coverage, conflicts, and repair previews.
+- [x] Replace manual-import emphasis with automation status, evidence coverage, conflicts, and repair previews.
 - [ ] Add tabs or modes for:
   - Source health
   - Claim conflicts
