@@ -455,7 +455,7 @@ Status notation:
 - [x] Write deployment guide.
 - [x] Write Codespaces guide with update steps.
 - [x] Add screenshots/GIFs once UI stabilizes.
-- Add changelog.
+- [x] Add changelog.
 
 ## Tasks Codex Can Do Autonomously With Proper Privileges
 
