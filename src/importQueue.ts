@@ -1,5 +1,6 @@
 export type WikidataCandidate = {
   id: string;
+  entityType?: "Person" | "Work" | "Concept" | "Movement" | "Institution";
   name: string;
   description: string;
   birth: number | null;
@@ -11,6 +12,10 @@ export type WikidataCandidate = {
   era?: string | null;
   movement?: string | null;
   works?: string[];
+  institutions?: string[];
+  movements?: string[];
+  concepts?: string[];
+  awards?: string[];
   advisors?: string[];
   students?: string[];
   influencedBy?: string[];
@@ -19,6 +24,20 @@ export type WikidataCandidate = {
   memberOf?: string[];
   sourceUrl: string;
   wikipediaUrl: string | null;
+  wikidataClaims?: {
+    instanceOf?: string[];
+    occupations?: string[];
+    fieldsOfWork?: string[];
+    notableWorks?: string[];
+    movements?: string[];
+    awards?: string[];
+    employers?: string[];
+    educatedAt?: string[];
+    memberOf?: string[];
+    advisors?: string[];
+    students?: string[];
+    influencedBy?: string[];
+  };
 };
 
 export type ImportReviewStatus = "queued" | "edited" | "accepted" | "skipped" | "duplicate";

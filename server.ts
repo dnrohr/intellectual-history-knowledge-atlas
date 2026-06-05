@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import { inferWikidataEntityType } from "./src/wikidataMapping";
 
 dotenv.config();
 
@@ -129,10 +130,12 @@ app.get("/api/import/wikidata/search", async (req, res) => {
       const claims = entityJson.entities?.[id]?.claims || {};
       labelIds.push(
         ...claimIds(claims, "P106"),
+        ...claimIds(claims, "P31", 4),
         ...claimIds(claims, "P101"),
         ...claimIds(claims, "P27", 3),
         ...claimIds(claims, "P135", 4),
         ...claimIds(claims, "P800", 6),
+        ...claimIds(claims, "P166", 6),
         ...claimIds(claims, "P184", 6),
         ...claimIds(claims, "P185", 6),
         ...claimIds(claims, "P802", 6),
@@ -149,11 +152,13 @@ app.get("/api/import/wikidata/search", async (req, res) => {
       const claims = entity?.claims || {};
       const birth = parseWikidataYear(getEnglishValue(claims.P569?.[0])?.time);
       const death = parseWikidataYear(getEnglishValue(claims.P570?.[0])?.time);
+      const instanceOf = claimIds(claims, "P31", 4).map((claimId) => labels.get(claimId) || claimId);
       const occupations = claimIds(claims, "P106").map((claimId) => labels.get(claimId) || claimId);
       const fieldsOfWork = claimIds(claims, "P101").map((claimId) => labels.get(claimId) || claimId);
       const countries = claimIds(claims, "P27", 3).map((claimId) => labels.get(claimId) || claimId);
       const movements = claimIds(claims, "P135", 4).map((claimId) => labels.get(claimId) || claimId);
       const notableWorks = claimIds(claims, "P800", 6).map((claimId) => labels.get(claimId) || claimId);
+      const awards = claimIds(claims, "P166", 6).map((claimId) => labels.get(claimId) || claimId);
       const advisors = claimIds(claims, "P184", 6).map((claimId) => labels.get(claimId) || claimId);
       const doctoralStudents = claimIds(claims, "P185", 6).map((claimId) => labels.get(claimId) || claimId);
       const students = claimIds(claims, "P802", 6).map((claimId) => labels.get(claimId) || claimId);
@@ -167,8 +172,14 @@ app.get("/api/import/wikidata/search", async (req, res) => {
         ...fieldsOfWork,
       ].join(" ");
       const inferredField = inferField(text);
+      const entityType = inferWikidataEntityType({
+        description: entity?.descriptions?.en?.value || "",
+        instanceOf,
+        hasBirthDate: birth !== null,
+      });
       return {
         id,
+        entityType,
         name: entity?.labels?.en?.value || id,
         description: entity?.descriptions?.en?.value || "",
         birth,
@@ -179,6 +190,10 @@ app.get("/api/import/wikidata/search", async (req, res) => {
         era: inferEra(birth),
         movement: movements[0] || null,
         works: notableWorks,
+        institutions: Array.from(new Set([...employers, ...educatedAt, ...memberOf])),
+        movements,
+        concepts: fieldsOfWork,
+        awards,
         occupations,
         fieldsOfWork,
         advisors,
@@ -187,6 +202,20 @@ app.get("/api/import/wikidata/search", async (req, res) => {
         employers,
         educatedAt,
         memberOf,
+        wikidataClaims: {
+          instanceOf,
+          occupations,
+          fieldsOfWork,
+          notableWorks,
+          movements,
+          awards,
+          employers,
+          educatedAt,
+          memberOf,
+          advisors,
+          students: [...doctoralStudents, ...students],
+          influencedBy,
+        },
         sourceUrl: `https://www.wikidata.org/wiki/${id}`,
         wikipediaUrl: entity?.sitelinks?.enwiki?.title
           ? `https://en.wikipedia.org/wiki/${encodeURIComponent(entity.sitelinks.enwiki.title.replaceAll(" ", "_"))}`

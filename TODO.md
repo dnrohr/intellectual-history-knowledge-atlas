@@ -84,7 +84,7 @@ Goal: collect normalized evidence automatically without directly mutating canoni
   - affiliation fetch
   - citation/reference fetch
   - source claim normalization
-- [ ] Expand Wikidata harvesting beyond people:
+- [x] Expand Wikidata harvesting beyond people:
   - works
   - institutions
   - movements
