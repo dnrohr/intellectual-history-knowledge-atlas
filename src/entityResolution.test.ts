@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { buildEntityResolutionResult, classifyEntityMergeDecision, scoreNamedEntityMatch, scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
+import {
+  buildEntityResolutionResult,
+  classifyEntityMergeDecision,
+  DEFAULT_ENTITY_RESOLUTION_POLICY,
+  requiresManualMergeOverride,
+  scoreNamedEntityMatch,
+  scorePersonEntityMatch,
+  scoreWorkEntityMatch,
+} from "./entityResolution";
 
 describe("entity resolution", () => {
   it("scores person matches from names, dates, external IDs, and context overlap", () => {
@@ -165,5 +173,17 @@ describe("entity resolution", () => {
         claimIds: ["claim:birth-conflict"],
       }],
     });
+  });
+
+  it("keeps manual merge as an override and recovery path", () => {
+    expect(DEFAULT_ENTITY_RESOLUTION_POLICY).toEqual({
+      defaultImportPath: "automated-resolution",
+      manualMergeRole: "override-recovery",
+      manualReviewDecisions: ["provisional-merge", "conflict"],
+    });
+    expect(requiresManualMergeOverride("auto-merge")).toBe(false);
+    expect(requiresManualMergeOverride("keep-separate")).toBe(false);
+    expect(requiresManualMergeOverride("provisional-merge")).toBe(true);
+    expect(requiresManualMergeOverride("conflict")).toBe(true);
   });
 });

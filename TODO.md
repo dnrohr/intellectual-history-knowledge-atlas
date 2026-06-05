@@ -113,7 +113,7 @@ Goal: automatically identify when source observations refer to the same underlyi
   - keep separate
   - conflict
 - [x] Preserve conflicting observations instead of discarding them.
-- [ ] Keep manual merge and duplicate review as override/recovery tools, not the default import path.
+- [x] Keep manual merge and duplicate review as override/recovery tools, not the default import path.
 
 ### 5. Relationship Evidence Engine
 

@@ -40,6 +40,18 @@ export interface EntityResolutionResult {
   conflicts: PreservedEntityConflict[];
 }
 
+export interface EntityResolutionPolicy {
+  defaultImportPath: "automated-resolution";
+  manualMergeRole: "override-recovery";
+  manualReviewDecisions: EntityMergeDecision[];
+}
+
+export const DEFAULT_ENTITY_RESOLUTION_POLICY: EntityResolutionPolicy = {
+  defaultImportPath: "automated-resolution",
+  manualMergeRole: "override-recovery",
+  manualReviewDecisions: ["provisional-merge", "conflict"],
+};
+
 export interface WorkMatchProfile {
   id: string;
   title: string;
@@ -262,3 +274,8 @@ export const buildEntityResolutionResult = (
   conflicts,
   decision: classifyEntityMergeDecision(match, thresholds, conflicts.length > 0),
 });
+
+export const requiresManualMergeOverride = (
+  decision: EntityMergeDecision,
+  policy: EntityResolutionPolicy = DEFAULT_ENTITY_RESOLUTION_POLICY
+) => policy.manualReviewDecisions.includes(decision);
