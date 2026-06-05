@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { generateCollaborationCandidates, generateInfluenceCandidates, generateMentorshipCandidates } from "./relationshipEvidence";
+import {
+  generateCollaborationCandidates,
+  generateInfluenceCandidates,
+  generateMentorshipCandidates,
+  generateParallelDevelopmentCandidates,
+} from "./relationshipEvidence";
 
 describe("relationship evidence", () => {
   it("generates direct mentorship candidates from advisor and student evidence", () => {
@@ -87,6 +92,27 @@ describe("relationship evidence", () => {
         "work reception evidence",
         "shared movement with chronology: Phenomenology",
       ]),
+    });
+  });
+
+  it("generates parallel-development candidates from shared concepts without direct transmission evidence", () => {
+    const candidates = generateParallelDevelopmentCandidates([
+      { personId: "a", concepts: ["Intentionality", "Phenomenology"] },
+      { personId: "b", concepts: ["Intentionality"] },
+      { personId: "c", concepts: ["Phenomenology"], advisors: ["a"] },
+    ]);
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]).toMatchObject({
+      id: "relationship-candidate:person:a:parallel development:person:b",
+      category: "parallel development",
+      relationship: {
+        relationshipType: "Source-context neighbor",
+        source: { entityId: "person:a" },
+        target: { entityId: "person:b" },
+        status: "suggested",
+      },
+      evidence: ["shared concept without transmission evidence: Intentionality"],
     });
   });
 });

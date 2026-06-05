@@ -17,6 +17,7 @@ export interface PersonRelationshipEvidence {
   correspondents?: string[];
   institutions?: string[];
   movements?: string[];
+  concepts?: string[];
   works?: Array<{ title: string; authorIds?: string[] }>;
   explicitInfluences?: string[];
   citationTargets?: string[];
@@ -200,6 +201,60 @@ export const generateInfluenceCandidates = (
           const target = source.personId === other.personId ? person : other;
           addInfluence(source.personId, target.personId, `shared movement with chronology: ${movement}`, 0.5);
         });
+    });
+  });
+
+  return Array.from(candidates.values());
+};
+
+const nonDirectionalPair = (aId: string, bId: string) =>
+  [personEntityId(aId), personEntityId(bId)].sort();
+
+const parallelDevelopmentCandidate = (
+  aId: string,
+  bId: string,
+  concept: string
+): RelationshipCandidate => {
+  const [sourceId, targetId] = nonDirectionalPair(aId, bId);
+  const id = `relationship-candidate:${sourceId}:parallel development:${targetId}`;
+  return {
+    id,
+    relationship: {
+      id: id.replace("relationship-candidate:", "relationship:"),
+      type: "Relationship",
+      label: `${sourceId} parallel development with ${targetId}`,
+      source: { entityId: sourceId, entityType: "Person" },
+      target: { entityId: targetId, entityType: "Person" },
+      relationshipType: "Source-context neighbor",
+      confidence: 0.45,
+      status: "suggested",
+    },
+    category: "parallel development",
+    status: "suggested",
+    confidence: 0.45,
+    evidence: [`shared concept without transmission evidence: ${concept}`],
+  };
+};
+
+export const generateParallelDevelopmentCandidates = (
+  people: PersonRelationshipEvidence[]
+): RelationshipCandidate[] => {
+  const candidates = new Map<string, RelationshipCandidate>();
+
+  people.forEach((person, index) => {
+    people.slice(index + 1).forEach((other) => {
+      const sharedConcepts = (person.concepts || []).filter((concept) => (other.concepts || []).includes(concept));
+      const hasDirectTransmission =
+        (person.explicitInfluences || []).includes(other.personId) ||
+        (other.explicitInfluences || []).includes(person.personId) ||
+        (person.advisors || []).includes(other.personId) ||
+        (other.advisors || []).includes(person.personId) ||
+        (person.students || []).includes(other.personId) ||
+        (other.students || []).includes(person.personId);
+      if (hasDirectTransmission) return;
+      sharedConcepts.forEach((concept) =>
+        addCandidateEvidence(candidates, parallelDevelopmentCandidate(person.personId, other.personId, concept))
+      );
     });
   });
 
