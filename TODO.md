@@ -425,7 +425,7 @@ Status notation:
 - [x] Add bundle splitting to reduce main JS size.
 - [x] Add error boundaries.
 - [x] Add runtime schema checks for localStorage data.
-- Add localStorage migration system.
+- [x] Add localStorage migration system.
 - Add development seed reset/import tools.
 - Add documentation for data conventions and edge confidence levels.
 

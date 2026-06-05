@@ -30,7 +30,7 @@ import {
 import { scoreCandidateRelationship } from "./relationshipScoring";
 import { findDuplicateCandidateId, normalizeEntityName } from "./duplicateDetection";
 import { scoreCandidateConfidence } from "./importConfidence";
-import { normalizeStoredEdges, normalizeStoredPeople } from "./storageSchemas";
+import { loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
 import { 
   Plus, 
   RefreshCcw, 
@@ -382,6 +382,8 @@ const getInitialTimelineBookmarks = (): TimelineBookmarkItem[] => {
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
+  const persistAtlasState = (nextPeople = people, nextEdges = edges) =>
+    persistAtlasStateToStorage(nextPeople, nextEdges);
   const csvImportInputRef = useRef<HTMLInputElement | null>(null);
   const jsonImportInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -585,35 +587,25 @@ export default function App() {
   // ── AUTO-FOCUS TIMELINE BOUNDS ON FILTER INSTANTIATION ──
   // 1. Load initial client state
   useEffect(() => {
-    const savedPeople = localStorage.getItem("atlas_people_v6");
-    const savedEdges = localStorage.getItem("atlas_edges_v6");
     const savedImportQueue =
       localStorage.getItem(IMPORT_QUEUE_STORAGE_KEY) ||
       localStorage.getItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
     const savedImportAuditLog = localStorage.getItem("atlas_import_audit_log_v1");
 
-    if (savedPeople && savedEdges) {
-      try {
-        const parsedPeople = JSON.parse(savedPeople);
-        const parsedEdges = JSON.parse(savedEdges);
-        const normalizedPeople = normalizeStoredPeople(parsedPeople);
-        const normalizedEdges = normalizeStoredEdges(parsedEdges, normalizedPeople);
-        if (normalizedPeople.length > 0) {
-          setPeople(normalizedPeople);
-          setEdges(normalizedEdges);
-        } else {
-          setPeople(INITIAL_PEOPLE_DATA);
-          setEdges(INITIAL_EDGES_DATA);
-        }
-      } catch (e) {
+    try {
+      const savedAtlasState = loadAtlasStateFromStorage();
+      if (savedAtlasState) {
+        setPeople(savedAtlasState.people);
+        setEdges(savedAtlasState.edges);
+      } else {
         setPeople(INITIAL_PEOPLE_DATA);
         setEdges(INITIAL_EDGES_DATA);
+        persistAtlasStateToStorage(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
       }
-    } else {
+    } catch {
       setPeople(INITIAL_PEOPLE_DATA);
       setEdges(INITIAL_EDGES_DATA);
-      localStorage.setItem("atlas_people_v6", JSON.stringify(INITIAL_PEOPLE_DATA));
-      localStorage.setItem("atlas_edges_v6", JSON.stringify(INITIAL_EDGES_DATA));
+      persistAtlasStateToStorage(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
     }
 
     if (savedImportQueue) {
@@ -656,7 +648,7 @@ export default function App() {
     setPeople(updated);
     setOverlapContemps([]);
     setBfsMapNodes([]);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(updated));
+    persistAtlasState(updated, edges);
     setSelectedId(newThinker.id);
     setHighlightPath(null);
   };
@@ -687,8 +679,7 @@ export default function App() {
     setHighlightPath(reviewUndoSnapshot.highlightPath);
     setWorkbenchTab(reviewUndoSnapshot.workbenchTab);
     setReviewUndoSnapshot(null);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(reviewUndoSnapshot.people));
-    localStorage.setItem("atlas_edges_v6", JSON.stringify(reviewUndoSnapshot.edges));
+    persistAtlasState(reviewUndoSnapshot.people, reviewUndoSnapshot.edges);
     persistImportReviewQueueToStorage(reviewUndoSnapshot.importReviewQueue);
     localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(reviewUndoSnapshot.importAuditLog));
     localStorage.setItem(LINK_REVIEW_QUEUE_STORAGE_KEY, JSON.stringify(reviewUndoSnapshot.linkReviewQueue));
@@ -709,8 +700,7 @@ export default function App() {
       setHighlightPath(null);
       setOverlapContemps([]);
       setBfsMapNodes([]);
-      localStorage.setItem("atlas_people_v6", JSON.stringify(INITIAL_PEOPLE_DATA));
-      localStorage.setItem("atlas_edges_v6", JSON.stringify(INITIAL_EDGES_DATA));
+      persistAtlasStateToStorage(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
       localStorage.removeItem(IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem("atlas_import_audit_log_v1");
@@ -1119,7 +1109,7 @@ export default function App() {
     ];
 
     setEdges(nextEdges);
-    localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    persistAtlasState(people, nextEdges);
     setHighlightPath([source.id, target.id]);
     selectPerson(target.id, { preserveHighlight: true });
     setViewMode("split");
@@ -1201,7 +1191,7 @@ export default function App() {
     ];
 
     setEdges(nextEdges);
-    localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    persistAtlasState(people, nextEdges);
     setHighlightPath([sourceId, targetId]);
     selectPerson(target.id, { preserveHighlight: true });
     setRelationshipDraft((prev) => ({ ...prev, targetName: "", note: "" }));
@@ -1214,7 +1204,7 @@ export default function App() {
       person.id === id ? { ...person, subfields: normalizedTopics } : person
     );
     setPeople(nextPeople);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
+    persistAtlasState(nextPeople, edges);
   };
 
   const toggleThinkerTopic = (id: string, topic: string) => {
@@ -1601,12 +1591,11 @@ export default function App() {
         },
       ];
       setEdges(nextEdges);
-      localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
       setHighlightPath([source.id, target.id]);
     }
 
     setPeople(nextPeople);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
+    persistAtlasState(nextPeople, nextEdges);
     selectPerson(newId, { preserveHighlight: Boolean(topSuggestion) });
     setViewMode("split");
     removeImportReviewItem(item.id, "accepted", linkTopSuggestion ? "Accepted with top suggested link" : "Accepted from review queue");
@@ -1685,7 +1674,7 @@ export default function App() {
       };
     });
     setPeople(updatedPeople);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(updatedPeople));
+    persistAtlasState(updatedPeople, edges);
     logImportReviewItems([item], "accepted", `Merged duplicate metadata into ${people.find((person) => person.id === duplicateId)?.name || "existing thinker"}`);
     persistImportReviewQueue(importReviewQueue.filter((queueItem) => queueItem.id !== item.id));
     selectPerson(duplicateId);
@@ -1735,9 +1724,8 @@ export default function App() {
 
     captureReviewUndoSnapshot(`Accepted ${acceptedItemIds.size} import${acceptedItemIds.size === 1 ? "" : "s"}`);
     setPeople(nextPeople);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
     setEdges(nextEdges);
-    localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    persistAtlasState(nextPeople, nextEdges);
     logImportReviewItems(
       importReviewQueue.filter((item) => acceptedItemIds.has(item.id)),
       "accepted",
@@ -2035,8 +2023,7 @@ export default function App() {
     setLinkReviewQueue(nextLinkQueue);
     setImportConfidenceThreshold(nextThreshold);
     setRejectedLinkSuggestionKeys(nextRejectedSuggestionKeys);
-    localStorage.setItem("atlas_people_v6", JSON.stringify(nextPeople));
-    localStorage.setItem("atlas_edges_v6", JSON.stringify(nextEdges));
+    persistAtlasState(nextPeople, nextEdges);
     persistImportReviewQueueToStorage(nextQueue);
     localStorage.setItem("atlas_import_audit_log_v1", JSON.stringify(nextAuditLog));
     localStorage.setItem(LINK_REVIEW_QUEUE_STORAGE_KEY, JSON.stringify(nextLinkQueue));

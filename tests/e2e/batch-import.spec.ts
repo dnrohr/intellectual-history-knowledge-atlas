@@ -12,6 +12,9 @@ const queuePastedRows = async (page: Page, rows: string[]) => {
   await page.getByTestId("queue-pasted-import-rows").click();
 };
 
+const getStoredAtlasState = async (page: Page) =>
+  page.evaluate(() => JSON.parse(localStorage.getItem("atlas_state_v7") || "{}"));
+
 test("queues pasted batch import rows for review", async ({ page }) => {
   await openImportActivity(page);
 
@@ -41,9 +44,9 @@ test("accepts a queued candidate into the atlas", async ({ page }) => {
   await page.getByTestId("accept-import-review-item").click();
 
   await expect(page.getByTestId("import-review-queue-item")).toHaveCount(0);
-  const storedPeople = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_people_v6") || "[]"));
+  const storedAtlas = await getStoredAtlasState(page);
   const storedQueue = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_import_queue_v2") || "{}"));
-  expect(storedPeople.some((person: { name: string }) => person.name === "Accepted Test Thinker")).toBe(true);
+  expect(storedAtlas.people.some((person: { name: string }) => person.name === "Accepted Test Thinker")).toBe(true);
   expect(storedQueue.items).toEqual([]);
 });
 
@@ -60,9 +63,9 @@ test("edits a queued candidate before accepting it", async ({ page }) => {
   await page.getByTestId("import-draft-notes").fill("Edited note from the queue review flow");
   await page.getByTestId("accept-import-draft").click();
 
-  const storedPeople = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_people_v6") || "[]"));
+  const storedAtlas = await getStoredAtlasState(page);
   const storedQueue = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_import_queue_v2") || "{}"));
-  const editedPerson = storedPeople.find((person: { name: string }) => person.name === "Edited Test Thinker");
+  const editedPerson = storedAtlas.people.find((person: { name: string }) => person.name === "Edited Test Thinker");
   expect(editedPerson?.notes).toContain("Edited note from the queue review flow");
   expect(storedQueue.items).toEqual([]);
 });
@@ -76,10 +79,9 @@ test("accepts a queued candidate with its top suggested link", async ({ page }) 
   await expect(page.getByTestId("accept-link-import-review-item")).toBeEnabled();
   await page.getByTestId("accept-link-import-review-item").click();
 
-  const storedPeople = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_people_v6") || "[]"));
-  const storedEdges = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_edges_v6") || "[]"));
-  const imported = storedPeople.find((person: { name: string }) => person.name === "Plato Adjacent Test");
-  const importedEdge = storedEdges.find((edge: { source: string; target: string; status?: string; note?: string }) =>
+  const storedAtlas = await getStoredAtlasState(page);
+  const imported = storedAtlas.people.find((person: { name: string }) => person.name === "Plato Adjacent Test");
+  const importedEdge = storedAtlas.edges.find((edge: { source: string; target: string; status?: string; note?: string }) =>
     imported && (edge.source === imported.id || edge.target === imported.id) && edge.status === "suggested"
   );
 
