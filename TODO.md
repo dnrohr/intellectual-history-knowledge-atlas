@@ -215,7 +215,7 @@ Status notation:
 
 ### Major UI Rethink: Separate Atlas Exploration From Source Studio
 
-- [ ] Replace the current activity-heavy navigation with three top-level workspaces:
+- [x] Replace the current activity-heavy navigation with three top-level workspaces:
   - Influence Atlas
   - Source Studio
   - Focus / Presentation

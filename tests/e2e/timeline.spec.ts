@@ -4,6 +4,7 @@ test("pans the timeline by dragging the canvas surface", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  await page.locator('button[title="Timeline lens"]').click();
 
   const range = page.locator('[data-testid="timeline-window-range"]:visible').first();
   await expect(range).toBeVisible();

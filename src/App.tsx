@@ -94,6 +94,7 @@ type ReviewUndoSnapshot = {
   workbenchTab: "links" | "tags" | "imports" | "duplicates";
 };
 
+type Workspace = "atlas" | "sources" | "focus";
 type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
 type ChromeDensity = "compact" | "comfortable" | "focus" | "curation" | "demo";
 type PanelMode = "closed" | "floating" | "docked" | "pinned" | "fullscreen";
@@ -389,8 +390,9 @@ export default function App() {
   const jsonImportInputRef = useRef<HTMLInputElement | null>(null);
 
   // Layout Controls
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>("atlas");
   const [activeActivity, setActiveActivity] = useState<WorkspaceActivity>("explore");
-  const [viewMode, setViewMode] = useState<"timeline" | "network" | "split">("split");
+  const [viewMode, setViewMode] = useState<"timeline" | "network" | "split">("network");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
@@ -2116,19 +2118,17 @@ export default function App() {
     setOnlyConnectedToFocus(true);
     setSortMode("relevance");
   };
-  const activityOptions: Array<{
-    id: WorkspaceActivity;
+  const workspaceOptions: Array<{
+    id: Workspace;
     label: string;
+    shortLabel: string;
     icon: React.ComponentType<{ className?: string }>;
   }> = [
-    { id: "explore", label: "Explore", icon: List },
-    { id: "inspect", label: "Inspect", icon: Info },
-    { id: "trace", label: "Trace", icon: Share2 },
-    { id: "curate", label: "Curate", icon: Eye },
-    { id: "import", label: "Import", icon: Plus },
-    { id: "sources", label: "Sources", icon: Filter },
+    { id: "atlas", label: "Influence Atlas", shortLabel: "Atlas", icon: List },
+    { id: "sources", label: "Source Studio", shortLabel: "Sources", icon: Filter },
+    { id: "focus", label: "Focus / Presentation", shortLabel: "Focus", icon: Eye },
   ];
-  const activeActivityLabel = activityOptions.find((activity) => activity.id === activeActivity)?.label || "Explore";
+  const activeWorkspaceLabel = workspaceOptions.find((workspace) => workspace.id === activeWorkspace)?.label || "Influence Atlas";
   const chromeDensityOptions: Array<{ id: ChromeDensity; label: string }> = [
     { id: "comfortable", label: "Comfort" },
     { id: "compact", label: "Compact" },
@@ -2139,10 +2139,10 @@ export default function App() {
   const isCompactChrome = chromeDensity === "compact";
   const isReducedChrome = chromeDensity === "focus" || chromeDensity === "demo";
   const showSecondaryChrome = chromeDensity !== "demo";
-  const showRelationshipToolbar = !isReducedChrome && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
-  const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "inspect" || activeActivity === "trace");
-  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && (activeActivity === "explore" || activeActivity === "curate" || activeActivity === "sources");
-  const showRadarCurationActions = chromeDensity === "curation" || activeActivity === "curate" || activeActivity === "sources";
+  const showRelationshipToolbar = !isReducedChrome && activeWorkspace === "atlas";
+  const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && activeWorkspace === "atlas";
+  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && activeWorkspace !== "focus";
+  const showRadarCurationActions = chromeDensity === "curation" || activeWorkspace === "sources";
   const showRelationshipInspector = !isReducedChrome && relationshipInspectorOpen && Boolean(selectedThinker);
   const effectiveWorkbenchPanelMode: PanelMode = extensionWorkbenchOpen ? workbenchPanelMode : "closed";
   const workbenchPanelModes: Array<{ id: Exclude<PanelMode, "closed">; label: string }> = [
@@ -2204,7 +2204,7 @@ export default function App() {
 
   const saveCurrentAtlasView = () => {
     const defaultName = [
-      activeActivityLabel,
+      activeWorkspaceLabel,
       selectedThinker?.name || searchQuery || selectedFields[0] || selectedEras[0] || "Current view",
     ].join(": ");
     const name = window.prompt("Name this saved view or collection", defaultName)?.trim();
@@ -2241,6 +2241,7 @@ export default function App() {
   };
 
   const applySavedAtlasView = (view: SavedAtlasView) => {
+    setActiveWorkspace(getWorkspaceForActivity(view.activity));
     setActiveActivity(view.activity);
     setViewMode(view.viewMode);
     setChromeDensity(view.chromeDensity);
@@ -2263,6 +2264,40 @@ export default function App() {
     setHighlightPath(null);
     setCommandMenuOpen(false);
     closeMajorOverlays();
+  };
+
+  const getWorkspaceForActivity = (activity: WorkspaceActivity): Workspace => {
+    if (activity === "import" || activity === "curate" || activity === "sources") return "sources";
+    return "atlas";
+  };
+
+  const applyWorkspace = (workspace: Workspace) => {
+    setActiveWorkspace(workspace);
+    setCommandMenuOpen(false);
+
+    if (workspace === "atlas") {
+      setActiveActivity("explore");
+      setChromeDensity((current) => current === "focus" ? "comfortable" : current);
+      setViewMode("network");
+      setSidebarOpen(false);
+      closeMajorOverlays();
+      return;
+    }
+
+    if (workspace === "focus") {
+      setActiveActivity("inspect");
+      setChromeDensity("focus");
+      setViewMode("network");
+      setSidebarOpen(false);
+      closeMajorOverlays();
+      return;
+    }
+
+    setActiveActivity(workbenchTab === "imports" ? "import" : "sources");
+    setChromeDensity("curation");
+    setViewMode("network");
+    setSidebarOpen(false);
+    openWorkbenchPanel(workbenchTab === "imports" ? "imports" : "links");
   };
 
   const openUnlinkedImportsView = () => {
@@ -2394,6 +2429,7 @@ export default function App() {
   };
 
   const applyActivity = (activity: WorkspaceActivity) => {
+    setActiveWorkspace(getWorkspaceForActivity(activity));
     setActiveActivity(activity);
     setCommandMenuOpen(false);
 
@@ -2883,26 +2919,26 @@ export default function App() {
           </div>
         </div>
 
-        {/* Activity switcher keeps the primary workspace intention explicit. */}
+        {/* Workspace switcher keeps exploration, source work, and focus mode separate. */}
         <div className="hidden md:flex min-w-0 items-center overflow-x-auto scrollbar-thin bg-[#07080d] p-0.5 border border-[#22273b] rounded-lg">
-          {activityOptions.map((activity) => {
-            const Icon = activity.icon;
-            const isActive = activeActivity === activity.id;
+          {workspaceOptions.map((workspace) => {
+            const Icon = workspace.icon;
+            const isActive = activeWorkspace === workspace.id;
 
             return (
               <button
-                key={activity.id}
-                data-testid={`activity-${activity.id}`}
-                onClick={() => applyActivity(activity.id)}
+                key={workspace.id}
+                data-testid={`workspace-${workspace.id}`}
+                onClick={() => applyWorkspace(workspace.id)}
                 className={`px-2.5 lg:px-3.5 py-1 text-[10px] lg:text-[11px] font-mono tracking-wide rounded-md transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                   isActive
                     ? "bg-[#1f2438] text-[#9bdaff] font-bold shadow-md"
                     : "text-slate-400 hover:text-white"
                 }`}
-                title={`${activity.label} activity`}
+                title={`${workspace.label} workspace`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline">{activity.label}</span>
+                <span>{workspace.shortLabel}</span>
               </button>
             );
           })}
@@ -2945,12 +2981,12 @@ export default function App() {
                 <button
                   onClick={() => {
                     setCommandMenuOpen(false);
-                    applyActivity("curate");
+                    applyWorkspace("sources");
                   }}
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5 text-emerald-300" />
-                  <span className="flex-1">Open Workbench</span>
+                  <span className="flex-1">Open Source Studio</span>
                   <span className="rounded bg-slate-700/40 px-1.5 py-0.5 text-[8.5px] text-slate-500">Alt W</span>
                 </button>
                 <button
@@ -2966,6 +3002,7 @@ export default function App() {
                 <button
                   onClick={() => {
                     setCommandMenuOpen(false);
+                    setWorkbenchTab("imports");
                     applyActivity("import");
                   }}
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
@@ -3014,12 +3051,12 @@ export default function App() {
                 <button
                   onClick={() => {
                     setCommandMenuOpen(false);
-                    applyActivity("sources");
+                    applyWorkspace("sources");
                   }}
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
                 >
                   <Filter className="w-3.5 h-3.5 text-violet-300" />
-                  <span className="flex-1">Source Audit</span>
+                  <span className="flex-1">Source Studio</span>
                 </button>
                 <div className="mx-2 my-1 rounded border border-[#22273b] bg-[#090b10] px-2 py-1.5 font-mono text-[8.5px] text-slate-500">
                   <div className="mb-1 uppercase tracking-wider text-slate-600">Shortcuts</div>
@@ -3310,7 +3347,7 @@ export default function App() {
       {showRelationshipToolbar && (
       <div className="shrink-0 min-h-11 px-6 py-1.5 bg-[#0d1018] border-b border-[#22273b] z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">{activeActivityLabel}</span>
+            <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">{activeWorkspaceLabel}</span>
           <div className="hidden lg:flex items-center rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
             {([
               ["split", List, "Split"],
@@ -5692,22 +5729,22 @@ export default function App() {
       </div>
 
       {/* ── MODALS ── */}
-      <nav className="md:hidden shrink-0 h-14 grid grid-cols-6 border-t border-[#22273b] bg-[#0f111a] z-40">
-        {activityOptions.map((activity) => {
-          const Icon = activity.icon;
-          const isActive = activeActivity === activity.id;
+      <nav className="md:hidden shrink-0 h-14 grid grid-cols-3 border-t border-[#22273b] bg-[#0f111a] z-40">
+        {workspaceOptions.map((workspace) => {
+          const Icon = workspace.icon;
+          const isActive = activeWorkspace === workspace.id;
 
           return (
             <button
-              key={`mobile-${activity.id}`}
-              onClick={() => applyActivity(activity.id)}
+              key={`mobile-${workspace.id}`}
+              onClick={() => applyWorkspace(workspace.id)}
               className={`flex flex-col items-center justify-center gap-0.5 text-[9px] font-mono transition-colors cursor-pointer ${
                 isActive ? "text-[#9bdaff] bg-[#1f2438]" : "text-slate-500 hover:text-slate-200"
               }`}
-              title={`${activity.label} activity`}
+              title={`${workspace.label} workspace`}
             >
               <Icon className="w-4 h-4" />
-              <span>{activity.label}</span>
+              <span>{workspace.shortLabel}</span>
             </button>
           );
         })}
