@@ -231,7 +231,7 @@ Goal: keep the UI aligned with the network-first, dossier-centered product direc
 - [x] Fix hop controls, label density controls, oversized toolbar behavior, and graph clamping issues.
 - [x] Continue interaction QA for layout overflow, unreachable controls, hidden scroll regions, overlay collisions, and non-working buttons.
 - [x] Add regression coverage whenever a visual control bug is found.
-- [ ] Revisit minimap/overview behavior for dense graph states after typed entities expand the graph.
+- [x] Revisit minimap/overview behavior for dense graph states after typed entities expand the graph.
 
 ### 11. Canonical Dataset Pipeline
 

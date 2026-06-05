@@ -30,6 +30,7 @@ test("network controls update hop depth, layout, and labels without full-width o
 
   await page.locator('[data-testid="network-hop-all"]:visible').first().click();
   await expect.poll(() => visibleNetworkCount(page)).toBeGreaterThanOrEqual(oneHopCount);
+  await expect(page.getByText("Dense Overview")).toBeVisible();
 
   for (const layout of ["force", "timeline", "ego", "lineage"]) {
     const button = page.locator(`[data-testid="network-layout-${layout}"]:visible`).first();

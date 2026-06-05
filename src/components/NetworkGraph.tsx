@@ -275,7 +275,8 @@ export default function NetworkGraph({
     const graphEdges = edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
     return { graphPeople, graphEdges, visibleTotal: graphPeople.length };
   }, [edges, effectiveFocusDepth, highlightPath, people, selectedId]);
-  const showOverviewNavigator = graphPeople.length <= 180;
+  const isDenseOverview = graphPeople.length > 180;
+  const showOverviewNavigator = graphPeople.length > 0;
 
   // Init & update nodes/links
   useEffect(() => {
@@ -461,7 +462,7 @@ export default function NetworkGraph({
     ctx.fillStyle = "rgba(9, 11, 16, 0.92)";
     ctx.fillRect(0, 0, width, height);
 
-    linksRef.current.forEach((link) => {
+    if (!isDenseOverview) linksRef.current.forEach((link) => {
       if (link.source.x === undefined || link.source.y === undefined || link.target.x === undefined || link.target.y === undefined) return;
       ctx.beginPath();
       ctx.moveTo(projection.mapX(link.source.x), projection.mapY(link.source.y));
@@ -475,9 +476,9 @@ export default function NetworkGraph({
       if (node.x === undefined || node.y === undefined) return;
       const isSelected = node.id === selectedId;
       ctx.beginPath();
-      ctx.arc(projection.mapX(node.x), projection.mapY(node.y), isSelected ? 3 : 1.7, 0, Math.PI * 2);
+      ctx.arc(projection.mapX(node.x), projection.mapY(node.y), isSelected ? 3 : isDenseOverview ? 1.2 : 1.7, 0, Math.PI * 2);
       ctx.fillStyle = isSelected ? "#ffffff" : FIELD_COLOR[node.fields?.[0]] || "#94a3b8";
-      ctx.globalAlpha = isSelected ? 1 : 0.72;
+      ctx.globalAlpha = isSelected ? 1 : isDenseOverview ? 0.58 : 0.72;
       ctx.fill();
     });
 
@@ -1175,7 +1176,7 @@ export default function NetworkGraph({
       {showOverviewNavigator && (
       <div className="absolute bottom-10 left-3.5 z-10 hidden rounded-md border border-[#252a3d] bg-[#10131d]/90 p-1 shadow-lg shadow-black/30 sm:block">
         <div className="mb-0.5 flex items-center justify-between gap-3 px-1 font-mono text-[8px] uppercase tracking-wider text-slate-600">
-          <span>Overview</span>
+          <span>{isDenseOverview ? "Dense Overview" : "Overview"}</span>
           <span>{graphPeople.length}</span>
         </div>
         <canvas
