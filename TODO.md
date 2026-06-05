@@ -443,7 +443,7 @@ Status notation:
 - [x] Add environment variable documentation.
 - [x] Add public demo mode with sample data.
 - [x] Add "private local data" warning where appropriate.
-- Add import/export so users can carry data between local, Codespaces, and hosted instances.
+- [x] Add import/export so users can carry data between local, Codespaces, and hosted instances.
 
 ## Documentation
 
