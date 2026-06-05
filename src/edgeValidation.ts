@@ -51,6 +51,24 @@ export interface BulkEdgeValidationInputs {
   claims?: SourceClaimEntity[];
 }
 
+export interface BulkEdgeValidationReport {
+  confirmedExistingEdges: BulkEdgeValidationResult[];
+  addedConfirmedEdges: BulkEdgeValidationResult[];
+  removedExistingEdges: BulkEdgeValidationResult[];
+  discardedCandidates: BulkEdgeValidationResult[];
+  autoInvestigatingMissingSources: BulkEdgeValidationResult[];
+  autoResolvingConflicts: BulkEdgeValidationResult[];
+  summary: {
+    confirmedExistingEdges: number;
+    addedConfirmedEdges: number;
+    removedExistingEdges: number;
+    discardedCandidates: number;
+    autoInvestigatingMissingSources: number;
+    autoResolvingConflicts: number;
+    total: number;
+  };
+}
+
 const LEGACY_RELATIONSHIP_TYPES = [
   "Collaboration",
   "Critique",
@@ -583,4 +601,40 @@ export const addConfirmedMissingEdgesToCanonicalGraph = (
       canonicalCandidateKey(right.source, right.target, String(right.type))
     )
   );
+};
+
+export const buildBulkEdgeValidationReport = (
+  results: BulkEdgeValidationResult[]
+): BulkEdgeValidationReport => {
+  const confirmedExistingEdges = results.filter((result) => result.finalDisposition === "confirmed-existing-edge");
+  const addedConfirmedEdges = results.filter((result) => result.finalDisposition === "added-confirmed-edge");
+  const removedExistingEdges = results.filter((result) => result.finalDisposition === "removed-existing-edge");
+  const discardedCandidates = results.filter((result) => result.finalDisposition === "discarded-candidate");
+  const autoResolvingConflicts = results.filter((result) =>
+    !result.finalDisposition &&
+    (result.evidenceStatus === "conflicting" || result.blockingReasons.some((reason) => reason.includes("conflict")))
+  );
+  const autoInvestigatingMissingSources = results.filter((result) =>
+    !result.finalDisposition &&
+    !autoResolvingConflicts.includes(result) &&
+    result.recommendedAction === "auto-investigate"
+  );
+
+  return {
+    confirmedExistingEdges,
+    addedConfirmedEdges,
+    removedExistingEdges,
+    discardedCandidates,
+    autoInvestigatingMissingSources,
+    autoResolvingConflicts,
+    summary: {
+      confirmedExistingEdges: confirmedExistingEdges.length,
+      addedConfirmedEdges: addedConfirmedEdges.length,
+      removedExistingEdges: removedExistingEdges.length,
+      discardedCandidates: discardedCandidates.length,
+      autoInvestigatingMissingSources: autoInvestigatingMissingSources.length,
+      autoResolvingConflicts: autoResolvingConflicts.length,
+      total: results.length,
+    },
+  };
 };

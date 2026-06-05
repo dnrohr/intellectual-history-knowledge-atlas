@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   BulkEdgeValidationResult,
   addConfirmedMissingEdgesToCanonicalGraph,
+  buildBulkEdgeValidationReport,
   createBulkEdgeValidationResult,
   createExistingEdgeValidationSubject,
   deduplicateMissingEdgeCandidates,
@@ -527,5 +528,76 @@ describe("bulk edge validation model", () => {
       claimIds: ["claim:confirmed"],
       status: "accepted",
     }]);
+  });
+
+  it("groups bulk validation reports by final disposition and automated interim state", () => {
+    const subject = createExistingEdgeValidationSubject({ source: "a", target: "b", type: "Influence", strength: 3 });
+    const base = {
+      subject,
+      structuralStatus: "valid" as const,
+      evidenceStatus: "supported" as const,
+      chronologyStatus: "valid" as const,
+      sourceClaimCoverage: 1,
+      confidenceScore: 0.9,
+      blockingReasons: [],
+    };
+
+    const report = buildBulkEdgeValidationReport([
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "confirmed",
+        origin: "existing-edge",
+        recommendedAction: "confirm",
+        finalDisposition: "confirmed-existing-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "added",
+        origin: "discovered-candidate",
+        recommendedAction: "add",
+        finalDisposition: "added-confirmed-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "removed",
+        origin: "existing-edge",
+        recommendedAction: "remove",
+        finalDisposition: "removed-existing-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "discarded",
+        origin: "discovered-candidate",
+        recommendedAction: "discard",
+        finalDisposition: "discarded-candidate",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "investigate",
+        origin: "existing-edge",
+        evidenceStatus: "unsupported",
+        sourceClaimCoverage: 0,
+        recommendedAction: "auto-investigate",
+        blockingReasons: ["missing-source-evidence"],
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "conflict",
+        origin: "existing-edge",
+        evidenceStatus: "conflicting",
+        recommendedAction: "auto-investigate",
+        blockingReasons: ["rejected-or-conflicting-claim-on-accepted-edge"],
+      }),
+    ]);
+
+    expect(report.summary).toEqual({
+      confirmedExistingEdges: 1,
+      addedConfirmedEdges: 1,
+      removedExistingEdges: 1,
+      discardedCandidates: 1,
+      autoInvestigatingMissingSources: 1,
+      autoResolvingConflicts: 1,
+      total: 6,
+    });
   });
 });
