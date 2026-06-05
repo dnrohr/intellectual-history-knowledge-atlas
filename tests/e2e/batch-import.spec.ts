@@ -5,7 +5,7 @@ const openImportActivity = async (page: Page) => {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByTestId("workspace-sources").click();
-  await page.getByRole("button", { name: /Imports/ }).click();
+  await page.getByRole("button", { name: /Import/ }).click();
 };
 
 const queuePastedRows = async (page: Page, rows: string[]) => {

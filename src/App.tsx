@@ -91,7 +91,7 @@ type ReviewUndoSnapshot = {
   linkReviewQueue: LinkReviewItem[];
   selectedId: string | null;
   highlightPath: string[] | null;
-  workbenchTab: "links" | "tags" | "imports" | "duplicates";
+  workbenchTab: "imports" | "links" | "tags" | "duplicates" | "export";
 };
 
 type Workspace = "atlas" | "sources" | "focus";
@@ -432,7 +432,7 @@ export default function App() {
     "Natural Inquiry",
     "Human Systems",
   ]);
-  const [workbenchTab, setWorkbenchTab] = useState<"links" | "tags" | "imports" | "duplicates">("links");
+  const [workbenchTab, setWorkbenchTab] = useState<"imports" | "links" | "tags" | "duplicates" | "export">("links");
   const [relationshipDraft, setRelationshipDraft] = useState({
     targetName: "",
     direction: "out" as "out" | "in",
@@ -2186,7 +2186,7 @@ export default function App() {
 
   const openWorkbenchPanel = (tab?: typeof workbenchTab) => {
     setActiveWorkspace("sources");
-    setActiveActivity(tab === "imports" ? "import" : tab === "duplicates" || tab === "tags" ? "curate" : "sources");
+    setActiveActivity(tab === "imports" ? "import" : "sources");
     setChromeDensity("curation");
     closeMajorOverlays("workbench");
     if (tab) setWorkbenchTab(tab);
@@ -4139,9 +4139,9 @@ export default function App() {
             <div className={workbenchPanelContentClass}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-mono text-[10px] text-emerald-300 uppercase tracking-wider font-bold">Extension Workbench</h4>
+                  <h4 className="font-mono text-[10px] text-emerald-300 uppercase tracking-wider font-bold">Source Studio</h4>
                   <p className="text-[10px] text-slate-500 font-mono mt-0.5">
-                    {effectiveWorkbenchPanelMode} panel for keeping additions connected and consistently tagged.
+                    {effectiveWorkbenchPanelMode} workspace for imports, review queues, source audit, and export/restore.
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -4171,10 +4171,10 @@ export default function App() {
 
               <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-1">
                 {([
-                  ["links", `Links ${suggestedLinks.length + unlinkedThinkers.length + sparseThinkers.length}`],
-                  ["tags", `Tags ${weaklyTaggedThinkers.length}`],
-                  ["imports", `Imports ${importReviewQueue.length} queued`],
-                  ["duplicates", `Duplicates ${duplicateCandidates.length}`],
+                  ["imports", `Import ${importReviewQueue.length} queued`],
+                  ["links", `Review ${suggestedLinks.length + unlinkedThinkers.length + sparseThinkers.length + duplicateCandidates.length}`],
+                  ["tags", `Sources ${sourceGapEdges.length}`],
+                  ["export", "Export"],
                 ] as const).map(([tab, label]) => (
                   <button
                     key={tab}
@@ -4829,40 +4829,12 @@ export default function App() {
                           onChange={handleCsvImport}
                           className="hidden"
                         />
-                        <input
-                          ref={jsonImportInputRef}
-                          type="file"
-                          accept=".json,application/json"
-                          onChange={handleJsonImport}
-                          className="hidden"
-                        />
                         <button
                           type="button"
                           onClick={() => csvImportInputRef.current?.click()}
                           className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
                         >
                           Import CSV
-                        </button>
-                        <button
-                          type="button"
-                          onClick={exportPeopleCsv}
-                          className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
-                        >
-                          Export CSV
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => jsonImportInputRef.current?.click()}
-                          className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
-                        >
-                          Restore JSON
-                        </button>
-                        <button
-                          type="button"
-                          onClick={exportAtlasJson}
-                          className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
-                        >
-                          Export JSON
                         </button>
                       </div>
                       {wikidataBatchCandidates.length > 0 && (
@@ -5282,6 +5254,58 @@ export default function App() {
                           </div>
                         </button>
                       ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {workbenchTab === "export" && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="rounded-md border border-[#252a3d] bg-[#090b10] p-4">
+                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Atlas State</div>
+                    <h5 className="mt-1 font-serif text-lg font-bold text-slate-100">Export or restore local data</h5>
+                    <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                      JSON preserves thinkers, relationships, import queues, review history, link queues, thresholds, and rejected suggestions for moving between browsers or deployments.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <input
+                        ref={jsonImportInputRef}
+                        type="file"
+                        accept="application/json,.json"
+                        className="hidden"
+                        onChange={handleJsonImport}
+                      />
+                      <button
+                        type="button"
+                        onClick={exportAtlasJson}
+                        className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-200 hover:bg-emerald-500/20 cursor-pointer"
+                      >
+                        Export JSON
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => jsonImportInputRef.current?.click()}
+                        className="rounded-md border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-3 py-2 text-[10px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+                      >
+                        Restore JSON
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-[#252a3d] bg-[#090b10] p-4">
+                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Spreadsheet Review</div>
+                    <h5 className="mt-1 font-serif text-lg font-bold text-slate-100">Export people as CSV</h5>
+                    <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                      CSV is useful for lightweight spreadsheet auditing of names, dates, fields, regions, movements, works, and notes.
+                    </p>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={exportPeopleCsv}
+                        className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[10px] font-mono text-amber-200 hover:bg-amber-500/20 cursor-pointer"
+                      >
+                        Export CSV
+                      </button>
                     </div>
                   </div>
                 </div>
