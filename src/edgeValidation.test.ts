@@ -743,4 +743,188 @@ describe("bulk edge validation model", () => {
       message: "Bulk edge validation acceptance gate passed.",
     });
   });
+
+  it("snapshots the bulk edge validation report shape", () => {
+    const existingResults = validateBulkEdgeRelationshipRules(
+      people,
+      [
+        {
+          id: "edge:confirmed",
+          source: "a",
+          target: "b",
+          type: "Influence",
+          strength: 4,
+          confidence: 0.91,
+          note: "Explicit influence documented through citation reception.",
+          claimIds: ["claim:confirmed-existing"],
+        },
+        {
+          id: "edge:removed",
+          source: "a",
+          target: "a",
+          type: "Influence",
+          strength: 3,
+        },
+      ],
+      [
+        relationshipClaim("claim:confirmed-existing", {
+          subjectEntityId: "edge:confirmed",
+          value: "explicit influence documented through citation reception",
+          confidence: 0.91,
+        }),
+      ]
+    );
+    const candidateResults = validateDiscoveredEdgeCandidates(
+      people,
+      [{
+        id: "candidate:added",
+        source: "b",
+        target: "c",
+        type: "Mentorship",
+        strength: 4,
+        confidence: 0.9,
+        note: "Advisor/student evidence.",
+        claimIds: ["claim:added-candidate"],
+      }],
+      [
+        relationshipClaim("claim:added-candidate", {
+          subjectEntityId: "candidate:added",
+          value: "advisor student evidence",
+          confidence: 0.9,
+        }),
+      ]
+    );
+
+    expect(buildBulkEdgeValidationReport([...existingResults, ...candidateResults])).toMatchInlineSnapshot(`
+      {
+        "addedConfirmedEdges": [
+          {
+            "blockingReasons": [],
+            "chronologyStatus": "valid",
+            "confidenceScore": 0.95,
+            "evidenceStatus": "supported",
+            "finalDisposition": "added-confirmed-edge",
+            "id": "validation:candidate:candidate:added",
+            "origin": "discovered-candidate",
+            "recommendedAction": "add",
+            "sourceClaimCoverage": 1,
+            "structuralStatus": "valid",
+            "subject": {
+              "claimIds": [
+                "claim:added-candidate",
+              ],
+              "edge": {
+                "claimIds": [
+                  "claim:added-candidate",
+                ],
+                "confidence": 0.9,
+                "id": "candidate:added",
+                "note": "Advisor/student evidence.",
+                "source": "b",
+                "strength": 4,
+                "target": "c",
+                "type": "Mentorship",
+              },
+              "id": "candidate:added",
+              "source": {
+                "id": "b",
+              },
+              "sourceUrls": [],
+              "target": {
+                "id": "c",
+              },
+              "type": "Mentorship",
+            },
+          },
+        ],
+        "autoInvestigatingMissingSources": [],
+        "autoResolvingConflicts": [],
+        "confirmedExistingEdges": [
+          {
+            "blockingReasons": [],
+            "chronologyStatus": "valid",
+            "confidenceScore": 0.955,
+            "evidenceStatus": "supported",
+            "finalDisposition": "confirmed-existing-edge",
+            "id": "validation:structure:edge:confirmed",
+            "origin": "existing-edge",
+            "recommendedAction": "confirm",
+            "sourceClaimCoverage": 1,
+            "structuralStatus": "valid",
+            "subject": {
+              "claimIds": [
+                "claim:confirmed-existing",
+              ],
+              "edge": {
+                "claimIds": [
+                  "claim:confirmed-existing",
+                ],
+                "confidence": 0.91,
+                "id": "edge:confirmed",
+                "note": "Explicit influence documented through citation reception.",
+                "source": "a",
+                "strength": 4,
+                "target": "b",
+                "type": "Influence",
+              },
+              "id": "edge:confirmed",
+              "source": {
+                "id": "a",
+              },
+              "sourceUrls": [],
+              "target": {
+                "id": "b",
+              },
+              "type": "Influence",
+            },
+          },
+        ],
+        "discardedCandidates": [],
+        "removedExistingEdges": [
+          {
+            "blockingReasons": [
+              "self-link",
+            ],
+            "chronologyStatus": "valid",
+            "confidenceScore": 0.5,
+            "evidenceStatus": "unsupported",
+            "finalDisposition": "removed-existing-edge",
+            "id": "validation:structure:edge:removed",
+            "origin": "existing-edge",
+            "recommendedAction": "remove",
+            "sourceClaimCoverage": 0,
+            "structuralStatus": "invalid",
+            "subject": {
+              "claimIds": [],
+              "edge": {
+                "id": "edge:removed",
+                "source": "a",
+                "strength": 3,
+                "target": "a",
+                "type": "Influence",
+              },
+              "id": "edge:removed",
+              "source": {
+                "id": "a",
+              },
+              "sourceUrls": [],
+              "target": {
+                "id": "a",
+              },
+              "type": "Influence",
+            },
+          },
+        ],
+        "summary": {
+          "addedConfirmedEdges": 1,
+          "autoInvestigatingMissingSources": 0,
+          "autoResolvingConflicts": 0,
+          "confirmedExistingEdges": 1,
+          "discardedCandidates": 0,
+          "removedExistingEdges": 1,
+          "total": 3,
+        },
+      }
+    `);
+  });
 });
