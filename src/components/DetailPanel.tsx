@@ -209,7 +209,7 @@ export default function DetailPanel({
           }`}
         >
           <Info className="w-3 h-3" />
-          <span>Overview</span>
+          <span>Dossier</span>
         </button>
         <button
           onClick={() => setActiveTab("context")}
@@ -275,9 +275,9 @@ export default function DetailPanel({
               )}
             </div>
 
-            {/* Legacy rating Bridge score */}
-            <div className="space-y-1 pt-1.5 border-t border-[#1e2235]">
-              <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider block">Historical Significance</span>
+            {/* Why they matter */}
+            <div className="space-y-2 pt-1.5 border-t border-[#1e2235]">
+              <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider block">Why They Matter</span>
               <div className="flex gap-1.5 items-center">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div
@@ -288,26 +288,23 @@ export default function DetailPanel({
                     style={{ color: col }}
                   />
                 ))}
-                <span className="text-[10px] font-mono text-slate-400 ml-1.5">Rating: {thinker.bridge_score}/5</span>
+                <span className="text-[10px] font-mono text-slate-400 ml-1.5">Bridge signal: {thinker.bridge_score}/5</span>
               </div>
-            </div>
-
-            {/* Detailed Notes */}
-            {thinker.notes && (
-              <div className="space-y-1">
-                <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider block">Legacy Summary</span>
+              {thinker.notes ? (
                 <p className="text-slate-200 text-xs leading-relaxed font-light italic bg-[#151824] p-3 rounded-md border border-[#23283c]">
                   &ldquo;{thinker.notes}&rdquo;
                 </p>
-              </div>
-            )}
+              ) : (
+                <p className="text-[10px] text-[#5a6480] italic">No summary has been written for this thinker yet.</p>
+              )}
+            </div>
 
             {/* Major works */}
             {thinker.works && thinker.works.length > 0 && (
               <div className="space-y-1.5">
                 <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider block flex items-center gap-1.5">
                   <BookOpen className="w-3 h-3 text-amber-500" />
-                  <span>Crucial Works & Discoveries</span>
+                  <span>Key Works / Ideas</span>
                 </span>
                 <div className="space-y-1 bg-[#0c0d13] p-2.5 rounded-md border border-slate-900">
                   {thinker.works.map((work, idx) => (
@@ -322,9 +319,13 @@ export default function DetailPanel({
 
             {/* Local Direct Influence lists */}
             <div className="space-y-4 pt-3 border-t border-[#1e2235]">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider font-bold">Influence Neighborhood</span>
+                <span className="font-mono text-[9px] text-[#7b9cf5]">{directInfluencedBy.length} in / {directInfluences.length} out</span>
+              </div>
               <div>
                 <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider block mb-2">
-                  &larr; Influenced By (Immediate Predecessors)
+                  Predecessors
                 </span>
                 {directInfluencedBy.length === 0 ? (
                   <div className="text-[10px] text-[#5a6480] italic">No directly mapped predecessors.</div>
@@ -352,7 +353,7 @@ export default function DetailPanel({
 
               <div>
                 <span className="font-mono text-[9px] text-[#5a6480] uppercase tracking-wider block mb-2">
-                  Influenced &arr; (Immediate Successors)
+                  Successors
                 </span>
                 {directInfluences.length === 0 ? (
                   <div className="text-[10px] text-[#5a6480] italic">No directly mapped successors.</div>
@@ -727,8 +728,10 @@ export default function DetailPanel({
         )}
       </div>
 
-      {/* Explorer Tools Actions buttons block */}
-      <div className="shrink-0 p-4 border-t border-[#252a3d] bg-[#0d0f17] grid grid-cols-2 gap-2.5">
+      {/* Explore-next actions */}
+      <div className="shrink-0 p-4 border-t border-[#252a3d] bg-[#0d0f17] space-y-2.5">
+        <div className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Explore Next</div>
+        <div className="grid grid-cols-2 gap-2.5">
         <button
           onClick={() => onFindContemporaries(thinker.id)}
           className="flex items-center justify-center gap-1 px-3 py-2 bg-[#1c2030] hover:bg-[#252a3d] border border-[#252a3d] text-slate-300 font-mono text-[10px] font-semibold rounded transition-colors text-center cursor-pointer"
@@ -745,6 +748,7 @@ export default function DetailPanel({
           <GitBranch className="w-3 h-3 text-[#7b9cf5]" />
           <span>Successors Map</span>
         </button>
+        </div>
       </div>
     </div>
   );

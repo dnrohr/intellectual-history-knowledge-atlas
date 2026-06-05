@@ -226,7 +226,7 @@ Status notation:
   - Review
   - Sources
   - Export
-- [ ] Rebuild the scholar dossier as the primary selected-thinker card:
+- [x] Rebuild the scholar dossier as the primary selected-thinker card:
   - concise header
   - why they matter
   - key works and ideas
