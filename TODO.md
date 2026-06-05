@@ -451,7 +451,7 @@ Status notation:
 - [x] Write an import workflow guide.
 - [x] Write edge confidence guidelines.
 - [x] Write source provenance guidelines.
-- Write taxonomy guidelines.
+- [x] Write taxonomy guidelines.
 - Write deployment guide.
 - Write Codespaces guide with update steps.
 - Add screenshots/GIFs once UI stabilizes.
