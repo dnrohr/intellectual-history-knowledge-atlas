@@ -34,6 +34,9 @@ jobs:
       - name: Validate canonical dataset
         run: npm run qa:canonical
 
+      - name: Validate bulk edge structure
+        run: npm run qa:edges
+
       - name: Build
         run: npm run build
 
