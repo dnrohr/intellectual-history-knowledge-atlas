@@ -142,7 +142,7 @@ Goal: generate, classify, and explain relationship candidates from evidence.
 
 Goal: decide what can be accepted automatically, what should remain provisional, and what should be rejected.
 
-- [ ] Split confidence into:
+- [x] Split confidence into:
   - identity confidence
   - factual confidence
   - relationship confidence
