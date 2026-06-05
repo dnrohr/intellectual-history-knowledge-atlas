@@ -174,7 +174,7 @@ Goal: detect quality problems and repair common issues when confidence is high e
 - [x] Auto-connect isolated high-confidence nodes through validated relationship candidates.
 - [x] Auto-demote weak unsupported edges to provisional status.
 - [x] Auto-add missing source claims for accepted edges when reliable sources are found.
-- [ ] Produce repair-job diffs before mutating canonical data.
+- [x] Produce repair-job diffs before mutating canonical data.
 - [ ] Add graph health reporting to the UI and dataset QA output.
 
 ### 8. Source Studio As Automation Console

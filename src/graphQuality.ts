@@ -47,6 +47,13 @@ export interface GraphRepairDiff {
   edge: InfluenceEdge;
 }
 
+export interface GraphRepairPreview {
+  id: string;
+  dryRun: true;
+  applied: false;
+  diffs: GraphRepairDiff[];
+}
+
 const percent = (count: number, total: number) =>
   total === 0 ? 0 : Number((count / total).toFixed(3));
 
@@ -264,3 +271,13 @@ export const planMissingSourceClaimRepairs = (
         },
       }];
     });
+
+export const createGraphRepairPreview = (
+  id: string,
+  diffs: GraphRepairDiff[]
+): GraphRepairPreview => ({
+  id,
+  dryRun: true,
+  applied: false,
+  diffs,
+});

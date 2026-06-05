@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createSourceClaimEntity } from "./knowledgeModel";
 import {
   auditGraphQuality,
+  createGraphRepairPreview,
   getDryRunRepairJobTriggers,
   planIsolatedNodeConnections,
   planMissingSourceClaimRepairs,
@@ -148,5 +149,18 @@ describe("graph quality audits", () => {
         claimIds: ["claim:edge"],
       },
     }]);
+  });
+
+  it("produces repair-job diffs before mutating canonical data", () => {
+    const diffs = planWeakUnsupportedEdgeDemotions([
+      { source: "a", target: "b", type: "Influence", strength: 1, confidence: 0.2 },
+    ]);
+
+    expect(createGraphRepairPreview("repair:preview", diffs)).toEqual({
+      id: "repair:preview",
+      dryRun: true,
+      applied: false,
+      diffs,
+    });
   });
 });
