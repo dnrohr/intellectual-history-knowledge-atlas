@@ -87,6 +87,14 @@ type LinkReviewItem = {
   createdAt: string;
 };
 
+type WorkbenchTab =
+  | "sourceHealth"
+  | "claimConflicts"
+  | "candidateRelationships"
+  | "repairJobs"
+  | "manualOverrides"
+  | "exportRecovery";
+
 type ReviewUndoSnapshot = {
   label: string;
   createdAt: string;
@@ -97,7 +105,7 @@ type ReviewUndoSnapshot = {
   linkReviewQueue: LinkReviewItem[];
   selectedId: string | null;
   highlightPath: string[] | null;
-  workbenchTab: "imports" | "links" | "tags" | "duplicates" | "export";
+  workbenchTab: WorkbenchTab;
 };
 
 type Workspace = "atlas" | "sources" | "focus";
@@ -439,7 +447,7 @@ export default function App() {
     "Natural Inquiry",
     "Human Systems",
   ]);
-  const [workbenchTab, setWorkbenchTab] = useState<"imports" | "links" | "tags" | "duplicates" | "export">("links");
+  const [workbenchTab, setWorkbenchTab] = useState<WorkbenchTab>("candidateRelationships");
   const [relationshipDraft, setRelationshipDraft] = useState({
     targetName: "",
     direction: "out" as "out" | "in",
@@ -1305,7 +1313,7 @@ export default function App() {
       notes: "",
     }));
     setDraftQueueItemId(null);
-    setWorkbenchTab("links");
+    setWorkbenchTab("candidateRelationships");
   };
 
   const clearImportDraft = () => {
@@ -1617,7 +1625,7 @@ export default function App() {
     selectPerson(newId, { preserveHighlight: Boolean(topSuggestion) });
     setViewMode("split");
     removeImportReviewItem(item.id, "accepted", linkTopSuggestion ? "Accepted with top suggested link" : "Accepted from review queue");
-    setWorkbenchTab("links");
+    setWorkbenchTab("candidateRelationships");
   };
 
   const createThinkerFromImportCandidate = (candidate: WikidataCandidate, id: string): Thinker => {
@@ -1697,7 +1705,7 @@ export default function App() {
     persistImportReviewQueue(importReviewQueue.filter((queueItem) => queueItem.id !== item.id));
     selectPerson(duplicateId);
     setViewMode("split");
-    setWorkbenchTab("links");
+    setWorkbenchTab("candidateRelationships");
   };
 
   const acceptImportReviewItems = (items: ImportReviewItem[], linkTopSuggestion = false) => {
@@ -2192,7 +2200,7 @@ export default function App() {
 
   const openWorkbenchPanel = (tab?: typeof workbenchTab) => {
     setActiveWorkspace("sources");
-    setActiveActivity(tab === "imports" ? "import" : "sources");
+    setActiveActivity(tab === "manualOverrides" ? "import" : "sources");
     setChromeDensity("curation");
     closeMajorOverlays("workbench");
     if (tab) setWorkbenchTab(tab);
@@ -2303,11 +2311,11 @@ export default function App() {
       return;
     }
 
-    setActiveActivity(workbenchTab === "imports" ? "import" : "sources");
+    setActiveActivity(workbenchTab === "manualOverrides" ? "import" : "sources");
     setChromeDensity("curation");
     setViewMode("network");
     setSidebarOpen(false);
-    openWorkbenchPanel(workbenchTab === "imports" ? "imports" : "links");
+    openWorkbenchPanel(workbenchTab === "manualOverrides" ? "manualOverrides" : "candidateRelationships");
   };
 
   const openUnlinkedImportsView = () => {
@@ -2467,20 +2475,20 @@ export default function App() {
     if (activity === "curate") {
       setViewMode("split");
       setSidebarOpen(true);
-      openWorkbenchPanel("links");
+      openWorkbenchPanel("candidateRelationships");
       return;
     }
 
     if (activity === "import") {
       setViewMode("split");
       setSidebarOpen(false);
-      openWorkbenchPanel("imports");
+      openWorkbenchPanel("manualOverrides");
       return;
     }
 
     setViewMode("network");
     setSidebarOpen(false);
-    openWorkbenchPanel("links");
+    openWorkbenchPanel("candidateRelationships");
   };
 
   useEffect(() => {
@@ -3027,7 +3035,7 @@ export default function App() {
                 <button
                   onClick={() => {
                     setCommandMenuOpen(false);
-                    setWorkbenchTab("imports");
+                    setWorkbenchTab("manualOverrides");
                     applyActivity("import");
                   }}
                   className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-[11px] font-mono text-slate-200 hover:bg-[#171b29] cursor-pointer"
@@ -3589,7 +3597,7 @@ export default function App() {
                 <EmptyState
                   title="No Direct Relationships"
                   detail="Use Trace Path, widen filters, or open Source Studio when you are ready to add or review relationships."
-                  action={isSourceStudio ? { label: "Open Review", onClick: () => openWorkbenchPanel("links") } : undefined}
+                  action={isSourceStudio ? { label: "Open Review", onClick: () => openWorkbenchPanel("candidateRelationships") } : undefined}
                 />
               )}
             </div>
@@ -3597,7 +3605,7 @@ export default function App() {
             <div className="flex items-center gap-1.5 shrink-0">
               {isSourceStudio && (
                 <button
-                  onClick={() => openWorkbenchPanel("links")}
+                  onClick={() => openWorkbenchPanel("candidateRelationships")}
                   className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
                 >
                   Review
@@ -3621,7 +3629,7 @@ export default function App() {
               {showRadarCurationActions && isSourceStudio && (
                 <button
                   onClick={() => {
-                    openWorkbenchPanel("links");
+                    openWorkbenchPanel("candidateRelationships");
                   }}
                   className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
                 >
@@ -4182,10 +4190,12 @@ export default function App() {
 
               <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-1">
                 {([
-                  ["links", `Review ${suggestedLinks.length + unlinkedThinkers.length + sparseThinkers.length + duplicateCandidates.length}`],
-                  ["tags", `Sources ${sourceGapEdges.length}`],
-                  ["imports", `Admin import ${importReviewQueue.length}`],
-                  ["export", "Export"],
+                  ["sourceHealth", `Source health ${sourceGapEdges.length}`],
+                  ["claimConflicts", `Claim conflicts ${automationConflictCount}`],
+                  ["candidateRelationships", `Candidate relationships ${suggestedLinks.length}`],
+                  ["repairJobs", `Repair jobs ${graphRepairPreview.diffs.length}`],
+                  ["manualOverrides", `Manual overrides ${importReviewQueue.length}`],
+                  ["exportRecovery", "Export/recovery"],
                 ] as const).map(([tab, label]) => (
                   <button
                     key={tab}
@@ -4218,7 +4228,7 @@ export default function App() {
                 </button>
 
                 <button
-                  onClick={() => setWorkbenchTab("links")}
+                  onClick={() => setWorkbenchTab("candidateRelationships")}
                   className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-emerald-400/50 hover:bg-[#111520] cursor-pointer"
                   title="Inspect queued and high-confidence relationship candidates"
                 >
@@ -4233,7 +4243,7 @@ export default function App() {
                 </button>
 
                 <button
-                  onClick={() => setWorkbenchTab("duplicates")}
+                  onClick={() => setWorkbenchTab("claimConflicts")}
                   className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-rose-400/50 hover:bg-[#111520] cursor-pointer"
                   title="Review duplicate and impossible-reference conflict risk"
                 >
@@ -4248,7 +4258,7 @@ export default function App() {
                 </button>
 
                 <button
-                  onClick={() => setWorkbenchTab("tags")}
+                  onClick={() => setWorkbenchTab("repairJobs")}
                   className="rounded-md border border-[#22273b] bg-[#090a0f] p-3 text-left hover:border-amber-400/50 hover:bg-[#111520] cursor-pointer"
                   title="Preview repair jobs before changing canonical data"
                 >
@@ -4349,7 +4359,7 @@ export default function App() {
                 </div>
               )}
 
-              {workbenchTab === "links" && (
+              {workbenchTab === "candidateRelationships" && (
                 <div className="space-y-3">
                   <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between gap-3 mb-3">
@@ -4749,7 +4759,7 @@ export default function App() {
                 </div>
               )}
 
-              {workbenchTab === "tags" && (
+              {workbenchTab === "sourceHealth" && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
                   <div className="xl:col-span-7 bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between mb-2">
@@ -4856,7 +4866,94 @@ export default function App() {
                 </div>
               )}
 
-              {workbenchTab === "imports" && (
+              {workbenchTab === "repairJobs" && (
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
+                  <div className="xl:col-span-5 rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Dry-Run Triggers</span>
+                        <p className="mt-0.5 text-[10px] font-mono text-slate-600">
+                          Repair jobs stay preview-only until an operator applies them.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[9px] text-slate-600">{graphRepairTriggers.length}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {graphRepairTriggers.length > 0 ? graphRepairTriggers.map((trigger) => (
+                        <div key={trigger.id} className="rounded-md border border-[#252a3d] bg-[#0e1119] p-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="truncate font-mono text-[9.5px] text-slate-300">{trigger.reason}</span>
+                            <span className="shrink-0 rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                              dry run
+                            </span>
+                          </div>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {trigger.findingCodes.map((code) => (
+                              <span key={`${trigger.id}-${code}`} className="rounded border border-[#252a3d] px-1.5 py-0.5 text-[8px] font-mono text-slate-500">
+                                {code}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )) : (
+                        <EmptyState
+                          title="No Repair Triggers"
+                          detail="Current graph health findings do not cross configured repair thresholds."
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="xl:col-span-7 rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Repair Preview Diff</span>
+                        <p className="mt-0.5 text-[10px] font-mono text-slate-600">
+                          Proposed canonical edge changes generated from quality policies.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[9px] text-slate-600">{graphRepairPreview.diffs.length}</span>
+                    </div>
+                    <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+                      {graphRepairPreview.diffs.length > 0 ? graphRepairPreview.diffs.map((diff) => {
+                        const source = peopleById.get(diff.edge.source) as Thinker | undefined;
+                        const target = peopleById.get(diff.edge.target) as Thinker | undefined;
+                        return (
+                          <div key={`${diff.action}-${diff.edge.source}-${diff.edge.target}-${diff.edge.type}`} className="rounded-md border border-[#252a3d] bg-[#0e1119] p-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <button
+                                onClick={() => {
+                                  setHighlightPath([diff.edge.source, diff.edge.target]);
+                                  selectPerson(diff.edge.source, { preserveHighlight: true });
+                                  setViewMode("split");
+                                }}
+                                className="min-w-0 flex-1 cursor-pointer text-left"
+                              >
+                                <span className="block truncate font-mono text-[10px] text-slate-300">
+                                  {source?.name || diff.edge.source}{" -> "}{target?.name || diff.edge.target}
+                                </span>
+                                <span className="block truncate font-mono text-[8.5px] text-slate-600">{diff.edge.type}</span>
+                              </button>
+                              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                                {diff.action}
+                              </span>
+                            </div>
+                            <div className="mt-1 truncate font-mono text-[8.5px] text-slate-600">{diff.reason}</div>
+                          </div>
+                        );
+                      }) : (
+                        <EmptyState
+                          title="No Diff Available"
+                          detail="No weak unsupported relationship edges currently match automated repair policies."
+                          action={{ label: "Source Health", onClick: () => setWorkbenchTab("sourceHealth") }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {workbenchTab === "manualOverrides" && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
                   <div className="xl:col-span-7 bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between mb-3">
@@ -5332,7 +5429,7 @@ export default function App() {
                           <EmptyState
                             title="Import Queue Empty"
                             detail="Search Wikidata, paste a batch, or create a manual draft. Accepted candidates appear in the atlas and can be linked from the workbench."
-                            action={{ label: "Focus Import", onClick: () => setWorkbenchTab("imports") }}
+                            action={{ label: "Manual Overrides", onClick: () => setWorkbenchTab("manualOverrides") }}
                           />
                         )}
                       </div>
@@ -5403,7 +5500,7 @@ export default function App() {
                 </div>
               )}
 
-              {workbenchTab === "export" && (
+              {workbenchTab === "exportRecovery" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="rounded-md border border-[#252a3d] bg-[#090b10] p-4">
                     <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Atlas State</div>
@@ -5455,7 +5552,7 @@ export default function App() {
                 </div>
               )}
 
-              {workbenchTab === "duplicates" && (
+              {workbenchTab === "claimConflicts" && (
                 <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Duplicate Candidates</span>
@@ -5625,8 +5722,8 @@ export default function App() {
                                   <div className="flex shrink-0 items-center gap-0.5 pr-2 pl-1 opacity-55 transition-opacity group-hover:opacity-100">
                                     {[
                                       { label: "F", title: "Focus", action: () => selectPerson(p.id) },
-                                      { label: "C", title: "Connect", action: () => { selectPerson(p.id); openWorkbenchPanel("links"); } },
-                                      { label: "T", title: "Edit tags", action: () => { selectPerson(p.id); openWorkbenchPanel("tags"); } },
+                                      { label: "C", title: "Connect", action: () => { selectPerson(p.id); openWorkbenchPanel("candidateRelationships"); } },
+                                      { label: "T", title: "Edit tags", action: () => { selectPerson(p.id); openWorkbenchPanel("sourceHealth"); } },
                                       { label: "S", title: "Review sources", action: () => { selectPerson(p.id); applyActivity("sources"); } },
                                     ].map((action) => (
                                       <button
@@ -5867,7 +5964,7 @@ export default function App() {
                   onShowBFS={handleShowBFS}
                   onOpenSourceStudio={(id) => {
                     selectPerson(id);
-                    openWorkbenchPanel("links");
+                    openWorkbenchPanel("candidateRelationships");
                   }}
                 />
               </div>
