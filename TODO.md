@@ -431,7 +431,7 @@ Status notation:
 
 ## Deployment And Sharing
 
-- Add production deployment target.
+- [x] Add production deployment target.
 - Evaluate:
   - Render
   - Railway
