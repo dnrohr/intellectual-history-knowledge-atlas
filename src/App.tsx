@@ -37,6 +37,11 @@ import {
   getDryRunRepairJobTriggers,
   planWeakUnsupportedEdgeDemotions,
 } from "./graphQuality";
+import {
+  buildBulkEdgeValidationReport,
+  createBulkEdgeRepairDecisions,
+  validateBulkEdgeStructure,
+} from "./edgeValidation";
 import { clearPersistedAtlasState, loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
 import { PUBLIC_DEMO_MODE } from "./runtimeConfig";
 import { 
@@ -2991,6 +2996,24 @@ export default function App() {
   const importQueueDuplicateCount = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate)).length;
   const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < importConfidenceThreshold).length;
   const graphHealthReport = buildGraphHealthReport(people, edges, [], threadDefinitions);
+  const bulkEdgeValidationResults = validateBulkEdgeStructure(people, edges);
+  const bulkEdgeValidationReport = buildBulkEdgeValidationReport(bulkEdgeValidationResults);
+  const bulkEdgeRepairDecisions = createBulkEdgeRepairDecisions(bulkEdgeValidationReport);
+  const exportBulkEdgeValidationReport = () => {
+    const payload = JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      summary: bulkEdgeValidationReport.summary,
+      results: bulkEdgeValidationResults,
+      repairDecisions: bulkEdgeRepairDecisions,
+    }, null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `bulk-edge-validation-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
   const graphRepairTriggers = getDryRunRepairJobTriggers(graphHealthReport.findings);
   const graphRepairPreview = createGraphRepairPreview("repair:source-studio-dry-run", planWeakUnsupportedEdgeDemotions(edges));
   const applyGraphRepairPreview = () => {
@@ -5117,6 +5140,60 @@ export default function App() {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="xl:col-span-12 rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                    <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Bulk Edge Validation</span>
+                        <p className="mt-0.5 text-[10px] font-mono text-slate-600">
+                          Structural pass for every canonical relationship edge, with dry-run repair decisions for blockers.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-[8px] font-mono text-emerald-300">
+                          {bulkEdgeValidationResults.length - bulkEdgeValidationReport.summary.removedExistingEdges} structurally clear
+                        </span>
+                        <span className="rounded border border-rose-500/25 bg-rose-500/10 px-1.5 py-0.5 text-[8px] font-mono text-rose-300">
+                          {bulkEdgeValidationReport.summary.removedExistingEdges} blockers
+                        </span>
+                        <span className="rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                          {bulkEdgeRepairDecisions.length} dry-run repairs
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_auto] lg:items-start">
+                      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                        {[
+                          ["Total edges", bulkEdgeValidationReport.summary.total],
+                          ["Confirmed", bulkEdgeValidationReport.summary.confirmedExistingEdges],
+                          ["Remove", bulkEdgeValidationReport.summary.removedExistingEdges],
+                          ["Investigate", bulkEdgeValidationReport.summary.autoInvestigatingMissingSources],
+                        ].map(([label, value]) => (
+                          <div key={label} className="rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                            <div className="font-mono text-[8px] uppercase tracking-wider text-slate-600">{label}</div>
+                            <div className="mt-0.5 font-mono text-sm text-slate-200">{value}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={exportBulkEdgeValidationReport}
+                        className="rounded-md border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-3 py-2 text-[10px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+                      >
+                        Export Report
+                      </button>
+                    </div>
+                    {bulkEdgeRepairDecisions.length > 0 && (
+                      <div className="mt-3 max-h-32 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
+                        {bulkEdgeRepairDecisions.slice(0, 6).map((decision) => (
+                          <div key={decision.id} className="flex items-center justify-between gap-2 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                            <span className="min-w-0 truncate font-mono text-[9px] text-slate-300">{decision.edgeId}</span>
+                            <span className="shrink-0 rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                              {decision.action}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
