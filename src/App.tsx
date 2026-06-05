@@ -2970,7 +2970,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.14 }}
-                className="absolute right-0 top-10 z-50 w-72 rounded-md border border-[#22273b] bg-[#0d1018] p-1.5 shadow-2xl shadow-black/50"
+                className="fixed inset-x-3 top-16 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-[#22273b] bg-[#0d1018] p-1.5 shadow-2xl shadow-black/50 md:absolute md:inset-auto md:right-0 md:top-10 md:w-72 md:max-h-[calc(100vh-5rem)]"
               >
                 <button
                   onClick={() => {

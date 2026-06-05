@@ -241,7 +241,7 @@ Status notation:
   - mutate
   - utility
 - [x] Remove duplicate or overlapping controls after the button audit.
-- [ ] Add mobile-first panel behavior:
+- [x] Add mobile-first panel behavior:
   - one primary view at a time
   - dossier bottom sheet
   - full-screen search/command sheet
