@@ -145,6 +145,110 @@ describe("canonical dataset build inputs", () => {
     expect(output.metadata.contentFingerprint).toMatch(/^[0-9a-f]{8}$/);
   });
 
+  it("snapshots canonical data output", () => {
+    const output = buildCanonicalDataset({
+      seedData: {
+        people: [
+          { id: "arendt", name: "Hannah Arendt", birth: 1906, death: 1975, fields: ["Political Theory"] },
+          { id: "benjamin", name: "Walter Benjamin", birth: 1892, death: 1940, fields: ["Critical Theory"] },
+        ],
+        edges: [
+          {
+            id: "edge:benjamin-arendt",
+            source: "benjamin",
+            target: "arendt",
+            type: "Influence",
+            strength: 4,
+            status: "accepted",
+            claimIds: ["claim:benjamin-arendt"],
+          },
+        ],
+      },
+      sourceAdapterOutputs: [],
+      claimRecords: [
+        makeClaim("claim:benjamin-arendt", {
+          subjectEntityId: "edge:benjamin-arendt",
+          subjectEntityType: "Relationship",
+          field: "relationshipType",
+          value: "Influence",
+          confidence: 0.92,
+        }),
+      ],
+      acceptancePolicies: {},
+      manualOverrides: [],
+      repairDecisions: [],
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      {
+        "claims": [
+          {
+            "confidence": 0.92,
+            "extractionMethod": "manual_seed",
+            "field": "relationshipType",
+            "id": "claim:benjamin-arendt",
+            "label": "claim:benjamin-arendt",
+            "sourceName": "Manual",
+            "sourceReliability": 0.7,
+            "sourceType": "reference",
+            "status": "accepted",
+            "subjectEntityId": "edge:benjamin-arendt",
+            "subjectEntityType": "Relationship",
+            "type": "SourceClaim",
+            "value": "Influence",
+          },
+        ],
+        "edges": [
+          {
+            "claimIds": [
+              "claim:benjamin-arendt",
+            ],
+            "id": "edge:benjamin-arendt",
+            "source": "benjamin",
+            "status": "accepted",
+            "strength": 4,
+            "target": "arendt",
+            "type": "Influence",
+          },
+        ],
+        "metadata": {
+          "contentFingerprint": "0f969419",
+          "datasetVersion": "canonical-v1",
+          "generator": "buildCanonicalDataset",
+          "inputCounts": {
+            "claims": 1,
+            "edges": 1,
+            "manualOverrides": 0,
+            "people": 2,
+            "repairDecisions": 0,
+            "sourceAdapterOutputs": 0,
+          },
+        },
+        "people": [
+          {
+            "birth": 1906,
+            "death": 1975,
+            "fields": [
+              "Political Theory",
+            ],
+            "id": "arendt",
+            "name": "Hannah Arendt",
+          },
+          {
+            "birth": 1892,
+            "death": 1940,
+            "fields": [
+              "Critical Theory",
+            ],
+            "id": "benjamin",
+            "name": "Walter Benjamin",
+          },
+        ],
+        "version": 1,
+      }
+    `);
+  });
+
   it("generates deterministic claim changelog categories", () => {
     const previous = [
       makeClaim("claim:changed", { value: "Original" }),

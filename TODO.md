@@ -247,7 +247,7 @@ Goal: make the bundled dataset reproducible from source observations, validation
 - [x] Add deterministic dataset generation.
 - [x] Add dataset version metadata.
 - [x] Add changelog generation for added, changed, demoted, rejected, and conflicting claims.
-- [ ] Add snapshot tests for canonical data output.
+- [x] Add snapshot tests for canonical data output.
 - [ ] Add CI checks that fail on impossible dates, invalid references, self-links, and schema errors.
 
 ### 12. Hosted Demo And Sharing
