@@ -9,10 +9,18 @@ import {
   attachRelationshipCandidateProvenance,
   buildRelationshipCandidateStore,
   getRelationshipCandidateProvenance,
+  normalizeRelationshipStatus,
+  RELATIONSHIP_STATUSES,
   validateRelationshipDirection,
 } from "./relationshipEvidence";
 
 describe("relationship evidence", () => {
+  it("represents relationship status values at runtime", () => {
+    expect(RELATIONSHIP_STATUSES).toEqual(["suggested", "accepted", "rejected", "needs_source"]);
+    expect(normalizeRelationshipStatus("accepted")).toBe("accepted");
+    expect(normalizeRelationshipStatus("unknown")).toBe("suggested");
+  });
+
   it("generates direct mentorship candidates from advisor and student evidence", () => {
     expect(generateMentorshipCandidates([
       { personId: "student", advisors: ["mentor"] },

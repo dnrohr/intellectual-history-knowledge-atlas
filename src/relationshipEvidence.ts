@@ -1,5 +1,8 @@
 import { RelationshipEntity } from "./types";
 
+export const RELATIONSHIP_STATUSES = ["suggested", "accepted", "rejected", "needs_source"] as const;
+export type RelationshipStatus = typeof RELATIONSHIP_STATUSES[number];
+
 export type RelationshipCandidateCategory =
   | "likely influence"
   | "direct mentorship"
@@ -30,7 +33,7 @@ export interface RelationshipCandidate {
   id: string;
   relationship: RelationshipEntity;
   category: RelationshipCandidateCategory;
-  status: "suggested" | "accepted" | "rejected" | "needs_source";
+  status: RelationshipStatus;
   confidence: number;
   evidence: string[];
   sourceUrls?: string[];
@@ -66,6 +69,9 @@ export interface RelationshipDirectionValidation {
 }
 
 const personEntityId = (id: string) => id.startsWith("person:") ? id : `person:${id}`;
+
+export const normalizeRelationshipStatus = (status: unknown): RelationshipStatus =>
+  RELATIONSHIP_STATUSES.includes(status as RelationshipStatus) ? status as RelationshipStatus : "suggested";
 
 const mentorshipCandidate = (mentorId: string, studentId: string, evidence: string): RelationshipCandidate => {
   const sourceId = personEntityId(mentorId);
