@@ -121,7 +121,7 @@ Goal: generate, classify, and explain relationship candidates from evidence.
 
 - [x] Generate direct mentorship candidates from advisor/student evidence.
 - [x] Generate collaboration candidates from coauthorship, correspondence, institutional overlap, and jointly authored works.
-- [ ] Generate influence candidates from explicit source claims, citation paths, named mentions, advisor/student lineage, work-to-work reception, and movement membership with chronology.
+- [x] Generate influence candidates from explicit source claims, citation paths, named mentions, advisor/student lineage, work-to-work reception, and movement membership with chronology.
 - [ ] Generate parallel-development candidates from shared concepts without direct transmission evidence.
 - [ ] Generate source-context neighbor candidates from source proximity without overclaiming influence.
 - [ ] Validate direction using chronology, source wording, and relationship type.

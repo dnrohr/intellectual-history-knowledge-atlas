@@ -10,12 +10,18 @@ export type RelationshipCandidateCategory =
 
 export interface PersonRelationshipEvidence {
   personId: string;
+  birth?: number | null;
   advisors?: string[];
   students?: string[];
   coauthors?: string[];
   correspondents?: string[];
   institutions?: string[];
+  movements?: string[];
   works?: Array<{ title: string; authorIds?: string[] }>;
+  explicitInfluences?: string[];
+  citationTargets?: string[];
+  namedMentions?: string[];
+  receivedWorks?: string[];
 }
 
 export interface RelationshipCandidate {
@@ -132,6 +138,68 @@ export const generateCollaborationCandidates = (
       (work.authorIds || []).filter((authorId) => authorId !== person.personId && peopleById.has(authorId)).forEach((authorId) =>
         addCandidateEvidence(candidates, collaborationCandidate(person.personId, authorId, `jointly authored work: ${work.title}`, 0.85))
       );
+    });
+  });
+
+  return Array.from(candidates.values());
+};
+
+const influenceCandidate = (
+  sourceId: string,
+  targetId: string,
+  evidence: string,
+  confidence = 0.7
+): RelationshipCandidate => {
+  const sourceEntityId = personEntityId(sourceId);
+  const targetEntityId = personEntityId(targetId);
+  const id = `relationship-candidate:${sourceEntityId}:person influenced person:${targetEntityId}`;
+  return {
+    id,
+    relationship: {
+      id: id.replace("relationship-candidate:", "relationship:"),
+      type: "Relationship",
+      label: `${sourceEntityId} influenced ${targetEntityId}`,
+      source: { entityId: sourceEntityId, entityType: "Person" },
+      target: { entityId: targetEntityId, entityType: "Person" },
+      relationshipType: "person influenced person",
+      confidence,
+      status: "suggested",
+    },
+    category: "likely influence",
+    status: "suggested",
+    confidence,
+    evidence: [evidence],
+  };
+};
+
+export const generateInfluenceCandidates = (
+  people: PersonRelationshipEvidence[]
+): RelationshipCandidate[] => {
+  const candidates = new Map<string, RelationshipCandidate>();
+  const peopleById = new Map(people.map((person) => [person.personId, person]));
+
+  const addInfluence = (sourceId: string, targetId: string, evidence: string, confidence = 0.7) => {
+    if (sourceId === targetId) return;
+    const source = peopleById.get(sourceId);
+    const target = peopleById.get(targetId);
+    if (source?.birth !== undefined && source.birth !== null && target?.birth !== undefined && target.birth !== null && source.birth > target.birth + 20) return;
+    addCandidateEvidence(candidates, influenceCandidate(sourceId, targetId, evidence, confidence));
+  };
+
+  people.forEach((person) => {
+    (person.explicitInfluences || []).forEach((sourceId) => addInfluence(sourceId, person.personId, "explicit influence claim", 0.85));
+    (person.citationTargets || []).forEach((sourceId) => addInfluence(sourceId, person.personId, "citation path evidence", 0.65));
+    (person.namedMentions || []).forEach((sourceId) => addInfluence(sourceId, person.personId, "named mention evidence", 0.55));
+    (person.advisors || []).forEach((sourceId) => addInfluence(sourceId, person.personId, "advisor/student lineage", 0.7));
+    (person.receivedWorks || []).forEach((sourceId) => addInfluence(sourceId, person.personId, "work reception evidence", 0.7));
+    (person.movements || []).forEach((movement) => {
+      people
+        .filter((other) => other.personId !== person.personId && (other.movements || []).includes(movement))
+        .forEach((other) => {
+          const source = (other.birth ?? 0) <= (person.birth ?? 0) ? other : person;
+          const target = source.personId === other.personId ? person : other;
+          addInfluence(source.personId, target.personId, `shared movement with chronology: ${movement}`, 0.5);
+        });
     });
   });
 

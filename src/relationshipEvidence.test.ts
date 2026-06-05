@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateCollaborationCandidates, generateMentorshipCandidates } from "./relationshipEvidence";
+import { generateCollaborationCandidates, generateInfluenceCandidates, generateMentorshipCandidates } from "./relationshipEvidence";
 
 describe("relationship evidence", () => {
   it("generates direct mentorship candidates from advisor and student evidence", () => {
@@ -52,6 +52,41 @@ describe("relationship evidence", () => {
         "shared institution: Princeton IAS",
         "jointly authored work: Shared Work",
       ],
+    });
+  });
+
+  it("generates influence candidates from multiple evidence channels with chronology", () => {
+    const candidates = generateInfluenceCandidates([
+      { personId: "source", birth: 1900, movements: ["Phenomenology"] },
+      {
+        personId: "target",
+        birth: 1930,
+        explicitInfluences: ["source"],
+        citationTargets: ["source"],
+        namedMentions: ["source"],
+        advisors: ["source"],
+        receivedWorks: ["source"],
+        movements: ["Phenomenology"],
+      },
+    ]);
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]).toMatchObject({
+      id: "relationship-candidate:person:source:person influenced person:person:target",
+      category: "likely influence",
+      relationship: {
+        relationshipType: "person influenced person",
+        source: { entityId: "person:source" },
+        target: { entityId: "person:target" },
+      },
+      evidence: expect.arrayContaining([
+        "explicit influence claim",
+        "citation path evidence",
+        "named mention evidence",
+        "advisor/student lineage",
+        "work reception evidence",
+        "shared movement with chronology: Phenomenology",
+      ]),
     });
   });
 });
