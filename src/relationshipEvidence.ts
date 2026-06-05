@@ -23,6 +23,7 @@ export interface PersonRelationshipEvidence {
   citationTargets?: string[];
   namedMentions?: string[];
   receivedWorks?: string[];
+  sourceContexts?: Array<{ sourceId: string; section?: string }>;
 }
 
 export interface RelationshipCandidate {
@@ -255,6 +256,60 @@ export const generateParallelDevelopmentCandidates = (
       sharedConcepts.forEach((concept) =>
         addCandidateEvidence(candidates, parallelDevelopmentCandidate(person.personId, other.personId, concept))
       );
+    });
+  });
+
+  return Array.from(candidates.values());
+};
+
+const sourceContextNeighborCandidate = (
+  aId: string,
+  bId: string,
+  sourceId: string,
+  section?: string
+): RelationshipCandidate => {
+  const [sourceEntityId, targetEntityId] = nonDirectionalPair(aId, bId);
+  const id = `relationship-candidate:${sourceEntityId}:source-context neighbor:${targetEntityId}`;
+  const where = section ? `${sourceId}#${section}` : sourceId;
+  return {
+    id,
+    relationship: {
+      id: id.replace("relationship-candidate:", "relationship:"),
+      type: "Relationship",
+      label: `${sourceEntityId} source-context neighbor ${targetEntityId}`,
+      source: { entityId: sourceEntityId, entityType: "Person" },
+      target: { entityId: targetEntityId, entityType: "Person" },
+      relationshipType: "Source-context neighbor",
+      confidence: 0.35,
+      status: "suggested",
+    },
+    category: "source-context neighbor",
+    status: "suggested",
+    confidence: 0.35,
+    evidence: [`source proximity without influence claim: ${where}`],
+  };
+};
+
+export const generateSourceContextNeighborCandidates = (
+  people: PersonRelationshipEvidence[]
+): RelationshipCandidate[] => {
+  const candidates = new Map<string, RelationshipCandidate>();
+
+  people.forEach((person, index) => {
+    people.slice(index + 1).forEach((other) => {
+      (person.sourceContexts || []).forEach((context) => {
+        const matchingContext = (other.sourceContexts || []).find((otherContext) =>
+          otherContext.sourceId === context.sourceId &&
+          (!context.section || !otherContext.section || otherContext.section === context.section)
+        );
+        if (!matchingContext) return;
+        addCandidateEvidence(candidates, sourceContextNeighborCandidate(
+          person.personId,
+          other.personId,
+          context.sourceId,
+          context.section || matchingContext.section
+        ));
+      });
     });
   });
 

@@ -4,6 +4,7 @@ import {
   generateInfluenceCandidates,
   generateMentorshipCandidates,
   generateParallelDevelopmentCandidates,
+  generateSourceContextNeighborCandidates,
 } from "./relationshipEvidence";
 
 describe("relationship evidence", () => {
@@ -114,5 +115,31 @@ describe("relationship evidence", () => {
       },
       evidence: ["shared concept without transmission evidence: Intentionality"],
     });
+  });
+
+  it("generates source-context neighbors from source proximity without overclaiming influence", () => {
+    const candidates = generateSourceContextNeighborCandidates([
+      { personId: "a", sourceContexts: [{ sourceId: "sep:logic", section: "ancient" }] },
+      { personId: "b", sourceContexts: [{ sourceId: "sep:logic", section: "ancient" }] },
+      { personId: "c", sourceContexts: [{ sourceId: "sep:logic", section: "modern" }] },
+    ]);
+
+    expect(candidates).toEqual([{
+      id: "relationship-candidate:person:a:source-context neighbor:person:b",
+      relationship: {
+        id: "relationship:person:a:source-context neighbor:person:b",
+        type: "Relationship",
+        label: "person:a source-context neighbor person:b",
+        source: { entityId: "person:a", entityType: "Person" },
+        target: { entityId: "person:b", entityType: "Person" },
+        relationshipType: "Source-context neighbor",
+        confidence: 0.35,
+        status: "suggested",
+      },
+      category: "source-context neighbor",
+      status: "suggested",
+      confidence: 0.35,
+      evidence: ["source proximity without influence claim: sep:logic#ancient"],
+    }]);
   });
 });
