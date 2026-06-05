@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateMentorshipCandidates } from "./relationshipEvidence";
+import { generateCollaborationCandidates, generateMentorshipCandidates } from "./relationshipEvidence";
 
 describe("relationship evidence", () => {
   it("generates direct mentorship candidates from advisor and student evidence", () => {
@@ -23,5 +23,35 @@ describe("relationship evidence", () => {
       confidence: 0.85,
       evidence: ["student/advisor evidence"],
     }]);
+  });
+
+  it("generates collaboration candidates from coauthorship, correspondence, institutional overlap, and joint works", () => {
+    const candidates = generateCollaborationCandidates([
+      {
+        personId: "a",
+        coauthors: ["b"],
+        correspondents: ["b"],
+        institutions: ["Princeton IAS"],
+        works: [{ title: "Shared Work", authorIds: ["a", "b"] }],
+      },
+      { personId: "b", institutions: ["Princeton IAS"] },
+    ]);
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]).toMatchObject({
+      id: "relationship-candidate:person:a:person collaborated with person:person:b",
+      category: "collaboration",
+      relationship: {
+        relationshipType: "person collaborated with person",
+        source: { entityId: "person:a", entityType: "Person" },
+        target: { entityId: "person:b", entityType: "Person" },
+      },
+      evidence: [
+        "coauthorship evidence",
+        "correspondence evidence",
+        "shared institution: Princeton IAS",
+        "jointly authored work: Shared Work",
+      ],
+    });
   });
 });
