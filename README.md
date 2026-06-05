@@ -556,6 +556,18 @@ Evaluated options:
 
 Keep Render as the default until the server is intentionally refactored into serverless API handlers or a container-first deployment.
 
+## Environment Variables
+
+The app does not require credentials for local use. Wikidata search uses public endpoints.
+
+Supported environment variables:
+
+- `PORT`: optional server port. Defaults to `3000`; hosted providers such as Render usually set this automatically.
+- `NODE_ENV`: set to `production` for production serving. The dev server uses Vite middleware when this is not `production`.
+- `APP_URL`: optional public URL for future hosted integrations. It is documented in `.env.example` but not required by the current app.
+
+Copy `.env.example` to `.env` for local overrides. Do not commit secrets or API keys.
+
 ## Troubleshooting
 
 ### The App Opens But Shows Old Data
