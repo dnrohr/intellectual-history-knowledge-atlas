@@ -9,6 +9,7 @@ import {
   buildPersonEntitiesFromThinkers,
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
+  buildSourceClaimEntitiesFromInfluenceEdge,
   createSourceClaimEntity,
   EXTRACTION_METHODS,
   getConceptEntityId,
@@ -177,6 +178,41 @@ describe("knowledge model entities", () => {
       relationshipType: "Indirect influence",
       claimIds: ["claim:arendt-habermas"],
     });
+  });
+
+  it("migrates legacy edge source URL claims into structured relationship claims", () => {
+    const edge = {
+      source: "arendt",
+      target: "habermas",
+      type: "person influenced person",
+      strength: 4,
+      confidence: 0.75,
+      sourceClaims: ["https://plato.stanford.edu/entries/arendt/", "claim:manual-review"],
+    };
+
+    const relationship = buildRelationshipEntityFromInfluenceEdge(edge);
+    const structuredClaims = buildSourceClaimEntitiesFromInfluenceEdge(edge);
+
+    expect(relationship.claimIds).toEqual([
+      "claim:relationship-person-arendt-person-influenced-person-person-habermas:sourceclaims-0:plato-stanford-edu:https-plato-stanford-edu-entries-arendt",
+      "claim:manual-review",
+    ]);
+    expect(structuredClaims).toEqual([{
+      id: "claim:relationship-person-arendt-person-influenced-person-person-habermas:sourceclaims-0:plato-stanford-edu:https-plato-stanford-edu-entries-arendt",
+      type: "SourceClaim",
+      label: "plato.stanford.edu: sourceClaims.0",
+      sourceName: "plato.stanford.edu",
+      sourceUrl: "https://plato.stanford.edu/entries/arendt/",
+      sourceType: "reference",
+      sourceReliability: 0.6,
+      extractionMethod: "manual_seed",
+      subjectEntityId: "relationship:person:arendt:person influenced person:person:habermas",
+      subjectEntityType: "Relationship",
+      field: "sourceClaims.0",
+      value: "https://plato.stanford.edu/entries/arendt/",
+      confidence: 0.75,
+      status: "observed",
+    }]);
   });
 
   it("projects current thinker works into first-class work nodes", () => {
@@ -508,12 +544,14 @@ describe("knowledge model entities", () => {
       target: "arendt",
       type: "person influenced person",
       strength: 1,
+      sourceClaims: ["https://example.com/source"],
     }]).map((entity) => entity.type)).toEqual([
       "Person",
       "Work",
       "Concept",
       "Movement",
       "Relationship",
+      "SourceClaim",
     ]);
   });
 });

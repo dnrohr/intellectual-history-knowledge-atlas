@@ -280,6 +280,16 @@ export const getSourceClaimEntityId = (
   value: string
 ) => `claim:${normalizeIdPart(subjectEntityId)}:${normalizeIdPart(field)}:${normalizeIdPart(sourceName)}:${normalizeIdPart(value)}`;
 
+const isUrlLike = (value: string) => /^https?:\/\//i.test(value);
+
+const getSourceNameFromUrl = (value: string) => {
+  try {
+    return new URL(value).hostname.replace(/^www\./, "");
+  } catch {
+    return "Legacy source URL";
+  }
+};
+
 export const RELATIONSHIP_TYPE_DEFINITIONS: RelationshipTypeDefinition[] = [
   { type: "person authored work", sourceType: "Person", targetType: "Work" },
   { type: "work introduced concept", sourceType: "Work", targetType: "Concept" },
@@ -432,6 +442,12 @@ export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): R
   const sourceEntityId = sourceEntityType === "Person" ? getPersonEntityId(edge.source) : edge.source;
   const targetEntityId = targetEntityType === "Person" ? getPersonEntityId(edge.target) : edge.target;
 
+  const sourceClaimIds = (edge.sourceClaims || []).map((claim, index) =>
+    isUrlLike(claim)
+      ? getSourceClaimEntityId(edge.id || getRelationshipRecordId(sourceEntityId, targetEntityId, relationshipType), `sourceClaims.${index}`, getSourceNameFromUrl(claim), claim)
+      : claim
+  );
+
   return {
     id: edge.id || getRelationshipRecordId(sourceEntityId, targetEntityId, relationshipType),
     type: "Relationship",
@@ -448,8 +464,28 @@ export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): R
     strength: edge.strength,
     confidence: edge.confidence,
     status: edge.status,
-    claimIds: edge.sourceClaims || [],
+    claimIds: sourceClaimIds,
   };
+};
+
+export const buildSourceClaimEntitiesFromInfluenceEdge = (edge: InfluenceEdge): SourceClaimEntity[] => {
+  const relationship = buildRelationshipEntityFromInfluenceEdge(edge);
+  return (edge.sourceClaims || [])
+    .map((sourceUrl, index) => isUrlLike(sourceUrl) ? createSourceClaimEntity({
+      id: relationship.claimIds?.[index],
+      sourceName: getSourceNameFromUrl(sourceUrl),
+      sourceUrl,
+      sourceType: "reference",
+      sourceReliability: 0.6,
+      extractionMethod: "manual_seed",
+      subjectEntityId: relationship.id,
+      subjectEntityType: "Relationship",
+      field: `sourceClaims.${index}`,
+      value: sourceUrl,
+      confidence: relationship.confidence ?? 0.5,
+      status: "observed",
+    }) : null)
+    .filter((claim): claim is SourceClaimEntity => Boolean(claim));
 };
 
 export const normalizeKnowledgeEntities = (value: unknown): KnowledgeEntity[] => {
@@ -614,4 +650,5 @@ export const buildExpandedKnowledgeEntitiesFromAtlas = (
   ...buildConceptEntitiesFromThinkers(people),
   ...buildMovementEntities(people),
   ...edges.map(buildRelationshipEntityFromInfluenceEdge),
+  ...edges.flatMap(buildSourceClaimEntitiesFromInfluenceEdge),
 ];

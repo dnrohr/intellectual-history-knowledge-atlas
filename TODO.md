@@ -69,7 +69,7 @@ Goal: make every fact auditable before automating acceptance.
 - [x] Track source type: reference, encyclopedia, bibliographic, primary text, institutional, citation index, curated dataset.
 - [x] Track source reliability and recency.
 - [x] Store extraction method: API field, parser, text extraction, citation graph, model-generated summary, manual seed.
-- [ ] Migrate current edge `sourceClaims?: string[]` URLs into structured claim records.
+- [x] Migrate current edge `sourceClaims?: string[]` URLs into structured claim records.
 - [ ] Compute source gaps from claim records instead of missing URLs alone.
 
 ### 3. Source Adapter Layer
