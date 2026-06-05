@@ -417,7 +417,7 @@ Status notation:
 - Add Playwright tests for:
   - [x] batch import queueing
   - [x] accepting queued candidate
-  - editing queued candidate
+  - [x] editing queued candidate
   - accepting candidate with suggested link
   - filter drawer taxonomy expansion
   - timeline drag behavior

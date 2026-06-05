@@ -46,3 +46,23 @@ test("accepts a queued candidate into the atlas", async ({ page }) => {
   expect(storedPeople.some((person: { name: string }) => person.name === "Accepted Test Thinker")).toBe(true);
   expect(storedQueue.items).toEqual([]);
 });
+
+test("edits a queued candidate before accepting it", async ({ page }) => {
+  await openImportActivity(page);
+  await queuePastedRows(page, [
+    "Draft Test Thinker|2510||Philosophy|Original pasted note",
+  ]);
+
+  await page.getByTestId("edit-import-review-item").click();
+  await expect(page.getByTestId("import-draft-name")).toHaveValue("Draft Test Thinker");
+
+  await page.getByTestId("import-draft-name").fill("Edited Test Thinker");
+  await page.getByTestId("import-draft-notes").fill("Edited note from the queue review flow");
+  await page.getByTestId("accept-import-draft").click();
+
+  const storedPeople = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_people_v6") || "[]"));
+  const storedQueue = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_import_queue_v2") || "{}"));
+  const editedPerson = storedPeople.find((person: { name: string }) => person.name === "Edited Test Thinker");
+  expect(editedPerson?.notes).toContain("Edited note from the queue review flow");
+  expect(storedQueue.items).toEqual([]);
+});

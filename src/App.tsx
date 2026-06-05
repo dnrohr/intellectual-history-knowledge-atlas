@@ -4874,7 +4874,7 @@ export default function App() {
                       <select value={importDraft.source} onChange={(event) => setImportDraft((prev) => ({ ...prev, source: event.target.value }))} className="md:col-span-2 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200">
                         {EXTERNAL_SOURCES.map((source) => <option key={source.id} value={source.id}>{source.name}</option>)}
                       </select>
-                      <input value={importDraft.name} onChange={(event) => setImportDraft((prev) => ({ ...prev, name: event.target.value }))} placeholder="Name" className="md:col-span-4 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
+                      <input data-testid="import-draft-name" value={importDraft.name} onChange={(event) => setImportDraft((prev) => ({ ...prev, name: event.target.value }))} placeholder="Name" className="md:col-span-4 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <input value={importDraft.birth} onChange={(event) => setImportDraft((prev) => ({ ...prev, birth: event.target.value }))} placeholder="Birth year" className="md:col-span-1 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <input value={importDraft.death} onChange={(event) => setImportDraft((prev) => ({ ...prev, death: event.target.value }))} placeholder="Death" className="md:col-span-1 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <select value={importDraft.field} onChange={(event) => setImportDraft((prev) => ({ ...prev, field: event.target.value }))} className="md:col-span-2 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200">
@@ -4888,7 +4888,7 @@ export default function App() {
                       <input value={importDraft.topics} onChange={(event) => setImportDraft((prev) => ({ ...prev, topics: event.target.value }))} placeholder="Topics, comma separated" className="md:col-span-3 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <input value={importDraft.movement} onChange={(event) => setImportDraft((prev) => ({ ...prev, movement: event.target.value }))} placeholder="Movement" className="md:col-span-3 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                       <input value={importDraft.sourceUrl} onChange={(event) => setImportDraft((prev) => ({ ...prev, sourceUrl: event.target.value }))} placeholder="Source URL" className="md:col-span-6 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
-                      <textarea value={importDraft.notes} onChange={(event) => setImportDraft((prev) => ({ ...prev, notes: event.target.value }))} placeholder="Short review note" className="md:col-span-6 min-h-16 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
+                      <textarea data-testid="import-draft-notes" value={importDraft.notes} onChange={(event) => setImportDraft((prev) => ({ ...prev, notes: event.target.value }))} placeholder="Short review note" className="md:col-span-6 min-h-16 rounded-md border border-[#252a3d] bg-[#0e1119] px-2 py-2 text-[10px] font-mono text-slate-200 placeholder:text-slate-600" />
                     </div>
 
                     <div className="mt-3 flex items-center justify-between gap-3">
@@ -4899,7 +4899,7 @@ export default function App() {
                             Clear Draft
                           </button>
                         )}
-                        <button onClick={acceptImportDraft} disabled={!importDraft.name.trim() || Number.isNaN(Number(importDraft.birth))} className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer">
+                        <button data-testid="accept-import-draft" onClick={acceptImportDraft} disabled={!importDraft.name.trim() || Number.isNaN(Number(importDraft.birth))} className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer">
                           {draftQueueItemId ? "Accept Edited" : "Accept Candidate"}
                         </button>
                       </div>
@@ -5128,6 +5128,7 @@ export default function App() {
                                     Skip
                                   </button>
                                   <button
+                                    data-testid="edit-import-review-item"
                                     onClick={() => useWikidataCandidate(candidate, item.id)}
                                     className="rounded border border-[#7b9cf5]/30 bg-[#7b9cf5]/10 px-2 py-1 text-[8.5px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
                                   >
