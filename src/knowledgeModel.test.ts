@@ -10,6 +10,7 @@ import {
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
   createSourceClaimEntity,
+  EXTRACTION_METHODS,
   getConceptEntityId,
   getAggregatedClaimIdsForSubject,
   getInstitutionEntityId,
@@ -18,6 +19,7 @@ import {
   getSourceClaimEntityId,
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
+  normalizeExtractionMethod,
   normalizeKnowledgeEntities,
   normalizeSourceClaimStatus,
   normalizeSourceType,
@@ -89,6 +91,19 @@ describe("knowledge model entities", () => {
     expect(normalizeSourceType("unknown")).toBe("reference");
   });
 
+  it("tracks source extraction methods at runtime", () => {
+    expect(EXTRACTION_METHODS).toEqual([
+      "api_field",
+      "parser",
+      "text_extraction",
+      "citation_graph",
+      "model_generated_summary",
+      "manual_seed",
+    ]);
+    expect(normalizeExtractionMethod("citation_graph")).toBe("citation_graph");
+    expect(normalizeExtractionMethod("unknown")).toBe("manual_seed");
+  });
+
   it("normalizes valid mixed entity records and drops malformed records", () => {
     const entities = normalizeKnowledgeEntities([
       { id: "person:arendt", type: "Person", label: "Hannah Arendt", thinkerId: "arendt", birth: 1906, death: 1975, fields: ["Philosophy"], claimIds: ["claim:1"] },
@@ -114,6 +129,7 @@ describe("knowledge model entities", () => {
     expect(entities.find((entity) => entity.type === "SourceClaim")).toMatchObject({
       sourceType: "reference",
       sourceReliability: 0.5,
+      extractionMethod: "manual_seed",
     });
     expect(entities.find((entity) => entity.type === "Work")).toMatchObject({
       identifiers: { isbn: "9780156701532" },
@@ -377,6 +393,7 @@ describe("knowledge model entities", () => {
       sourceUrl: "https://plato.stanford.edu/",
       sourceType: "encyclopedia",
       sourceReliability: 0.9,
+      extractionMethod: "api_field",
       observedAt: "2026-06-01T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
@@ -392,6 +409,7 @@ describe("knowledge model entities", () => {
       sourceUrl: "https://plato.stanford.edu/",
       sourceType: "encyclopedia",
       sourceReliability: 0.9,
+      extractionMethod: "api_field",
       observedAt: "2026-06-01T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
@@ -407,6 +425,7 @@ describe("knowledge model entities", () => {
       sourceName: "Wikidata",
       sourceType: "curated_dataset",
       sourceReliability: 1.4,
+      extractionMethod: "api_field",
       observedAt: "2026-06-01T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
@@ -440,6 +459,7 @@ describe("knowledge model entities", () => {
           sourceUrl: "https://www.wikidata.org/wiki/Q60025",
           sourceType: "curated_dataset",
           sourceReliability: 0.85,
+          extractionMethod: "api_field",
           observedAt: "2026-06-05T00:00:00.000Z",
           subjectEntityId: "person:arendt",
           subjectEntityType: "Person",
@@ -460,6 +480,7 @@ describe("knowledge model entities", () => {
       sourceUrl: "https://www.wikidata.org/wiki/Q60025",
       sourceType: "curated_dataset",
       sourceReliability: 0.85,
+      extractionMethod: "api_field",
       observedAt: "2026-06-05T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",

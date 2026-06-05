@@ -1,5 +1,6 @@
 import {
   ConceptEntity,
+  ExtractionMethod,
   InfluenceEdge,
   Institution,
   InstitutionEntity,
@@ -48,6 +49,15 @@ export const SOURCE_TYPES: SourceType[] = [
   "institutional",
   "citation_index",
   "curated_dataset",
+];
+
+export const EXTRACTION_METHODS: ExtractionMethod[] = [
+  "api_field",
+  "parser",
+  "text_extraction",
+  "citation_graph",
+  "model_generated_summary",
+  "manual_seed",
 ];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -178,6 +188,7 @@ const normalizeSourceClaimEntity = (value: Record<string, unknown>): SourceClaim
     sourceUrl: typeof value.sourceUrl === "string" ? value.sourceUrl : undefined,
     sourceType: normalizeSourceType(value.sourceType),
     sourceReliability: normalizeRequiredConfidence(value.sourceReliability),
+    extractionMethod: normalizeExtractionMethod(value.extractionMethod),
     observedAt: typeof value.observedAt === "string" ? value.observedAt : undefined,
     subjectEntityId: value.subjectEntityId,
     subjectEntityType: value.subjectEntityType as SourceClaimEntity["subjectEntityType"],
@@ -293,6 +304,9 @@ export const normalizeSourceClaimStatus = (status: unknown): SourceClaimStatus =
 export const normalizeSourceType = (sourceType: unknown): SourceType =>
   SOURCE_TYPES.includes(sourceType as SourceType) ? sourceType as SourceType : "reference";
 
+export const normalizeExtractionMethod = (method: unknown): ExtractionMethod =>
+  EXTRACTION_METHODS.includes(method as ExtractionMethod) ? method as ExtractionMethod : "manual_seed";
+
 export const isTerminalSourceClaimStatus = (status: SourceClaimStatus) =>
   ["accepted", "rejected", "stale", "conflicting"].includes(status);
 
@@ -371,6 +385,7 @@ export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEnt
     sourceUrl: draft.sourceUrl,
     sourceType: normalizeSourceType(draft.sourceType),
     sourceReliability: normalizeRequiredConfidence(draft.sourceReliability),
+    extractionMethod: normalizeExtractionMethod(draft.extractionMethod),
     observedAt: draft.observedAt,
     subjectEntityId: draft.subjectEntityId,
     subjectEntityType: draft.subjectEntityType,

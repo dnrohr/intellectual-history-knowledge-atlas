@@ -134,6 +134,13 @@ export type SourceType =
   | "institutional"
   | "citation_index"
   | "curated_dataset";
+export type ExtractionMethod =
+  | "api_field"
+  | "parser"
+  | "text_extraction"
+  | "citation_graph"
+  | "model_generated_summary"
+  | "manual_seed";
 
 export interface SourceClaimEntity extends KnowledgeEntityBase {
   type: "SourceClaim";
@@ -141,6 +148,7 @@ export interface SourceClaimEntity extends KnowledgeEntityBase {
   sourceUrl?: string;
   sourceType: SourceType;
   sourceReliability: number;
+  extractionMethod: ExtractionMethod;
   observedAt?: string;
   subjectEntityId: string;
   subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
@@ -157,6 +165,7 @@ export interface SourceClaimDraft {
   sourceUrl?: string;
   sourceType?: SourceType;
   sourceReliability?: number;
+  extractionMethod?: ExtractionMethod;
   observedAt?: string;
   subjectEntityId: string;
   subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
@@ -183,6 +192,7 @@ export interface SourceClaim {
   sourceUrl?: string;
   sourceType?: SourceType;
   sourceReliability?: number;
+  extractionMethod?: ExtractionMethod;
   entityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   entityId: string;
   field: string;

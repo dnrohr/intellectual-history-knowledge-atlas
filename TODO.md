@@ -68,7 +68,7 @@ Goal: make every fact auditable before automating acceptance.
 - [x] Represent claim status: `observed`, `candidate`, `accepted`, `rejected`, `stale`, `conflicting`.
 - [x] Track source type: reference, encyclopedia, bibliographic, primary text, institutional, citation index, curated dataset.
 - [x] Track source reliability and recency.
-- [ ] Store extraction method: API field, parser, text extraction, citation graph, model-generated summary, manual seed.
+- [x] Store extraction method: API field, parser, text extraction, citation graph, model-generated summary, manual seed.
 - [ ] Migrate current edge `sourceClaims?: string[]` URLs into structured claim records.
 - [ ] Compute source gaps from claim records instead of missing URLs alone.
 
