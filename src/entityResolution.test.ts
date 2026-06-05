@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyEntityMergeDecision, scoreNamedEntityMatch, scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
+import { buildEntityResolutionResult, classifyEntityMergeDecision, scoreNamedEntityMatch, scorePersonEntityMatch, scoreWorkEntityMatch } from "./entityResolution";
 
 describe("entity resolution", () => {
   it("scores person matches from names, dates, external IDs, and context overlap", () => {
@@ -145,5 +145,25 @@ describe("entity resolution", () => {
     expect(classifyEntityMergeDecision({ score: 0.6, reasons: ["label"] })).toBe("provisional-merge");
     expect(classifyEntityMergeDecision({ score: 0.2, reasons: [] })).toBe("keep-separate");
     expect(classifyEntityMergeDecision({ score: 0.95, reasons: ["name"] }, undefined, true)).toBe("conflict");
+  });
+
+  it("preserves conflicting observations with the resolution decision", () => {
+    expect(buildEntityResolutionResult({ score: 0.92, reasons: ["name", "birth"] }, [{
+      field: "birth",
+      candidateValue: "1907",
+      existingValue: "1906",
+      observationIds: ["observation:wikidata:Q1"],
+      claimIds: ["claim:birth-conflict"],
+    }])).toEqual({
+      decision: "conflict",
+      match: { score: 0.92, reasons: ["name", "birth"] },
+      conflicts: [{
+        field: "birth",
+        candidateValue: "1907",
+        existingValue: "1906",
+        observationIds: ["observation:wikidata:Q1"],
+        claimIds: ["claim:birth-conflict"],
+      }],
+    });
   });
 });

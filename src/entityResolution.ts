@@ -26,6 +26,20 @@ export interface EntityMergeThresholds {
   provisionalMerge: number;
 }
 
+export interface PreservedEntityConflict {
+  field: string;
+  candidateValue: string;
+  existingValue: string;
+  observationIds: string[];
+  claimIds: string[];
+}
+
+export interface EntityResolutionResult {
+  decision: EntityMergeDecision;
+  match: EntityMatchScore;
+  conflicts: PreservedEntityConflict[];
+}
+
 export interface WorkMatchProfile {
   id: string;
   title: string;
@@ -238,3 +252,13 @@ export const classifyEntityMergeDecision = (
   if (match.score >= thresholds.provisionalMerge) return "provisional-merge";
   return "keep-separate";
 };
+
+export const buildEntityResolutionResult = (
+  match: EntityMatchScore,
+  conflicts: PreservedEntityConflict[] = [],
+  thresholds?: EntityMergeThresholds
+): EntityResolutionResult => ({
+  match,
+  conflicts,
+  decision: classifyEntityMergeDecision(match, thresholds, conflicts.length > 0),
+});
