@@ -15,7 +15,7 @@ import PathFinder from "./components/PathFinder";
 import EmptyState from "./components/EmptyState";
 import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
-import { auditThreadGaps, CANONICAL_THREADS, getThreadJunctionMarkers, tagRelationshipsWithThreads } from "./threads";
+import { auditThreadGaps, CANONICAL_THREADS, getConvergingThreadGroups, getThreadJunctionMarkers, tagRelationshipsWithThreads } from "./threads";
 import { SourceAdapterRunRecord, summarizeSourceAdapterRuns } from "./sourceAdapters";
 import {
   IMPORT_QUEUE_SCHEMA_VERSION,
@@ -2575,7 +2575,14 @@ export default function App() {
     };
   }).filter((thread) => thread.resolvedPeople.length >= 2);
   const threadJunctionMarkers = getThreadJunctionMarkers(CANONICAL_THREADS);
+  const convergingThreadGroups = getConvergingThreadGroups(CANONICAL_THREADS);
   const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
+  const activeConvergingThreadGroup = activeCanonicalThread
+    ? convergingThreadGroups.find((group) =>
+        group.entityId === activeCanonicalThread.resolvedPeople[selectedThreadStep + 1]?.id ||
+        group.entityId === activeCanonicalThread.resolvedPeople[selectedThreadStep]?.id
+      ) || null
+    : null;
   const timelineBookmarks: TimelineBookmarkItem[] = [
     ...(selectedThinker ? [{ id: `focus-${selectedThinker.id}`, label: "Saved: Focus", year: selectedThinker.birth, kind: "saved" as const }] : []),
     ...customTimelineBookmarks,
@@ -4656,6 +4663,34 @@ export default function App() {
                             );
                           })()}
                         </div>
+                        {activeConvergingThreadGroup && (
+                          <div className="mt-2 rounded border border-cyan-400/25 bg-cyan-400/10 px-2 py-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[8.5px] uppercase tracking-wider text-cyan-200">Parallel Threads</span>
+                              <span className="font-mono text-[8px] text-slate-500">{activeConvergingThreadGroup.incomingEntityIds.length} incoming paths</span>
+                            </div>
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {activeConvergingThreadGroup.threadIds.map((threadId) => {
+                                const parallelThread = canonicalThreads.find((thread) => thread.id === threadId);
+                                if (!parallelThread) return null;
+                                const convergenceIndex = parallelThread.resolvedPeople.findIndex((person) => person.id === activeConvergingThreadGroup.entityId);
+                                return (
+                                  <button
+                                    key={`${activeConvergingThreadGroup.entityId}-${threadId}`}
+                                    onClick={() => focusCanonicalThreadRelationshipStep(parallelThread, Math.max(0, convergenceIndex - 1))}
+                                    className={`rounded border px-1.5 py-0.5 text-[8px] font-mono cursor-pointer ${
+                                      threadId === activeCanonicalThread.id
+                                        ? "border-cyan-300/50 bg-cyan-400/20 text-cyan-100"
+                                        : "border-cyan-400/20 bg-[#090a0f] text-cyan-200 hover:border-cyan-300"
+                                    }`}
+                                  >
+                                    {parallelThread.title}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                         <div className="mt-2 grid grid-cols-3 gap-1.5">
                           <button
                             onClick={() => focusCanonicalThreadRelationshipStep(activeCanonicalThread, selectedThreadStep - 1)}

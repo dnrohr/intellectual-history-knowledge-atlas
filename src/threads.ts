@@ -67,6 +67,12 @@ export interface ThreadJunctionMarker {
   outgoingCount: number;
 }
 
+export interface ConvergingThreadGroup {
+  entityId: string;
+  threadIds: string[];
+  incomingEntityIds: string[];
+}
+
 export const getThreadJunctionMarkers = (threads: CanonicalThread[]): ThreadJunctionMarker[] => {
   const incoming = new Map<string, Set<string>>();
   const outgoing = new Map<string, Set<string>>();
@@ -100,6 +106,29 @@ export const getThreadJunctionMarkers = (threads: CanonicalThread[]): ThreadJunc
     })
     .filter((marker): marker is ThreadJunctionMarker => Boolean(marker))
     .sort((a, b) => b.incomingCount + b.outgoingCount - (a.incomingCount + a.outgoingCount) || a.entityId.localeCompare(b.entityId));
+};
+
+export const getConvergingThreadGroups = (threads: CanonicalThread[]): ConvergingThreadGroup[] => {
+  const groups = new Map<string, { threadIds: Set<string>; incomingEntityIds: Set<string> }>();
+
+  threads.forEach((thread) => {
+    thread.people.slice(0, -1).forEach((sourceId, index) => {
+      const targetId = thread.people[index + 1];
+      const group = groups.get(targetId) || { threadIds: new Set<string>(), incomingEntityIds: new Set<string>() };
+      group.threadIds.add(thread.id);
+      group.incomingEntityIds.add(sourceId);
+      groups.set(targetId, group);
+    });
+  });
+
+  return Array.from(groups.entries())
+    .map(([entityId, group]) => ({
+      entityId,
+      threadIds: Array.from(group.threadIds),
+      incomingEntityIds: Array.from(group.incomingEntityIds),
+    }))
+    .filter((group) => group.incomingEntityIds.length > 1)
+    .sort((a, b) => b.incomingEntityIds.length - a.incomingEntityIds.length || a.entityId.localeCompare(b.entityId));
 };
 
 export const auditThreadGaps = (

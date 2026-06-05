@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { auditThreadGaps, buildThreadFromCanonical, getThreadJunctionMarkers, tagRelationshipsWithThreads, THREADS } from "./threads";
+import { auditThreadGaps, buildThreadFromCanonical, getConvergingThreadGroups, getThreadJunctionMarkers, tagRelationshipsWithThreads, THREADS } from "./threads";
 import { CanonicalThread } from "./types";
 
 describe("threads", () => {
@@ -155,5 +155,34 @@ describe("threads", () => {
       expect.objectContaining({ entityId: "a", kind: "both", incomingCount: 2, outgoingCount: 4 }),
       expect.objectContaining({ entityId: "d", kind: "convergence", incomingCount: 2 }),
     ]));
+  });
+
+  it("groups parallel threads that converge on the same entity", () => {
+    expect(getConvergingThreadGroups([
+      {
+        id: "logic",
+        title: "Logic",
+        field: "Logic",
+        purpose: "Logic",
+        people: ["boole", "turing"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+      {
+        id: "math",
+        title: "Math",
+        field: "Mathematics",
+        purpose: "Math",
+        people: ["hilbert", "turing"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+    ])).toEqual([{
+      entityId: "turing",
+      threadIds: ["logic", "math"],
+      incomingEntityIds: ["boole", "hilbert"],
+    }]);
   });
 });
