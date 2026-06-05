@@ -213,6 +213,41 @@ Status notation:
 
 ## UI And Navigation
 
+### Major UI Rethink: Separate Atlas Exploration From Source Studio
+
+- [ ] Replace the current activity-heavy navigation with three top-level workspaces:
+  - Influence Atlas
+  - Source Studio
+  - Focus / Presentation
+- [ ] Make Influence Atlas the default network-first experience.
+- [ ] Move importing, exporting, source providers, source audit, duplicate review, and bulk review actions out of the Atlas workspace.
+- [ ] Create Source Studio as a separate workspace with focused tabs:
+  - Import
+  - Review
+  - Sources
+  - Export
+- [ ] Rebuild the scholar dossier as the primary selected-thinker card:
+  - concise header
+  - why they matter
+  - key works and ideas
+  - influence neighborhood
+  - explore-next actions
+- [ ] Move relationship editing and source review actions from the dossier into Source Studio entry points.
+- [ ] Make the network canvas the dominant Atlas surface with the timeline as a compact expandable strip.
+- [ ] Convert thinker index, filters, path tools, and saved views into drawers, sheets, or command-menu surfaces.
+- [ ] Define every visible button as one of:
+  - navigate
+  - lens
+  - mutate
+  - utility
+- [ ] Remove duplicate or overlapping controls after the button audit.
+- [ ] Add mobile-first panel behavior:
+  - one primary view at a time
+  - dossier bottom sheet
+  - full-screen search/command sheet
+  - Source Studio as a separate tab
+- [ ] See `docs/ui-redesign.md` for the implementation-facing panel and button contract.
+
 ### Major UI Direction: Reduce Screen Clutter And Prioritize The Current Activity
 
 - [x] Reframe the app around an activity-first workspace:

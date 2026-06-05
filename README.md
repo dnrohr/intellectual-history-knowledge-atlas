@@ -122,6 +122,8 @@ The app has three primary exploration surfaces:
 
 Select a thinker from the timeline, graph, index, search results, thread stepper, path finder, or review lists to focus the app.
 
+For the next major UI direction, see [UI Redesign: Network-First Atlas Workspace](docs/ui-redesign.md). The redesign separates the Influence Atlas from Source Studio so network exploration and scholar dossiers are no longer crowded by import, export, and provenance-management tools.
+
 ### Header Controls
 
 The header is the global navigation and action bar:
