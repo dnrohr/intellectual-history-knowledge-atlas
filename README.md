@@ -98,12 +98,13 @@ The app persists local browser edits in `localStorage`.
 
 Important keys include:
 
-- `atlas_people_v6`: current local thinker records.
-- `atlas_edges_v6`: current local relationship edges.
+- `atlas_state_v7`: versioned local thinker and relationship state.
 - `atlas_import_queue_v2`: staged import review queue.
 - `atlas_import_audit_log_v1`: import review history.
 - `atlas_link_review_queue_v1`: queued relationship suggestions.
 - `atlas_rejected_link_suggestions_v1`: rejected link suggestions.
+
+Older `atlas_people_v6` and `atlas_edges_v6` storage is migrated into `atlas_state_v7` on startup.
 
 Use the app's reset control if you want to restore the bundled seed dataset. Resetting clears local people, edges, import queues, audit logs, rejected suggestions, and link review queues.
 
@@ -382,6 +383,22 @@ name | birth | death | field | notes
 
 Each valid line becomes an import review item. Use this for quick queueing before reviewing links and tags.
 
+## Data Conventions
+
+Use stable, lowercase thinker IDs with underscores when editing seed data. Keep display names human-readable and avoid encoding disambiguation in IDs unless a collision requires it.
+
+Thinker records should include:
+
+- `birth` as a number and `death` as a number or `null`.
+- At least one `fields` value from the existing taxonomy.
+- `subfields` that reuse controlled topic terms when possible.
+- `region`, `era`, and `movement` when historically useful for filtering.
+- `works` for durable texts, discoveries, inventions, or artifacts.
+- `notes` for concise historical significance and provenance context.
+- `influenced` only as lightweight metadata; important relationships should also have explicit edges.
+
+Use `bridge_score` as an atlas-navigation signal, not as a claim of personal greatness. Higher scores should go to figures who connect fields, periods, methods, or traditions in ways that help users traverse the atlas.
+
 ## Adding Relationships
 
 Relationships are stored as `InfluenceEdge` records:
@@ -422,6 +439,22 @@ Relationship curation guidelines:
 - Use `Source-context neighbor` for cautious contextual links that help navigation but should not be overstated as direct influence.
 
 Prefer a short `note` that explains why the edge exists. For high-confidence or TODO-significant edges, add `sourceClaims` URLs when available.
+
+Edge `strength` is a visual and curatorial weight from weak/contextual to central/important. Edge `confidence` is a provenance score between `0` and `1`; it should reflect how well the relationship is supported, not how historically important it is.
+
+Suggested confidence bands:
+
+- `0.8` to `1`: sourced, direct, and suitable for canonical paths.
+- `0.5` to `0.79`: plausible or indirect, with some source support.
+- `0.35` to `0.49`: generated or provisional context that needs review.
+- below `0.35`: weak evidence; prefer `needs_source` or leave it queued.
+
+Use `status` deliberately:
+
+- `accepted` for reviewed relationships.
+- `suggested` for generated or imported links that remain provisional.
+- `needs_source` when the relationship is useful but lacks adequate provenance.
+- `rejected` only for retained audit history, not active graph navigation.
 
 ## Dataset QA Report
 
@@ -531,7 +564,7 @@ The outer app intentionally uses a fixed viewport. Scroll the active panel, not 
 
 ### The Build Warns About Chunk Size
 
-The current Vite warning about large chunks is expected. It does not mean the build failed. Future work can split the frontend bundle into smaller chunks.
+Run `npm run build` and inspect the chunk table. The production build splits React, D3, motion, icons, vendor code, and atlas seed data into separate chunks. A new chunk-size warning usually means a newly added dependency or app surface should be split deliberately.
 
 ### PowerShell Cannot Run npm
 
@@ -548,6 +581,4 @@ npm.cmd run build
 
 - The expanded first-class data model for works, concepts, institutions, source claims, and typed relationships is still in progress.
 - Many accepted or seed relationships still need source claims.
-- The main frontend bundle is large and needs code splitting.
-- Full automated browser tests are not configured yet.
 - Production deployment is not configured yet.
