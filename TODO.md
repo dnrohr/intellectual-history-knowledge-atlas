@@ -415,7 +415,7 @@ Status notation:
   - [x] taxonomy grouping
   - [x] import queue persistence
 - Add Playwright tests for:
-  - batch import queueing
+  - [x] batch import queueing
   - accepting queued candidate
   - editing queued candidate
   - accepting candidate with suggested link

@@ -2885,6 +2885,7 @@ export default function App() {
             return (
               <button
                 key={activity.id}
+                data-testid={`activity-${activity.id}`}
                 onClick={() => applyActivity(activity.id)}
                 className={`px-2.5 lg:px-3.5 py-1 text-[10px] lg:text-[11px] font-mono tracking-wide rounded-md transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                   isActive
@@ -4742,6 +4743,7 @@ export default function App() {
                       </div>
                       <div className="flex gap-2">
                         <textarea
+                          data-testid="batch-import-text"
                           value={wikidataBatchText}
                           onChange={(event) => setWikidataBatchText(event.target.value)}
                           placeholder="Paste names separated by commas or new lines"
@@ -4755,6 +4757,7 @@ export default function App() {
                           Find
                         </button>
                         <button
+                          data-testid="queue-pasted-import-rows"
                           onClick={queuePastedImportRows}
                           disabled={!wikidataBatchText.includes("|")}
                           className="self-stretch rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
@@ -4985,7 +4988,7 @@ export default function App() {
                         </div>
                       )}
 
-                      <div className="max-h-[280px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+                      <div data-testid="import-review-queue" className="max-h-[280px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
                         {importReviewQueue.length > 0 ? (
                           importReviewQueue.map((item) => {
                             const candidate = item.candidate;
@@ -4995,7 +4998,7 @@ export default function App() {
                             const reviewStatus: ImportReviewStatus = duplicate ? "duplicate" : item.status;
                             const qualityLabels = getImportQualityLabels(candidate, item.confidence);
                             return (
-                              <div key={item.id} className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2.5">
+                              <div key={item.id} data-testid="import-review-queue-item" className="rounded-md border border-[#1d2232] bg-[#0e1119] p-2.5">
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0">
                                     <div className="truncate text-[11px] font-semibold text-slate-100">{candidate.name}</div>
