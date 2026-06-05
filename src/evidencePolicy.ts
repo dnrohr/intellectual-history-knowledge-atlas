@@ -86,3 +86,27 @@ export const applyStrictAcceptanceModifiers = (
     provisional: Math.min(0.95, Number((threshold.provisional + total / 2).toFixed(3))),
   };
 };
+
+export interface LooseAcceptanceContext {
+  basicMetadata?: boolean;
+  stableExternalId?: boolean;
+  workStableIdentifier?: boolean;
+  directInstitutionSource?: boolean;
+}
+
+export const applyLooseAcceptanceModifiers = (
+  threshold: AcceptanceThreshold,
+  context: LooseAcceptanceContext
+): AcceptanceThreshold => {
+  const reductions = [
+    context.basicMetadata ? 0.04 : 0,
+    context.stableExternalId ? 0.06 : 0,
+    context.workStableIdentifier ? 0.05 : 0,
+    context.directInstitutionSource ? 0.04 : 0,
+  ];
+  const total = reductions.reduce((sum, value) => sum + value, 0);
+  return {
+    accept: Math.max(0.5, Number((threshold.accept - total).toFixed(3))),
+    provisional: Math.max(0.35, Number((threshold.provisional - total / 2).toFixed(3))),
+  };
+};

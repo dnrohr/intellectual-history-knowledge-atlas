@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE,
+  applyLooseAcceptanceModifiers,
   applyStrictAcceptanceModifiers,
   composeEvidenceConfidence,
   getAcceptanceThreshold,
@@ -51,6 +52,18 @@ describe("evidence policy", () => {
     })).toEqual({
       accept: 0.99,
       provisional: 0.75,
+    });
+  });
+
+  it("uses looser thresholds for low-risk stable evidence contexts", () => {
+    expect(applyLooseAcceptanceModifiers({ accept: 0.8, provisional: 0.6 }, {
+      basicMetadata: true,
+      stableExternalId: true,
+      workStableIdentifier: true,
+      directInstitutionSource: true,
+    })).toEqual({
+      accept: 0.61,
+      provisional: 0.505,
     });
   });
 });

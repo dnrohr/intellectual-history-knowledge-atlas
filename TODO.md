@@ -151,7 +151,7 @@ Goal: decide what can be accepted automatically, what should remain provisional,
   - graph consistency
 - [x] Define testable acceptance thresholds by claim type.
 - [x] Use stricter thresholds for direct influence, canonical-thread edges, cross-century jumps, high bridge-score nodes, and disputed or sparse topics.
-- [ ] Use looser thresholds for basic metadata, stable external IDs, works with stable identifiers, and institution affiliations with direct source support.
+- [x] Use looser thresholds for basic metadata, stable external IDs, works with stable identifiers, and institution affiliations with direct source support.
 - [ ] Add automatic rejection for self-links, impossible chronology, duplicate opposite-direction edges, and unsupported direct influence from shared tags alone.
 - [ ] Add "accepted by policy" metadata to automatically accepted claims.
 - [ ] Add dry-run mode for automated acceptance.
