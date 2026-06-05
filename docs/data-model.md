@@ -52,6 +52,19 @@ Threads should only reference thinker IDs that exist in the seed data.
 
 ## Local State
 
-The browser persists local atlas state in `atlas_state_v7`. That versioned object contains normalized people and edges. Import queues, audit logs, saved views, timeline bookmarks, and rejected suggestions use separate localStorage keys.
+The browser persists local atlas state in `atlas_state_v8`. That versioned object contains normalized people and edges. Import queues, audit logs, saved views, timeline bookmarks, imported threads, and rejected suggestions use separate localStorage keys.
 
-The app migrates older `atlas_people_v6` and `atlas_edges_v6` storage into `atlas_state_v7` on startup.
+The app migrates older `atlas_people_v6`, `atlas_edges_v6`, and `atlas_state_v7` storage into `atlas_state_v8` on startup.
+
+## Canonical Dataset Build Inputs
+
+The canonical dataset pipeline starts from the `CanonicalDatasetBuildInputs` contract in `src/canonicalDataset.ts`.
+
+Build inputs include:
+
+- seed data: bundled people and relationship edges
+- source adapter outputs: raw observations, normalized claim drafts, and adapter records
+- claim records: materialized `SourceClaimEntity` evidence
+- acceptance policies: claim-type thresholds and provisional boundaries
+- manual overrides: explicit curator accept, reject, merge, restore, or annotation decisions
+- repair decisions: accepted or held graph repair diffs

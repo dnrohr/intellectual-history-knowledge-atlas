@@ -237,7 +237,7 @@ Goal: keep the UI aligned with the network-first, dossier-centered product direc
 
 Goal: make the bundled dataset reproducible from source observations, validation policy, and repair jobs.
 
-- [ ] Define canonical dataset build inputs:
+- [x] Define canonical dataset build inputs:
   - seed data
   - source adapter outputs
   - claim records
