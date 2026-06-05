@@ -12,6 +12,7 @@ import {
   getRelationshipCandidateProvenance,
   normalizeRelationshipStatus,
   RELATIONSHIP_STATUSES,
+  routeRelationshipCandidatesForReview,
   validateRelationshipDirection,
 } from "./relationshipEvidence";
 
@@ -224,5 +225,16 @@ describe("relationship evidence", () => {
     expect(explainRelationshipCandidate(withProvenance)).toBe(
       "direct mentorship: person:mentor -> person:student (85%). Evidence: advisor/student evidence. Sources: https://example.com/source."
     );
+  });
+
+  it("keeps link review queue as a low-confidence exception path", () => {
+    const [candidate] = generateMentorshipCandidates([{ personId: "student", advisors: ["mentor"] }]);
+    const lowConfidence = { ...candidate, id: "low", confidence: 0.2 };
+    const needsReview = { ...candidate, id: "needs-review", category: "needs review" as const };
+
+    expect(routeRelationshipCandidatesForReview([candidate, lowConfidence, needsReview])).toEqual({
+      automatedCandidates: [candidate],
+      reviewQueue: [lowConfidence, needsReview],
+    });
   });
 });

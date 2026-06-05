@@ -52,6 +52,11 @@ export interface RelationshipCandidateStore {
   acceptedRelationships: RelationshipEntity[];
 }
 
+export interface RelationshipReviewRouting {
+  automatedCandidates: RelationshipCandidate[];
+  reviewQueue: RelationshipCandidate[];
+}
+
 export interface RelationshipDirectionValidationInput {
   sourceId: string;
   targetId: string;
@@ -448,3 +453,19 @@ export const explainRelationshipCandidate = (candidate: RelationshipCandidate) =
     : "";
   return `${candidate.category}: ${candidate.relationship.source.entityId} -> ${candidate.relationship.target.entityId} (${Math.round(candidate.confidence * 100)}%). Evidence: ${evidenceText}.${provenanceText}`;
 };
+
+export const routeRelationshipCandidatesForReview = (
+  candidates: RelationshipCandidate[],
+  confidenceThreshold = 0.5
+): RelationshipReviewRouting => ({
+  automatedCandidates: candidates.filter((candidate) =>
+    candidate.confidence >= confidenceThreshold &&
+    candidate.status !== "needs_source" &&
+    candidate.category !== "needs review"
+  ),
+  reviewQueue: candidates.filter((candidate) =>
+    candidate.confidence < confidenceThreshold ||
+    candidate.status === "needs_source" ||
+    candidate.category === "needs review"
+  ),
+});

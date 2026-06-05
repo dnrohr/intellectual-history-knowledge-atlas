@@ -136,7 +136,7 @@ Goal: generate, classify, and explain relationship candidates from evidence.
 - [x] Add relationship source URLs and claim-level provenance.
 - [x] Add relationship status: `suggested`, `accepted`, `rejected`, `needs_source`.
 - [x] Add "why this link?" evidence explanations.
-- [ ] Keep the link review queue as a low-confidence exception path.
+- [x] Keep the link review queue as a low-confidence exception path.
 
 ### 6. Evidence Scoring And Acceptance Policies
 
