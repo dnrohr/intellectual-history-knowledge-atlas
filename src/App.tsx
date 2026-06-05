@@ -30,6 +30,7 @@ import {
 import { scoreCandidateRelationship } from "./relationshipScoring";
 import { findDuplicateCandidateId, normalizeEntityName } from "./duplicateDetection";
 import { scoreCandidateConfidence } from "./importConfidence";
+import { normalizeStoredEdges, normalizeStoredPeople } from "./storageSchemas";
 import { 
   Plus, 
   RefreshCcw, 
@@ -595,9 +596,11 @@ export default function App() {
       try {
         const parsedPeople = JSON.parse(savedPeople);
         const parsedEdges = JSON.parse(savedEdges);
-        if (Array.isArray(parsedPeople) && Array.isArray(parsedEdges)) {
-          setPeople(parsedPeople.filter(Boolean));
-          setEdges(parsedEdges.filter(Boolean));
+        const normalizedPeople = normalizeStoredPeople(parsedPeople);
+        const normalizedEdges = normalizeStoredEdges(parsedEdges, normalizedPeople);
+        if (normalizedPeople.length > 0) {
+          setPeople(normalizedPeople);
+          setEdges(normalizedEdges);
         } else {
           setPeople(INITIAL_PEOPLE_DATA);
           setEdges(INITIAL_EDGES_DATA);
