@@ -279,7 +279,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
   - recommended action: confirm, add, remove, discard, or auto-investigate
   - final disposition: confirmed existing edge, added confirmed edge, removed existing edge, or discarded candidate
   - blocking reasons
-- [ ] Add a deterministic validator for structural edge checks:
+- [x] Add a deterministic validator for structural edge checks:
   - schema errors
   - missing source or target IDs
   - self-links
