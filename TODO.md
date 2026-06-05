@@ -421,7 +421,7 @@ Status notation:
   - [x] accepting candidate with suggested link
   - [x] filter drawer taxonomy expansion
   - [x] timeline drag behavior
-- Add CI with lint/build/test.
+- [x] Add CI with lint/build/test.
 - Add bundle splitting to reduce main JS size.
 - Add error boundaries.
 - Add runtime schema checks for localStorage data.
