@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregateSourceClaimsBySubject,
+  attachSourceIdentifier,
   buildExpandedKnowledgeEntitiesFromAtlas,
   buildRelationshipEntityFromInfluenceEdge,
   buildConceptEntitiesFromThinkers,
@@ -599,5 +600,31 @@ describe("knowledge model entities", () => {
       "Relationship",
       "SourceClaim",
     ]);
+  });
+
+  it("attaches source-specific IDs without changing canonical entity IDs", () => {
+    const [person] = buildPersonEntitiesFromThinkers([{
+      id: "arendt",
+      name: "Hannah Arendt",
+      birth: 1906,
+      death: 1975,
+      fields: ["Philosophy"],
+    }]);
+
+    const withSource = attachSourceIdentifier(person, {
+      sourceName: "Wikidata",
+      sourceId: "Q60025",
+      sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+    });
+
+    expect(withSource.id).toBe("person:arendt");
+    expect(attachSourceIdentifier(withSource, {
+      sourceName: "Wikidata",
+      sourceId: "Q60025",
+    }).sourceIds).toEqual([{
+      sourceName: "Wikidata",
+      sourceId: "Q60025",
+      sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+    }]);
   });
 });

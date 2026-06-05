@@ -12,6 +12,13 @@ export interface KnowledgeEntityBase {
   type: KnowledgeEntityType;
   label: string;
   claimIds?: string[];
+  sourceIds?: EntitySourceIdentifier[];
+}
+
+export interface EntitySourceIdentifier {
+  sourceName: string;
+  sourceId: string;
+  sourceUrl?: string;
 }
 
 export interface Thinker {

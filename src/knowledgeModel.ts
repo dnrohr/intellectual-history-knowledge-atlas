@@ -1,5 +1,6 @@
 import {
   ConceptEntity,
+  EntitySourceIdentifier,
   ExtractionMethod,
   InfluenceEdge,
   Institution,
@@ -671,3 +672,18 @@ export const buildExpandedKnowledgeEntitiesFromAtlas = (
   ...edges.map(buildRelationshipEntityFromInfluenceEdge),
   ...edges.flatMap(buildSourceClaimEntitiesFromInfluenceEdge),
 ];
+
+export const attachSourceIdentifier = <T extends KnowledgeEntity>(
+  entity: T,
+  identifier: EntitySourceIdentifier
+): T => {
+  const sourceIds = entity.sourceIds || [];
+  const exists = sourceIds.some((item) =>
+    item.sourceName === identifier.sourceName &&
+    item.sourceId === identifier.sourceId
+  );
+  return {
+    ...entity,
+    sourceIds: exists ? sourceIds : [...sourceIds, identifier],
+  };
+};
