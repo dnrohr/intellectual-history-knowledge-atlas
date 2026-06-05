@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildRelationshipEntityFromInfluenceEdge,
   buildPersonEntitiesFromThinkers,
+  buildWorkAuthorshipRelationships,
+  buildWorkEntitiesFromThinkers,
+  getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
 } from "./knowledgeModel";
@@ -86,5 +89,61 @@ describe("knowledge model entities", () => {
       relationshipType: "Indirect influence",
       claimIds: ["claim:arendt-habermas"],
     });
+  });
+
+  it("projects current thinker works into first-class work nodes", () => {
+    const people: Thinker[] = [{
+      id: "arendt",
+      name: "Hannah Arendt",
+      birth: 1906,
+      death: 1975,
+      fields: ["Philosophy"],
+      works: ["The Origins of Totalitarianism", "The Human Condition", "The Origins of Totalitarianism"],
+    }];
+
+    expect(getWorkEntityId("arendt", "The Human Condition")).toBe("work:arendt:the-human-condition");
+    expect(buildWorkEntitiesFromThinkers(people)).toEqual([
+      {
+        id: "work:arendt:the-origins-of-totalitarianism",
+        type: "Work",
+        label: "The Origins of Totalitarianism",
+        title: "The Origins of Totalitarianism",
+        authorIds: ["person:arendt"],
+      },
+      {
+        id: "work:arendt:the-human-condition",
+        type: "Work",
+        label: "The Human Condition",
+        title: "The Human Condition",
+        authorIds: ["person:arendt"],
+      },
+    ]);
+  });
+
+  it("creates authored-work relationships for projected work nodes", () => {
+    const people: Thinker[] = [{
+      id: "arendt",
+      name: "Hannah Arendt",
+      birth: 1906,
+      death: 1975,
+      fields: ["Philosophy"],
+      works: ["The Human Condition"],
+    }];
+
+    expect(buildWorkAuthorshipRelationships(people)).toEqual([{
+      id: "relationship:person:arendt:person authored work:work:arendt:the-human-condition",
+      type: "Relationship",
+      label: "person:arendt authored The Human Condition",
+      source: {
+        entityId: "person:arendt",
+        entityType: "Person",
+      },
+      target: {
+        entityId: "work:arendt:the-human-condition",
+        entityType: "Work",
+      },
+      relationshipType: "person authored work",
+      status: "accepted",
+    }]);
   });
 });

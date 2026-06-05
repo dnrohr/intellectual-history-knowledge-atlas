@@ -40,7 +40,7 @@ Goal: expand the atlas from person-to-person influence into a typed, source-back
   - `SourceClaim`
   - `Relationship`
 - [x] Replace person-only `InfluenceEdge` records with typed relationship records.
-- [ ] Add works as graph nodes, not just strings on person records.
+- [x] Add works as graph nodes, not just strings on person records.
 - [ ] Add concepts as graph nodes.
 - [ ] Add movements as graph nodes.
 - [ ] Add institutions as graph nodes.

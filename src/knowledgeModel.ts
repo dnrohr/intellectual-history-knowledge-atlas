@@ -209,6 +209,18 @@ export const getRelationshipRecordId = (
 const getPersonEntityId = (personId: string) =>
   personId.startsWith("person:") ? personId : `person:${personId}`;
 
+const normalizeIdPart = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "untitled";
+
+export const getWorkEntityId = (personId: string, title: string) =>
+  `work:${normalizeIdPart(personId)}:${normalizeIdPart(title)}`;
+
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
   const targetEntityType = edge.targetEntityType || "Person";
@@ -273,3 +285,43 @@ export const buildPersonEntitiesFromThinkers = (people: Thinker[]): PersonEntity
     death: person.death,
     fields: person.fields,
   }));
+
+export const buildWorkEntitiesFromThinkers = (people: Thinker[]): WorkEntity[] => {
+  const works = new Map<string, WorkEntity>();
+
+  people.forEach((person) => {
+    (person.works || []).forEach((title) => {
+      const trimmedTitle = title.trim();
+      if (!trimmedTitle) return;
+      const id = getWorkEntityId(person.id, trimmedTitle);
+      works.set(id, {
+        id,
+        type: "Work",
+        label: trimmedTitle,
+        title: trimmedTitle,
+        authorIds: [getPersonEntityId(person.id)],
+      });
+    });
+  });
+
+  return Array.from(works.values());
+};
+
+export const buildWorkAuthorshipRelationships = (people: Thinker[]): RelationshipEntity[] =>
+  buildWorkEntitiesFromThinkers(people).flatMap((work) =>
+    (work.authorIds || []).map((authorId) => ({
+      id: getRelationshipRecordId(authorId, work.id, "person authored work"),
+      type: "Relationship" as const,
+      label: `${authorId} authored ${work.label}`,
+      source: {
+        entityId: authorId,
+        entityType: "Person" as const,
+      },
+      target: {
+        entityId: work.id,
+        entityType: "Work" as const,
+      },
+      relationshipType: "person authored work",
+      status: "accepted" as const,
+    }))
+  );
