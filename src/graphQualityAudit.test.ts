@@ -4,6 +4,7 @@ import {
   auditGraphQuality,
   getDryRunRepairJobTriggers,
   planIsolatedNodeConnections,
+  planMissingSourceClaimRepairs,
   planWeakUnsupportedEdgeDemotions,
 } from "./graphQuality";
 import { Thinker } from "./types";
@@ -117,6 +118,35 @@ describe("graph quality audits", () => {
       action: "update-edge",
       reason: "Demote weak unsupported edge to needs_source.",
       edge: { source: "a", target: "b", type: "Influence", strength: 2, confidence: 0.3, status: "needs_source" },
+    }]);
+  });
+
+  it("plans adding reliable source claims to accepted edges", () => {
+    expect(planMissingSourceClaimRepairs([
+      { id: "relationship:person:a:Influence:person:b", source: "a", target: "b", type: "Influence", strength: 4, status: "accepted" },
+    ], [
+      createSourceClaimEntity({
+        id: "claim:edge",
+        sourceName: "SEP",
+        sourceUrl: "https://example.com",
+        sourceReliability: 0.9,
+        subjectEntityId: "relationship:person:a:Influence:person:b",
+        subjectEntityType: "Relationship",
+        field: "type",
+        value: "Influence",
+      }),
+    ])).toEqual([{
+      action: "update-edge",
+      reason: "Attach reliable source claims to accepted edge.",
+      edge: {
+        id: "relationship:person:a:Influence:person:b",
+        source: "a",
+        target: "b",
+        type: "Influence",
+        strength: 4,
+        status: "accepted",
+        claimIds: ["claim:edge"],
+      },
     }]);
   });
 });

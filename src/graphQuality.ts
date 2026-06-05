@@ -234,3 +234,33 @@ export const planWeakUnsupportedEdgeDemotions = (
         status: "needs_source" as const,
       },
     }));
+
+const edgeRelationshipId = (edge: InfluenceEdge) =>
+  edge.id || `relationship:person:${edge.source}:${edge.type}:person:${edge.target}`;
+
+export const planMissingSourceClaimRepairs = (
+  edges: InfluenceEdge[],
+  claims: SourceClaimEntity[],
+  reliabilityThreshold = 0.75
+): GraphRepairDiff[] =>
+  edges
+    .filter((edge) => edge.status === "accepted" && (edge.sourceClaims || edge.claimIds || []).length === 0)
+    .flatMap((edge) => {
+      const relationshipId = edgeRelationshipId(edge);
+      const matchingClaims = claims.filter((claim) =>
+        claim.subjectEntityType === "Relationship" &&
+        claim.subjectEntityId === relationshipId &&
+        claim.sourceReliability >= reliabilityThreshold &&
+        claim.status !== "rejected" &&
+        claim.status !== "stale"
+      );
+      if (matchingClaims.length === 0) return [];
+      return [{
+        action: "update-edge" as const,
+        reason: "Attach reliable source claims to accepted edge.",
+        edge: {
+          ...edge,
+          claimIds: matchingClaims.map((claim) => claim.id),
+        },
+      }];
+    });
