@@ -3283,6 +3283,7 @@ export default function App() {
           )}
 
           <button
+            data-testid="filter-drawer-toggle"
             onClick={toggleFilterDrawer}
             className={`px-4 py-1.5 rounded-md text-[11px] font-semibold font-mono border transition-all cursor-pointer flex items-center gap-2 ${
               filterDrawerOpen
@@ -3621,6 +3622,7 @@ export default function App() {
       <AnimatePresence>
         {filterDrawerOpen && (
           <motion.div
+            data-testid="filter-drawer"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -3782,6 +3784,7 @@ export default function App() {
                         return (
                           <div key={group.name} className="border border-[#1d2232] rounded-md bg-[#0e1119]">
                             <button
+                              data-testid={`discipline-group-${group.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                               onClick={() => toggleDisciplineGroup(group.name)}
                               className="w-full flex items-center gap-2 px-2.5 py-2 text-left font-mono text-[10px] text-slate-200 hover:text-white cursor-pointer"
                             >
@@ -3804,6 +3807,7 @@ export default function App() {
                                         active ? "bg-[#1f2438] border-[#7b9cf5]" : "border-transparent hover:bg-[#151824]"
                                       }`}>
                                         <button
+                                          data-testid={`facet-field-expand-${field.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                                           onClick={() => toggleFacetFieldExpansion(field)}
                                           className="p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
                                           title={`Expand ${field} subfields`}
@@ -3824,7 +3828,7 @@ export default function App() {
                                       </div>
 
                                       {fieldOpen && (
-                                        <div className="ml-8 mt-1 space-y-1 border-l border-[#252a3d] pl-2">
+                                        <div data-testid={`facet-field-topics-${field.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="ml-8 mt-1 space-y-1 border-l border-[#252a3d] pl-2">
                                           {(topicGroupsByField[field] || []).map((topicGroup) => {
                                             const visibleTopics = topicGroup.topics.slice(0, 18);
                                             const groupActiveCount = topicGroup.topics.filter((topic) => selectedSubfields.includes(topic)).length;

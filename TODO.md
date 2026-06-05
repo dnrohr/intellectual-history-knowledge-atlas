@@ -419,7 +419,7 @@ Status notation:
   - [x] accepting queued candidate
   - [x] editing queued candidate
   - [x] accepting candidate with suggested link
-  - filter drawer taxonomy expansion
+  - [x] filter drawer taxonomy expansion
   - timeline drag behavior
 - Add CI with lint/build/test.
 - Add bundle splitting to reduce main JS size.
