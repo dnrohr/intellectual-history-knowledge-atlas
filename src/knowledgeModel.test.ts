@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   buildRelationshipEntityFromInfluenceEdge,
   buildConceptEntitiesFromThinkers,
+  buildInstitutionEntities,
   buildMovementEntities,
   buildPersonEntitiesFromThinkers,
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
   getConceptEntityId,
+  getInstitutionEntityId,
   getMovementEntityId,
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
@@ -227,6 +229,29 @@ describe("knowledge model entities", () => {
         start: 1780,
         end: 1850,
         fields: ["Philosophy"],
+      },
+    ]);
+  });
+
+  it("projects curated institutions into first-class institution nodes", () => {
+    expect(getInstitutionEntityId("Princeton IAS")).toBe("institution:princeton-ias");
+    expect(buildInstitutionEntities([
+      { name: "Princeton IAS", city: "Princeton NJ", peak_start: 1933, peak_end: 1970, figures: ["einstein", "godel"] },
+      { name: "Bell Laboratories", city: "Murray Hill NJ", peak_start: 1925, peak_end: 1985, figures: ["shannon"] },
+    ])).toEqual([
+      {
+        id: "institution:bell-laboratories",
+        type: "Institution",
+        label: "Bell Laboratories",
+        city: "Murray Hill NJ",
+        figureIds: ["person:shannon"],
+      },
+      {
+        id: "institution:princeton-ias",
+        type: "Institution",
+        label: "Princeton IAS",
+        city: "Princeton NJ",
+        figureIds: ["person:einstein", "person:godel"],
       },
     ]);
   });

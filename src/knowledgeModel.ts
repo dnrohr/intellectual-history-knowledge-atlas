@@ -1,6 +1,7 @@
 import {
   ConceptEntity,
   InfluenceEdge,
+  Institution,
   InstitutionEntity,
   KnowledgeEntity,
   KnowledgeEntityType,
@@ -228,6 +229,9 @@ export const getConceptEntityId = (label: string) =>
 export const getMovementEntityId = (label: string) =>
   `movement:${normalizeIdPart(label)}`;
 
+export const getInstitutionEntityId = (label: string) =>
+  `institution:${normalizeIdPart(label)}`;
+
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
   const targetEntityType = edge.targetEntityType || "Person";
@@ -390,3 +394,14 @@ export const buildMovementEntities = (
 
   return Array.from(movements.values()).sort((a, b) => a.label.localeCompare(b.label));
 };
+
+export const buildInstitutionEntities = (institutions: Institution[]): InstitutionEntity[] =>
+  institutions
+    .map((institution) => ({
+      id: getInstitutionEntityId(institution.name),
+      type: "Institution" as const,
+      label: institution.name,
+      city: institution.city,
+      figureIds: institution.figures.map(getPersonEntityId),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
