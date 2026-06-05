@@ -31,7 +31,7 @@ Reference documents:
 
 Goal: expand the atlas from person-to-person influence into a typed, source-backed knowledge graph.
 
-- [ ] Add first-class entity types:
+- [x] Add first-class entity types:
   - `Person`
   - `Work`
   - `Concept`
