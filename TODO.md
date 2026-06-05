@@ -170,7 +170,7 @@ Goal: detect quality problems and repair common issues when confidence is high e
   - source freshness
   - canonical thread coverage
 - [x] Add automated audits for isolated nodes, sparse high-bridge nodes, unsupported edges, stale source claims, duplicate entities, dangling references, impossible dates, missing works, missing institutions, and over-broad fields or movements.
-- [ ] Add critical thresholds that trigger dry-run repair jobs.
+- [x] Add critical thresholds that trigger dry-run repair jobs.
 - [ ] Auto-connect isolated high-confidence nodes through validated relationship candidates.
 - [ ] Auto-demote weak unsupported edges to provisional status.
 - [ ] Auto-add missing source claims for accepted edges when reliable sources are found.

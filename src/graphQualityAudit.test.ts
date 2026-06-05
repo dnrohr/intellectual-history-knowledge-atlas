@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSourceClaimEntity } from "./knowledgeModel";
-import { auditGraphQuality } from "./graphQuality";
+import { auditGraphQuality, getDryRunRepairJobTriggers } from "./graphQuality";
 import { Thinker } from "./types";
 
 const person = (overrides: Partial<Thinker>): Thinker => ({
@@ -45,5 +45,26 @@ describe("graph quality audits", () => {
       "duplicate-entity-risk",
       "stale-source-claim",
     ]));
+  });
+
+  it("triggers dry-run repair jobs when critical thresholds are reached", () => {
+    expect(getDryRunRepairJobTriggers([
+      { code: "dangling-reference", severity: "critical", targetId: "edge", message: "bad" },
+      { code: "unsupported-edge", severity: "warning", targetId: "edge", message: "weak" },
+      { code: "isolated-node", severity: "warning", targetId: "a", message: "isolated" },
+    ], { criticalFindings: 1, warningFindings: 2 })).toEqual([
+      {
+        id: "repair:critical-findings",
+        dryRun: true,
+        reason: "1 critical graph quality findings",
+        findingCodes: ["dangling-reference"],
+      },
+      {
+        id: "repair:warning-findings",
+        dryRun: true,
+        reason: "2 warning graph quality findings",
+        findingCodes: ["unsupported-edge", "isolated-node"],
+      },
+    ]);
   });
 });

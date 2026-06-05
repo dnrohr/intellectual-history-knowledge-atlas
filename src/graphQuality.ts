@@ -28,6 +28,18 @@ export interface GraphQualityAuditFinding {
   message: string;
 }
 
+export interface RepairThresholds {
+  criticalFindings: number;
+  warningFindings: number;
+}
+
+export interface RepairJobTrigger {
+  id: string;
+  dryRun: true;
+  reason: string;
+  findingCodes: GraphQualityAuditFinding["code"][];
+}
+
 const percent = (count: number, total: number) =>
   total === 0 ? 0 : Number((count / total).toFixed(3));
 
@@ -137,4 +149,32 @@ export const auditGraphQuality = (
   });
 
   return findings;
+};
+
+export const getDryRunRepairJobTriggers = (
+  findings: GraphQualityAuditFinding[],
+  thresholds: RepairThresholds = { criticalFindings: 1, warningFindings: 5 }
+): RepairJobTrigger[] => {
+  const critical = findings.filter((finding) => finding.severity === "critical");
+  const warning = findings.filter((finding) => finding.severity === "warning");
+  const triggers: RepairJobTrigger[] = [];
+
+  if (critical.length >= thresholds.criticalFindings) {
+    triggers.push({
+      id: "repair:critical-findings",
+      dryRun: true,
+      reason: `${critical.length} critical graph quality findings`,
+      findingCodes: Array.from(new Set(critical.map((finding) => finding.code))),
+    });
+  }
+  if (warning.length >= thresholds.warningFindings) {
+    triggers.push({
+      id: "repair:warning-findings",
+      dryRun: true,
+      reason: `${warning.length} warning graph quality findings`,
+      findingCodes: Array.from(new Set(warning.map((finding) => finding.code))),
+    });
+  }
+
+  return triggers;
 };
