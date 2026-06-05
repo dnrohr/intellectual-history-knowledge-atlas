@@ -70,7 +70,33 @@ export default function NetworkGraph({
   const [clusterMode, setClusterMode] = useState<GraphClusterMode>("none");
   const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>("force");
   const [labelDensity, setLabelDensity] = useState<GraphLabelDensity>("key");
-  const effectiveFocusDepth = coordinatedFocusDepth ?? focusDepth;
+  const effectiveFocusDepth = focusDepth;
+
+  useEffect(() => {
+    if (coordinatedFocusDepth !== undefined) setFocusDepth(coordinatedFocusDepth);
+  }, [coordinatedFocusDepth]);
+
+  const constrainNodesToViewport = (width: number, height: number) => {
+    const topPad = Math.min(126, Math.max(36, height * 0.28));
+    const bottomPad = showOverviewNavigator ? Math.min(136, Math.max(104, height * 0.24)) : 48;
+    const sidePad = 28;
+    nodesRef.current.forEach((node) => {
+      if (node.x === undefined || node.y === undefined) return;
+      const pad = Math.max(sidePad, node.r + 8);
+      node.x = Math.max(pad, Math.min(Math.max(pad, width - pad), node.x));
+      node.y = Math.max(topPad, Math.min(Math.max(topPad, height - bottomPad), node.y));
+    });
+  };
+
+  const clampGraphPointToViewport = (point: { x: number; y: number }, width: number, height: number, radius = 14) => {
+    const topPad = Math.min(126, Math.max(36, height * 0.28));
+    const bottomPad = showOverviewNavigator ? Math.min(136, Math.max(104, height * 0.24)) : 48;
+    const sidePad = Math.max(28, radius + 8);
+    return {
+      x: Math.max(sidePad, Math.min(Math.max(sidePad, width - sidePad), point.x)),
+      y: Math.max(topPad, Math.min(Math.max(topPad, height - bottomPad), point.y)),
+    };
+  };
 
   const getClusterKey = (person: Thinker, mode: GraphClusterMode = clusterMode) => {
     if (mode === "domain") return getDomainForField(person.fields?.[0] || "");
@@ -261,6 +287,7 @@ export default function NetworkGraph({
     const graphEdges = edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
     return { graphPeople, graphEdges, visibleTotal: graphPeople.length };
   }, [edges, effectiveFocusDepth, highlightPath, people, selectedId]);
+  const showOverviewNavigator = graphPeople.length <= 180;
 
   // Init & update nodes/links
   useEffect(() => {
@@ -320,7 +347,10 @@ export default function NetworkGraph({
       .force("x", d3.forceX<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.x ?? width / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16))
       .force("y", d3.forceY<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.y ?? height / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16));
 
-    sim.on("tick", draw);
+    sim.on("tick", () => {
+      constrainNodesToViewport(width, height);
+      draw();
+    });
     simulationRef.current = sim;
 
     const ratio = window.devicePixelRatio || 1;
@@ -401,10 +431,32 @@ export default function NetworkGraph({
     };
   };
 
+  const fitGraphToViewport = () => {
+    const canvas = canvasRef.current;
+    const bounds = getGraphBounds();
+    if (!canvas || !bounds) return;
+
+    const ratio = window.devicePixelRatio || 1;
+    const width = canvas.width / ratio;
+    const height = canvas.height / ratio;
+    const graphWidth = Math.max(1, bounds.maxX - bounds.minX);
+    const graphHeight = Math.max(1, bounds.maxY - bounds.minY);
+    const scale = Math.max(0.15, Math.min(2, Math.min(width / graphWidth, height / graphHeight) * 0.86));
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+
+    transformRef.current = new d3.ZoomTransform(
+      scale,
+      width / 2 - centerX * scale,
+      height / 2 - centerY * scale
+    );
+    draw();
+  };
+
   const drawMinimap = () => {
     const minimap = minimapCanvasRef.current;
     const canvas = canvasRef.current;
-    if (!minimap || !canvas || nodesRef.current.length === 0) return;
+    if (!showOverviewNavigator || !minimap || !canvas || nodesRef.current.length === 0) return;
 
     const ratio = window.devicePixelRatio || 1;
     const width = minimap.clientWidth || 160;
@@ -764,13 +816,15 @@ export default function NetworkGraph({
       // Context labels rendering
       const isImportantBridge = (n.bridge_score ?? 1) >= 4;
       const isNearbyFocusNode = selectedId ? activeSet.has(n.id) : false;
+      const isSmallGraph = nodesRef.current.length <= 35;
+      const isMediumGraph = nodesRef.current.length <= 120;
       const shouldShowLabel =
         isSelected ||
         inHighlightPath ||
         isHover ||
         labelDensity === "all" ||
-        (labelDensity === "more" && (isNearbyFocusNode || isImportantBridge || nodesRef.current.length < 80)) ||
-        (labelDensity === "key" && (isImportantBridge || nodesRef.current.length < 35));
+        (labelDensity === "more" && (isNearbyFocusNode || isImportantBridge || isMediumGraph)) ||
+        (labelDensity === "key" && (isImportantBridge || (isSmallGraph && isNearbyFocusNode)));
 
       if (shouldShowLabel) {
         ctx.fillStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.75)";
@@ -813,6 +867,12 @@ export default function NetworkGraph({
   }, [selectedId, highlightPath, effectiveFocusDepth, clusterMode, labelDensity]);
 
   useEffect(() => {
+    if (effectiveFocusDepth === "all") {
+      fitGraphToViewport();
+      const settleTimer = window.setTimeout(fitGraphToViewport, 450);
+      return () => window.clearTimeout(settleTimer);
+    }
+
     if (!selectedId) return;
 
     const centerSelectedNode = () => {
@@ -836,7 +896,7 @@ export default function NetworkGraph({
     centerSelectedNode();
     const settleTimer = window.setTimeout(centerSelectedNode, 350);
     return () => window.clearTimeout(settleTimer);
-  }, [selectedId, graphPeople]);
+  }, [selectedId, graphPeople, effectiveFocusDepth, layoutMode]);
 
   // Convert client coordinate into Graph Coordinate space
   const screenToGraph = (sx: number, sy: number) => {
@@ -900,8 +960,13 @@ export default function NetworkGraph({
     const pos = screenToGraph(e.clientX, e.clientY);
 
     if (dragSubjectRef.current) {
-      dragSubjectRef.current.fx = pos.x;
-      dragSubjectRef.current.fy = pos.y;
+      const canvas = canvasRef.current;
+      const ratio = window.devicePixelRatio || 1;
+      const width = canvas ? canvas.width / ratio : 600;
+      const height = canvas ? canvas.height / ratio : 260;
+      const clampedPos = clampGraphPointToViewport(pos, width, height, dragSubjectRef.current.r);
+      dragSubjectRef.current.fx = clampedPos.x;
+      dragSubjectRef.current.fy = clampedPos.y;
       return;
     }
 
@@ -1000,6 +1065,7 @@ export default function NetworkGraph({
         {([1, 2, 3, "all"] as const).map((depth) => (
           <button
             key={depth}
+            data-testid={`network-hop-${depth}`}
             onClick={() => {
               setFocusDepth(depth);
               requestAnimationFrame(draw);
@@ -1041,7 +1107,10 @@ export default function NetworkGraph({
         ))}
       </div>
 
-      <div className="absolute top-[3.9rem] left-3.5 right-2.5 z-10 flex items-center gap-1 overflow-x-auto scrollbar-thin bg-[#10131d]/90 border border-[#252a3d] rounded-md p-1">
+      <div
+        data-testid="network-layout-toolbar"
+        className="absolute top-[3.9rem] left-3.5 z-10 flex max-w-[min(32rem,calc(100%-2rem))] items-center gap-1 overflow-x-auto scrollbar-thin bg-[#10131d]/90 border border-[#252a3d] rounded-md p-1"
+      >
         {([
           ["force", "Force"],
           ["timeline", "Timeline"],
@@ -1051,6 +1120,7 @@ export default function NetworkGraph({
         ] as const).map(([mode, label]) => (
           <button
             key={mode}
+            data-testid={`network-layout-${mode}`}
             onClick={() => {
               setLayoutMode(mode);
               if (simulationRef.current) simulationRef.current.alpha(0.9).restart();
@@ -1078,6 +1148,7 @@ export default function NetworkGraph({
         ] as const).map(([density, label]) => (
           <button
             key={density}
+            data-testid={`network-label-${density}`}
             onClick={() => {
               setLabelDensity(density);
               requestAnimationFrame(draw);
@@ -1116,6 +1187,7 @@ export default function NetworkGraph({
         </button>
       </div>
 
+      {showOverviewNavigator && (
       <div className="absolute bottom-10 left-3.5 z-10 hidden rounded-md border border-[#252a3d] bg-[#10131d]/90 p-1 shadow-lg shadow-black/30 sm:block">
         <div className="mb-0.5 flex items-center justify-between gap-3 px-1 font-mono text-[8px] uppercase tracking-wider text-slate-600">
           <span>Overview</span>
@@ -1130,7 +1202,9 @@ export default function NetworkGraph({
           title="Click overview to recenter graph"
         />
       </div>
+      )}
 
+      {showOverviewNavigator && (
       <div className="absolute bottom-2.5 left-3.5 z-10 hidden items-center gap-2 rounded-md border border-[#252a3d] bg-[#10131d]/90 px-2 py-1 font-mono text-[8.5px] text-slate-500 sm:flex">
         <span className="inline-flex items-center gap-1">
           <span className="h-px w-5 bg-[#7b9cf5]" />
@@ -1145,8 +1219,10 @@ export default function NetworkGraph({
           Needs source
         </span>
       </div>
+      )}
 
       <canvas
+        data-testid="network-canvas"
         ref={canvasRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
