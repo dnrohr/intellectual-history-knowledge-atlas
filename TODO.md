@@ -418,7 +418,7 @@ Status notation:
   - [x] batch import queueing
   - [x] accepting queued candidate
   - [x] editing queued candidate
-  - accepting candidate with suggested link
+  - [x] accepting candidate with suggested link
   - filter drawer taxonomy expansion
   - timeline drag behavior
 - Add CI with lint/build/test.

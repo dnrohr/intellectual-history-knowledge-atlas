@@ -5135,6 +5135,7 @@ export default function App() {
                                     Edit Draft
                                   </button>
                                   <button
+                                    data-testid="accept-link-import-review-item"
                                     onClick={() => acceptImportReviewItem(item, true)}
                                     disabled={!!duplicate || candidate.birth === null || linkSuggestions.length === 0}
                                     className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[8.5px] font-mono text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"

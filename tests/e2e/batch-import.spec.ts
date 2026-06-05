@@ -66,3 +66,23 @@ test("edits a queued candidate before accepting it", async ({ page }) => {
   expect(editedPerson?.notes).toContain("Edited note from the queue review flow");
   expect(storedQueue.items).toEqual([]);
 });
+
+test("accepts a queued candidate with its top suggested link", async ({ page }) => {
+  await openImportActivity(page);
+  await queuePastedRows(page, [
+    "Plato Adjacent Test|-426||Philosophy|philosopher metaphysics forms academy",
+  ]);
+
+  await expect(page.getByTestId("accept-link-import-review-item")).toBeEnabled();
+  await page.getByTestId("accept-link-import-review-item").click();
+
+  const storedPeople = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_people_v6") || "[]"));
+  const storedEdges = await page.evaluate(() => JSON.parse(localStorage.getItem("atlas_edges_v6") || "[]"));
+  const imported = storedPeople.find((person: { name: string }) => person.name === "Plato Adjacent Test");
+  const importedEdge = storedEdges.find((edge: { source: string; target: string; status?: string; note?: string }) =>
+    imported && (edge.source === imported.id || edge.target === imported.id) && edge.status === "suggested"
+  );
+
+  expect(imported).toBeTruthy();
+  expect(importedEdge?.note).toContain("Imported with suggested context");
+});
