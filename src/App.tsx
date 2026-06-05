@@ -4955,11 +4955,28 @@ export default function App() {
 
               {workbenchTab === "manualOverrides" && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
+                  <div className="xl:col-span-12 rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <span className="font-mono text-[8.5px] uppercase tracking-wider text-amber-300">Admin Fallback Tools</span>
+                        <p className="mt-0.5 text-[10px] font-mono text-slate-500">
+                          Batch paste, CSV import, edited drafts, and duplicate metadata merge stay available for recovery and operator overrides.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {["batch paste", "CSV import", "duplicate merge", "manual accept"].map((label) => (
+                          <span key={label} className="rounded border border-amber-500/25 bg-[#090a0f] px-1.5 py-0.5 text-[8px] font-mono text-amber-200">
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                   <div className="xl:col-span-7 bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Import Review Draft</span>
-                        <p className="text-[10px] text-slate-600 font-mono mt-0.5">Normalize an external candidate before it enters the atlas.</p>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Manual Override Draft</span>
+                        <p className="text-[10px] text-slate-600 font-mono mt-0.5">Normalize or recover an external candidate after automation has held it.</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {draftQueueItemId && (
@@ -5037,8 +5054,8 @@ export default function App() {
 
                     <div className="mb-3 rounded-md border border-[#1d2232] bg-[#0b0d14] p-3">
                       <div className="mb-2 flex items-center justify-between">
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Batch Search</span>
-                        <span className="font-mono text-[8.5px] text-slate-600">max 25</span>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Batch Paste / CSV Fallback</span>
+                        <span className="font-mono text-[8.5px] text-slate-600">admin max 25</span>
                       </div>
                       <div className="flex gap-2">
                         <textarea
@@ -5073,6 +5090,7 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => csvImportInputRef.current?.click()}
+                          title="Fallback CSV import for admin recovery and spreadsheet review"
                           className="self-stretch rounded-md border border-[#252a3d] bg-[#10131d] px-3 py-2 text-[10px] font-mono text-slate-300 hover:text-white cursor-pointer"
                         >
                           Import CSV
@@ -5181,8 +5199,8 @@ export default function App() {
                     <div className="mb-3 rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
                       <div className="mb-2 flex items-center justify-between">
                         <div>
-                          <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-200">Review Queue</span>
-                          <p className="text-[10px] text-slate-600 font-mono mt-0.5">Automated links are evidence-weighted suggestions, not confirmed influence claims.</p>
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-200">Override Queue</span>
+                          <p className="text-[10px] text-slate-600 font-mono mt-0.5">Held imports can be accepted, linked, cleared, or merged as an explicit operator action.</p>
                         </div>
                         <span className="font-mono text-[9px] text-slate-600">{importReviewQueue.length}</span>
                       </div>
@@ -5319,7 +5337,7 @@ export default function App() {
                                       onClick={() => mergeImportReviewItemIntoDuplicate(item, duplicate.id)}
                                       className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-left text-[9px] font-mono text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
                                     >
-                                      Merge metadata
+                                      Admin merge metadata
                                     </button>
                                   </div>
                                 ) : (
@@ -5503,10 +5521,10 @@ export default function App() {
               {workbenchTab === "exportRecovery" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="rounded-md border border-[#252a3d] bg-[#090b10] p-4">
-                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Atlas State</div>
+                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Admin Recovery</div>
                     <h5 className="mt-1 font-serif text-lg font-bold text-slate-100">Export or restore local data</h5>
                     <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-                      JSON preserves thinkers, relationships, import queues, review history, link queues, thresholds, and rejected suggestions for moving between browsers or deployments.
+                      JSON restore is a fallback recovery path for moving local operator state between browsers or deployments.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <input
@@ -5534,10 +5552,10 @@ export default function App() {
                   </div>
 
                   <div className="rounded-md border border-[#252a3d] bg-[#090b10] p-4">
-                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Spreadsheet Review</div>
+                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Admin Audit Export</div>
                     <h5 className="mt-1 font-serif text-lg font-bold text-slate-100">Export people as CSV</h5>
                     <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-                      CSV is useful for lightweight spreadsheet auditing of names, dates, fields, regions, movements, works, and notes.
+                      CSV remains a lightweight fallback for spreadsheet auditing outside the automated evidence console.
                     </p>
                     <div className="mt-4">
                       <button
@@ -5555,7 +5573,12 @@ export default function App() {
               {workbenchTab === "claimConflicts" && (
                 <div className="bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Duplicate Candidates</span>
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Duplicate Candidates</span>
+                      <p className="mt-0.5 text-[10px] font-mono text-slate-600">
+                        Import duplicate metadata merge lives in Manual Overrides so conflict resolution remains explicit.
+                      </p>
+                    </div>
                     <span className="font-mono text-[9px] text-slate-600">{duplicateCandidates.length}</span>
                   </div>
                   <div className="space-y-1.5 max-h-[220px] overflow-y-auto scrollbar-thin pr-1">
