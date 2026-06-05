@@ -105,7 +105,7 @@ Goal: automatically identify when source observations refer to the same underlyi
 
 - [x] Add canonical entity IDs separate from source-specific IDs.
 - [x] Score person matches using normalized names, alternate names, dates, fields, occupations, external IDs, works, institutions, and movements.
-- [ ] Score work matches using title, author, date, DOI, ISBN, OpenAlex ID, Wikidata ID, and translated titles.
+- [x] Score work matches using title, author, date, DOI, ISBN, OpenAlex ID, Wikidata ID, and translated titles.
 - [ ] Score institution, movement, and concept matches with type-specific rules.
 - [ ] Add automatic merge thresholds:
   - auto-merge

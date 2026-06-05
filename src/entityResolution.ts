@@ -19,6 +19,21 @@ export interface EntityMatchScore {
   reasons: string[];
 }
 
+export interface WorkMatchProfile {
+  id: string;
+  title: string;
+  translatedTitles?: string[];
+  authorIds?: string[];
+  authorNames?: string[];
+  date?: number | null;
+  identifiers?: {
+    doi?: string;
+    isbn?: string;
+    openalex?: string;
+    wikidata?: string;
+  };
+}
+
 const normalizeText = (value: string) =>
   value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 
@@ -84,6 +99,55 @@ export const scorePersonEntityMatch = (
       reasons.push(reason);
     }
   });
+
+  return {
+    score: Math.min(1, Number(score.toFixed(3))),
+    reasons,
+  };
+};
+
+const normalizeIdentifier = (value?: string) =>
+  value?.toLowerCase().replace(/^https?:\/\/(dx\.)?doi\.org\//, "").trim();
+
+export const scoreWorkEntityMatch = (
+  candidate: WorkMatchProfile,
+  existing: WorkMatchProfile
+): EntityMatchScore => {
+  let score = 0;
+  const reasons: string[] = [];
+  const stableIdentifierKeys: Array<keyof NonNullable<WorkMatchProfile["identifiers"]>> = ["doi", "isbn", "openalex", "wikidata"];
+
+  stableIdentifierKeys.forEach((key) => {
+    const candidateId = normalizeIdentifier(candidate.identifiers?.[key]);
+    const existingId = normalizeIdentifier(existing.identifiers?.[key]);
+    if (candidateId && existingId && candidateId === existingId) {
+      score += key === "doi" ? 0.35 : 0.25;
+      reasons.push(key);
+    }
+  });
+
+  const candidateTitles = [candidate.title, ...(candidate.translatedTitles || [])].map(normalizeText);
+  const existingTitles = [existing.title, ...(existing.translatedTitles || [])].map(normalizeText);
+  if (candidateTitles.some((title) => existingTitles.includes(title))) {
+    score += 0.25;
+    reasons.push("title");
+  }
+
+  if (overlapCount(candidate.authorIds, existing.authorIds) > 0 || overlapCount(candidate.authorNames, existing.authorNames) > 0) {
+    score += 0.15;
+    reasons.push("author");
+  }
+
+  if (candidate.date !== undefined && candidate.date !== null && existing.date !== undefined && existing.date !== null) {
+    const distance = Math.abs(candidate.date - existing.date);
+    if (distance === 0) {
+      score += 0.1;
+      reasons.push("date");
+    } else if (distance <= 2) {
+      score += 0.04;
+      reasons.push("near-date");
+    }
+  }
 
   return {
     score: Math.min(1, Number(score.toFixed(3))),
