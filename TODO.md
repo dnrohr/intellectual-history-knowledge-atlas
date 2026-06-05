@@ -161,7 +161,7 @@ Goal: decide what can be accepted automatically, what should remain provisional,
 
 Goal: detect quality problems and repair common issues when confidence is high enough.
 
-- [ ] Add graph-level quality metrics:
+- [x] Add graph-level quality metrics:
   - sourced edge percentage
   - accepted edge percentage
   - average edge confidence

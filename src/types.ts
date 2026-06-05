@@ -108,6 +108,7 @@ export interface InfluenceEdge {
   note?: string | null;
   confidence?: number;
   sourceClaims?: string[];
+  claimIds?: string[];
   status?: "suggested" | "accepted" | "rejected" | "needs_source";
 }
 
