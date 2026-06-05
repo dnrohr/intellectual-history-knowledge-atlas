@@ -92,7 +92,7 @@ Goal: collect normalized evidence automatically without directly mutating canoni
   - awards
   - academic advisors/students where available
   - fields, employers, notable works, and movement membership
-- [ ] Add OpenAlex adapter for scholarly authors, works, concepts, institutions, citations, coauthorship, and topic neighborhoods.
+- [x] Add OpenAlex adapter for scholarly authors, works, concepts, institutions, citations, coauthorship, and topic neighborhoods.
 - [ ] Add Crossref adapter for works, publication metadata, DOI-level evidence, and citations where available.
 - [ ] Add VIAF and Library of Congress identifier capture.
 - [ ] Add Wikipedia/DBpedia summary fallback as low-confidence descriptive evidence.
