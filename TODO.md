@@ -266,7 +266,7 @@ Goal: keep the app easy to share while making data provenance clear.
 
 ### 13. Bulk Edge Validation
 
-Goal: validate every network edge at scale until each edge has a final disposition: confirmed in the canonical graph or removed from it. Interim states such as needs-source, conflict, or manual review are work queues, not completion states.
+Goal: validate every network edge at scale until each edge has a final disposition: confirmed in the canonical graph or removed from it. Interim states such as needs-source or conflict must trigger automated source acquisition, rule refinement, or removal; there is no manual review lane.
 
 - [ ] Define a bulk edge validation result model with:
   - edge identity and endpoints
@@ -275,7 +275,7 @@ Goal: validate every network edge at scale until each edge has a final dispositi
   - chronology status
   - source-claim coverage
   - confidence score
-  - recommended action: confirm, remove, or investigate
+  - recommended action: confirm, remove, or auto-investigate
   - final disposition: confirmed or removed
   - blocking reasons
 - [ ] Add a deterministic validator for structural edge checks:
@@ -303,9 +303,8 @@ Goal: validate every network edge at scale until each edge has a final dispositi
 - [ ] Generate a bulk validation report grouped by:
   - confirmed
   - removed
-  - needs source before final disposition
-  - conflicting before final disposition
-  - manual review required before final disposition
+  - auto-investigating missing sources before final disposition
+  - auto-resolving conflicts before final disposition
 - [ ] Add dry-run repair decisions from bulk validation findings.
 - [ ] Add an acceptance gate that fails while any edge lacks a confirmed or removed final disposition.
 - [ ] Add snapshot and boundary tests for the bulk edge validator.
