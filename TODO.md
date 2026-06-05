@@ -235,7 +235,7 @@ Status notation:
 - [x] Move relationship editing and source review actions from the dossier into Source Studio entry points.
 - [x] Make the network canvas the dominant Atlas surface with the timeline as a compact expandable strip.
 - [x] Convert thinker index, filters, path tools, and saved views into drawers, sheets, or command-menu surfaces.
-- [ ] Define every visible button as one of:
+- [x] Define every visible button as one of:
   - navigate
   - lens
   - mutate
