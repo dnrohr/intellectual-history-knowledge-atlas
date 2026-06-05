@@ -96,6 +96,8 @@ npm.cmd run build
 
 The app persists local browser edits in `localStorage`.
 
+Local data is private to the current browser profile and device. It is not uploaded by the app, but it also is not shared across browsers, machines, deployments, or private/incognito sessions unless you export and restore JSON yourself.
+
 Important keys include:
 
 - `atlas_state_v7`: versioned local thinker and relationship state.

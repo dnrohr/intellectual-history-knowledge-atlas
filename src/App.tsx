@@ -2875,6 +2875,11 @@ export default function App() {
             {PUBLIC_DEMO_MODE && (
               <span className="ml-2 rounded border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-cyan-200">Demo</span>
             )}
+            {!PUBLIC_DEMO_MODE && (
+              <span className="ml-2 rounded border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-amber-200" title="Edits are stored privately in this browser's localStorage.">
+                Local data
+              </span>
+            )}
           </div>
         </div>
 
