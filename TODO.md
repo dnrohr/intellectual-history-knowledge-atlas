@@ -422,7 +422,7 @@ Status notation:
   - [x] filter drawer taxonomy expansion
   - [x] timeline drag behavior
 - [x] Add CI with lint/build/test.
-- Add bundle splitting to reduce main JS size.
+- [x] Add bundle splitting to reduce main JS size.
 - Add error boundaries.
 - Add runtime schema checks for localStorage data.
 - Add localStorage migration system.

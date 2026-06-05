@@ -21,5 +21,21 @@ export default defineConfig(() => {
     test: {
       exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            const normalizedId = id.replace(/\\/g, '/');
+            if (normalizedId.endsWith('/src/data.ts')) return 'atlas-data';
+            if (!id.includes('node_modules')) return undefined;
+            if (normalizedId.includes('/react/') || normalizedId.includes('/react-dom/')) return 'react-vendor';
+            if (normalizedId.includes('/d3') || normalizedId.includes('/internmap/') || normalizedId.includes('/delaunator/') || normalizedId.includes('/robust-predicates/')) return 'd3-vendor';
+            if (normalizedId.includes('/motion/') || normalizedId.includes('/framer-motion/')) return 'motion-vendor';
+            if (normalizedId.includes('/lucide-react/')) return 'icon-vendor';
+            return 'vendor';
+          },
+        },
+      },
+    },
   };
 });
