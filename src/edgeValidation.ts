@@ -250,3 +250,72 @@ export const validateBulkEdgeEvidence = (
     });
   });
 };
+
+const claimEvidenceText = (claim: SourceClaimEntity) =>
+  [claim.field, claim.value, claim.sourceName].filter(Boolean).join(" ");
+
+const edgeEvidenceText = (edge: InfluenceEdge, claimsById: Map<string, SourceClaimEntity>) =>
+  [
+    edge.note || "",
+    ...(edge.sourceClaims || []),
+    ...(edge.claimIds || []).map((claimId) => {
+      const claim = claimsById.get(claimId);
+      return claim ? claimEvidenceText(claim) : "";
+    }),
+  ].join(" ").toLowerCase();
+
+const relationshipRuleReasons = (
+  edge: InfluenceEdge,
+  claimsById: Map<string, SourceClaimEntity>
+) => {
+  const type = String(edge.type);
+  const text = edgeEvidenceText(edge, claimsById);
+  const reasons: string[] = [];
+
+  if ((type === "Influence" || type === "person influenced person") &&
+    !/(explicit|influence|influenced|citation|reception|named mention|mentor|advisor|student)/.test(text)) {
+    reasons.push("direct-influence-needs-transmission-evidence");
+  }
+  if (type === "Indirect influence" && !/(indirect|precursor|reception|transmission|revived|anticipated|citation|influence)/.test(text)) {
+    reasons.push("indirect-influence-needs-mediated-evidence");
+  }
+  if ((type === "Mentorship" || type === "person mentored person") && !/(mentor|mentored|advisor|student|supervisor|tutor)/.test(text)) {
+    reasons.push("mentorship-needs-advisor-student-evidence");
+  }
+  if ((type === "Collaboration" || type === "person collaborated with person") && !/(collaborat|coauthor|co-author|correspondence|jointly|worked with)/.test(text)) {
+    reasons.push("collaboration-needs-shared-work-evidence");
+  }
+  if (type === "Source-context neighbor" && !/(source-context|source proximity|context|same source|neighbor|co-mentioned)/.test(text)) {
+    reasons.push("source-context-neighbor-needs-proximity-evidence");
+  }
+  if ((type === "Parallel" || type === "Parallel development") && !/(parallel|independent|shared concept|concurrent|rival school)/.test(text)) {
+    reasons.push("parallel-development-needs-non-transmission-evidence");
+  }
+  if ((edge.threadIds || []).length > 0 && ((edge.confidence ?? 0.5) < 0.85 || (edge.claimIds || edge.sourceClaims || []).length === 0)) {
+    reasons.push("canonical-thread-edge-needs-high-confidence-source-support");
+  }
+
+  return reasons;
+};
+
+export const validateBulkEdgeRelationshipRules = (
+  people: Thinker[],
+  edges: InfluenceEdge[],
+  claims: SourceClaimEntity[] = [],
+  now: Date = new Date()
+): BulkEdgeValidationResult[] => {
+  const claimsById = new Map(claims.map((claim) => [claim.id, claim]));
+  return validateBulkEdgeEvidence(people, edges, claims, now).map((result) => {
+    const edge = result.subject.edge;
+    if (!edge || result.structuralStatus === "invalid") return result;
+    const reasons = relationshipRuleReasons(edge, claimsById);
+    if (reasons.length === 0) return result;
+    return createBulkEdgeValidationResult({
+      ...result,
+      evidenceStatus: result.evidenceStatus === "conflicting" ? "conflicting" : "weak",
+      recommendedAction: "auto-investigate",
+      finalDisposition: undefined,
+      blockingReasons: [...result.blockingReasons, ...reasons],
+    });
+  });
+};

@@ -293,7 +293,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
   - rejected or conflicting claims attached to accepted edges
   - weak confidence on high-impact edges
   - source claims that support only endpoint existence rather than the relationship
-- [ ] Add relationship-type-specific validation rules for:
+- [x] Add relationship-type-specific validation rules for:
   - direct influence
   - indirect influence
   - mentorship

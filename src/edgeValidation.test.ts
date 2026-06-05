@@ -4,6 +4,7 @@ import {
   createBulkEdgeValidationResult,
   createExistingEdgeValidationSubject,
   validateBulkEdgeEvidence,
+  validateBulkEdgeRelationshipRules,
   validateBulkEdgeStructure,
 } from "./edgeValidation";
 import { InfluenceEdge, SourceClaimEntity, Thinker } from "./types";
@@ -255,5 +256,118 @@ describe("bulk edge validation model", () => {
       evidenceStatus: "conflicting",
       blockingReasons: ["rejected-or-conflicting-claim-on-accepted-edge"],
     });
+  });
+
+  it("applies relationship-type-specific evidence rules", () => {
+    const results = validateBulkEdgeRelationshipRules(
+      people,
+      [
+        {
+          id: "edge:direct-ok",
+          source: "a",
+          target: "b",
+          type: "Influence",
+          strength: 3,
+          confidence: 0.9,
+          note: "Explicit influence documented through citation reception.",
+          claimIds: ["claim:direct-ok"],
+        },
+        {
+          id: "edge:direct-weak",
+          source: "b",
+          target: "c",
+          type: "Influence",
+          strength: 3,
+          confidence: 0.9,
+          note: "Shared movement only.",
+          claimIds: ["claim:direct-weak"],
+        },
+        {
+          id: "edge:mentor-weak",
+          source: "a",
+          target: "c",
+          type: "Mentorship",
+          strength: 3,
+          confidence: 0.9,
+          note: "Same university.",
+          claimIds: ["claim:mentor-weak"],
+        },
+      ],
+      [
+        relationshipClaim("claim:direct-ok", { subjectEntityId: "edge:direct-ok", value: "citation reception influence" }),
+        relationshipClaim("claim:direct-weak", { subjectEntityId: "edge:direct-weak", value: "shared movement" }),
+        relationshipClaim("claim:mentor-weak", { subjectEntityId: "edge:mentor-weak", value: "same university" }),
+      ]
+    );
+
+    expect(results[0]).toMatchObject({
+      recommendedAction: "confirm",
+      finalDisposition: "confirmed-existing-edge",
+      blockingReasons: [],
+    });
+    expect(results[1].blockingReasons).toContain("direct-influence-needs-transmission-evidence");
+    expect(results[2].blockingReasons).toContain("mentorship-needs-advisor-student-evidence");
+  });
+
+  it("requires type-specific evidence for collaboration, source-context, parallel, and canonical-thread edges", () => {
+    const results = validateBulkEdgeRelationshipRules(
+      people,
+      [
+        {
+          id: "edge:collab",
+          source: "a",
+          target: "b",
+          type: "Collaboration",
+          strength: 3,
+          confidence: 0.9,
+          note: "Same field.",
+          claimIds: ["claim:collab"],
+        },
+        {
+          id: "edge:context",
+          source: "b",
+          target: "c",
+          type: "Source-context neighbor",
+          strength: 3,
+          confidence: 0.9,
+          note: "Related topic.",
+          claimIds: ["claim:context"],
+        },
+        {
+          id: "edge:parallel",
+          source: "a",
+          target: "c",
+          type: "Parallel",
+          strength: 3,
+          confidence: 0.9,
+          note: "Vague similarity.",
+          claimIds: ["claim:parallel"],
+        },
+        {
+          id: "edge:thread",
+          source: "a",
+          target: "b",
+          type: "Indirect influence",
+          strength: 3,
+          confidence: 0.7,
+          note: "Indirect reception.",
+          threadIds: ["thread:logic"],
+          claimIds: ["claim:thread"],
+        },
+      ],
+      [
+        relationshipClaim("claim:collab", { subjectEntityId: "edge:collab", value: "same field" }),
+        relationshipClaim("claim:context", { subjectEntityId: "edge:context", value: "related topic" }),
+        relationshipClaim("claim:parallel", { subjectEntityId: "edge:parallel", value: "vague similarity" }),
+        relationshipClaim("claim:thread", { subjectEntityId: "edge:thread", value: "indirect reception" }),
+      ]
+    );
+
+    expect(results.map((result) => result.blockingReasons.at(-1))).toEqual([
+      "collaboration-needs-shared-work-evidence",
+      "source-context-neighbor-needs-proximity-evidence",
+      "parallel-development-needs-non-transmission-evidence",
+      "canonical-thread-edge-needs-high-confidence-source-support",
+    ]);
   });
 });
