@@ -452,7 +452,7 @@ Status notation:
 - [x] Write edge confidence guidelines.
 - [x] Write source provenance guidelines.
 - [x] Write taxonomy guidelines.
-- Write deployment guide.
+- [x] Write deployment guide.
 - Write Codespaces guide with update steps.
 - Add screenshots/GIFs once UI stabilizes.
 - Add changelog.
