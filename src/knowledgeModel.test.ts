@@ -14,6 +14,7 @@ import {
   getAggregatedClaimIdsForSubject,
   getInstitutionEntityId,
   getMovementEntityId,
+  getSourceClaimRecencyDays,
   getSourceClaimEntityId,
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
@@ -110,7 +111,10 @@ describe("knowledge model entities", () => {
       "Relationship",
     ]);
     expect(entities.find((entity) => entity.type === "SourceClaim")?.confidence).toBe(1);
-    expect(entities.find((entity) => entity.type === "SourceClaim")).toMatchObject({ sourceType: "reference" });
+    expect(entities.find((entity) => entity.type === "SourceClaim")).toMatchObject({
+      sourceType: "reference",
+      sourceReliability: 0.5,
+    });
     expect(entities.find((entity) => entity.type === "Work")).toMatchObject({
       identifiers: { isbn: "9780156701532" },
     });
@@ -372,6 +376,8 @@ describe("knowledge model entities", () => {
       sourceName: "SEP",
       sourceUrl: "https://plato.stanford.edu/",
       sourceType: "encyclopedia",
+      sourceReliability: 0.9,
+      observedAt: "2026-06-01T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
       field: "birth",
@@ -385,6 +391,8 @@ describe("knowledge model entities", () => {
       sourceName: "SEP",
       sourceUrl: "https://plato.stanford.edu/",
       sourceType: "encyclopedia",
+      sourceReliability: 0.9,
+      observedAt: "2026-06-01T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
       field: "birth",
@@ -392,6 +400,23 @@ describe("knowledge model entities", () => {
       confidence: 1,
       status: "candidate",
     });
+  });
+
+  it("tracks source reliability and recency for claims", () => {
+    const claim = createSourceClaimEntity({
+      sourceName: "Wikidata",
+      sourceType: "curated_dataset",
+      sourceReliability: 1.4,
+      observedAt: "2026-06-01T00:00:00.000Z",
+      subjectEntityId: "person:arendt",
+      subjectEntityType: "Person",
+      field: "birth",
+      value: "1906",
+    });
+
+    expect(claim.sourceReliability).toBe(1);
+    expect(getSourceClaimRecencyDays(claim, new Date("2026-06-05T00:00:00.000Z"))).toBe(4);
+    expect(getSourceClaimRecencyDays({ ...claim, observedAt: "not-a-date" })).toBeNull();
   });
 
   it("keeps raw source observations separate from accepted atlas records", () => {
@@ -414,6 +439,8 @@ describe("knowledge model entities", () => {
           sourceName: "Wikidata",
           sourceUrl: "https://www.wikidata.org/wiki/Q60025",
           sourceType: "curated_dataset",
+          sourceReliability: 0.85,
+          observedAt: "2026-06-05T00:00:00.000Z",
           subjectEntityId: "person:arendt",
           subjectEntityType: "Person",
           field: "birth",
@@ -432,6 +459,8 @@ describe("knowledge model entities", () => {
       sourceName: "Wikidata",
       sourceUrl: "https://www.wikidata.org/wiki/Q60025",
       sourceType: "curated_dataset",
+      sourceReliability: 0.85,
+      observedAt: "2026-06-05T00:00:00.000Z",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
       field: "birth",

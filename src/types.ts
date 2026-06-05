@@ -140,6 +140,8 @@ export interface SourceClaimEntity extends KnowledgeEntityBase {
   sourceName: string;
   sourceUrl?: string;
   sourceType: SourceType;
+  sourceReliability: number;
+  observedAt?: string;
   subjectEntityId: string;
   subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   field: string;
@@ -154,6 +156,8 @@ export interface SourceClaimDraft {
   sourceName: string;
   sourceUrl?: string;
   sourceType?: SourceType;
+  sourceReliability?: number;
+  observedAt?: string;
   subjectEntityId: string;
   subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   field: string;
@@ -178,6 +182,7 @@ export interface SourceClaim {
   sourceName: string;
   sourceUrl?: string;
   sourceType?: SourceType;
+  sourceReliability?: number;
   entityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   entityId: string;
   field: string;

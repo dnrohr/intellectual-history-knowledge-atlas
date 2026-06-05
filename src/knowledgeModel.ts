@@ -177,6 +177,8 @@ const normalizeSourceClaimEntity = (value: Record<string, unknown>): SourceClaim
     sourceName: value.sourceName,
     sourceUrl: typeof value.sourceUrl === "string" ? value.sourceUrl : undefined,
     sourceType: normalizeSourceType(value.sourceType),
+    sourceReliability: normalizeRequiredConfidence(value.sourceReliability),
+    observedAt: typeof value.observedAt === "string" ? value.observedAt : undefined,
     subjectEntityId: value.subjectEntityId,
     subjectEntityType: value.subjectEntityType as SourceClaimEntity["subjectEntityType"],
     field: value.field,
@@ -368,6 +370,8 @@ export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEnt
     sourceName: draft.sourceName,
     sourceUrl: draft.sourceUrl,
     sourceType: normalizeSourceType(draft.sourceType),
+    sourceReliability: normalizeRequiredConfidence(draft.sourceReliability),
+    observedAt: draft.observedAt,
     subjectEntityId: draft.subjectEntityId,
     subjectEntityType: draft.subjectEntityType,
     field: draft.field,
@@ -375,6 +379,13 @@ export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEnt
     confidence: normalizeRequiredConfidence(draft.confidence),
     status: normalizeSourceClaimStatus(draft.status),
   };
+};
+
+export const getSourceClaimRecencyDays = (claim: SourceClaimEntity, now: Date = new Date()) => {
+  if (!claim.observedAt) return null;
+  const observedAt = new Date(claim.observedAt);
+  if (Number.isNaN(observedAt.getTime())) return null;
+  return Math.max(0, Math.floor((now.getTime() - observedAt.getTime()) / 86_400_000));
 };
 
 export interface ObservationSplit {
