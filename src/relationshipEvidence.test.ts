@@ -5,6 +5,7 @@ import {
   generateMentorshipCandidates,
   generateParallelDevelopmentCandidates,
   generateSourceContextNeighborCandidates,
+  classifyRelationshipSuggestion,
   validateRelationshipDirection,
 } from "./relationshipEvidence";
 
@@ -166,5 +167,14 @@ describe("relationship evidence", () => {
       sourceBirth: 2000,
       targetBirth: 1900,
     })).toEqual({ valid: true, warnings: [] });
+  });
+
+  it("classifies relationship suggestions into roadmap categories", () => {
+    expect(classifyRelationshipSuggestion("person mentored person")).toBe("direct mentorship");
+    expect(classifyRelationshipSuggestion("person collaborated with person")).toBe("collaboration");
+    expect(classifyRelationshipSuggestion("Source-context neighbor", ["shared concept without transmission evidence: Logic"])).toBe("parallel development");
+    expect(classifyRelationshipSuggestion("Source-context neighbor", ["source proximity without influence claim: sep:logic"])).toBe("source-context neighbor");
+    expect(classifyRelationshipSuggestion("person influenced person", ["citation path evidence"])).toBe("likely influence");
+    expect(classifyRelationshipSuggestion("unknown relationship")).toBe("needs review");
   });
 });

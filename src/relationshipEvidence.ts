@@ -372,3 +372,16 @@ export const validateRelationshipDirection = ({
       : {}),
   };
 };
+
+export const classifyRelationshipSuggestion = (
+  relationshipType: string,
+  evidence: string[] = []
+): RelationshipCandidateCategory => {
+  const text = [relationshipType, ...evidence].join(" ").toLowerCase();
+  if (text.includes("mentored") || text.includes("advisor") || text.includes("student")) return "direct mentorship";
+  if (text.includes("collaborated") || text.includes("coauthor") || text.includes("correspondence") || text.includes("jointly authored")) return "collaboration";
+  if (text.includes("parallel development") || text.includes("shared concept without transmission")) return "parallel development";
+  if (relationshipType === "Source-context neighbor" || text.includes("source proximity")) return "source-context neighbor";
+  if (text.includes("influenced") || text.includes("influence") || text.includes("citation") || text.includes("reception")) return "likely influence";
+  return "needs review";
+};

@@ -125,7 +125,7 @@ Goal: generate, classify, and explain relationship candidates from evidence.
 - [x] Generate parallel-development candidates from shared concepts without direct transmission evidence.
 - [x] Generate source-context neighbor candidates from source proximity without overclaiming influence.
 - [x] Validate direction using chronology, source wording, and relationship type.
-- [ ] Split relationship suggestions into categories:
+- [x] Split relationship suggestions into categories:
   - likely influence
   - direct mentorship
   - collaboration
