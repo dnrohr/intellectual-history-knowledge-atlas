@@ -453,7 +453,7 @@ Status notation:
 - [x] Write source provenance guidelines.
 - [x] Write taxonomy guidelines.
 - [x] Write deployment guide.
-- Write Codespaces guide with update steps.
+- [x] Write Codespaces guide with update steps.
 - Add screenshots/GIFs once UI stabilizes.
 - Add changelog.
 
