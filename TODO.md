@@ -55,7 +55,7 @@ Goal: expand the atlas from person-to-person influence into a typed, source-back
   - concept shaped movement
   - work influenced work
 - [x] Add source claim aggregation per entity and relationship.
-- [ ] Add schema validation for imported and generated data.
+- [x] Add schema validation for imported and generated data.
 - [ ] Add migration path from the current localStorage schema to the expanded schema.
 
 ### 2. Claim-Based Data Model
