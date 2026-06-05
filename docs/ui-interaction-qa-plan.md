@@ -58,7 +58,7 @@ Run after any major UI layout change:
 
 - New controls get `data-testid` values when they are stateful or user-critical.
 - Overlay containers should be content-sized by default.
-- Canvas nodes should be clamped to a padded viewport when simulation ticks or drag pins update positions.
+- Do not clamp every simulation tick into a padded rectangle; that makes dense graphs look boxed-in.
+- Clamp only user drag pins enough to keep nodes out from under persistent control overlays.
 - E2E tests should prefer behavior assertions over snapshots, but use screenshots when checking layout overlap.
 - If a visual control changes only CSS state, add a minimal DOM state hook or label that tests can observe.
-

@@ -76,21 +76,9 @@ export default function NetworkGraph({
     if (coordinatedFocusDepth !== undefined) setFocusDepth(coordinatedFocusDepth);
   }, [coordinatedFocusDepth]);
 
-  const constrainNodesToViewport = (width: number, height: number) => {
-    const topPad = Math.min(126, Math.max(36, height * 0.28));
-    const bottomPad = showOverviewNavigator ? Math.min(136, Math.max(104, height * 0.24)) : 48;
-    const sidePad = 28;
-    nodesRef.current.forEach((node) => {
-      if (node.x === undefined || node.y === undefined) return;
-      const pad = Math.max(sidePad, node.r + 8);
-      node.x = Math.max(pad, Math.min(Math.max(pad, width - pad), node.x));
-      node.y = Math.max(topPad, Math.min(Math.max(topPad, height - bottomPad), node.y));
-    });
-  };
-
   const clampGraphPointToViewport = (point: { x: number; y: number }, width: number, height: number, radius = 14) => {
-    const topPad = Math.min(126, Math.max(36, height * 0.28));
-    const bottomPad = showOverviewNavigator ? Math.min(136, Math.max(104, height * 0.24)) : 48;
+    const topPad = Math.min(116, Math.max(32, height * 0.18));
+    const bottomPad = showOverviewNavigator ? 48 : 24;
     const sidePad = Math.max(28, radius + 8);
     return {
       x: Math.max(sidePad, Math.min(Math.max(sidePad, width - sidePad), point.x)),
@@ -347,10 +335,7 @@ export default function NetworkGraph({
       .force("x", d3.forceX<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.x ?? width / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16))
       .force("y", d3.forceY<SimulatedNode>((d) => layoutTargetsRef.current.get(d.id)?.y ?? height / 2).strength(layoutMode === "force" && clusterMode === "none" ? 0.04 : 0.16));
 
-    sim.on("tick", () => {
-      constrainNodesToViewport(width, height);
-      draw();
-    });
+    sim.on("tick", draw);
     simulationRef.current = sim;
 
     const ratio = window.devicePixelRatio || 1;
