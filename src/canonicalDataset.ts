@@ -1,7 +1,7 @@
 import { AcceptanceThreshold } from "./evidencePolicy";
 import { GraphRepairDiff } from "./graphQuality";
 import { SourceAdapterFetchResult } from "./sourceAdapters";
-import { InfluenceEdge, SourceClaimEntity, Thinker } from "./types";
+import { InfluenceEdge, SourceClaimEntity, SourceClaimStatus, Thinker } from "./types";
 
 export interface CanonicalSeedDataInput {
   people: Thinker[];
@@ -55,6 +55,31 @@ export interface CanonicalDatasetMetadata {
   contentFingerprint: string;
 }
 
+export type CanonicalClaimChangelogEntryType =
+  | "added"
+  | "changed"
+  | "demoted"
+  | "rejected"
+  | "conflicting";
+
+export interface CanonicalClaimChangelogEntry {
+  type: CanonicalClaimChangelogEntryType;
+  claimId: string;
+  subjectEntityId: string;
+  subjectEntityType: SourceClaimEntity["subjectEntityType"];
+  field: string;
+  previousStatus?: SourceClaimStatus;
+  currentStatus: SourceClaimStatus;
+}
+
+export interface CanonicalClaimChangelog {
+  added: CanonicalClaimChangelogEntry[];
+  changed: CanonicalClaimChangelogEntry[];
+  demoted: CanonicalClaimChangelogEntry[];
+  rejected: CanonicalClaimChangelogEntry[];
+  conflicting: CanonicalClaimChangelogEntry[];
+}
+
 const edgeKey = (edge: InfluenceEdge) =>
   edge.id || `${edge.source}->${edge.target}:${edge.type}`;
 
@@ -75,6 +100,51 @@ const stableFingerprint = (value: unknown) => {
   }
   return hash.toString(16).padStart(8, "0");
 };
+
+const statusRank: Record<SourceClaimStatus, number> = {
+  accepted: 5,
+  candidate: 4,
+  observed: 3,
+  stale: 2,
+  conflicting: 1,
+  rejected: 0,
+};
+
+const claimComparisonShape = (claim: SourceClaimEntity) => ({
+  sourceName: claim.sourceName,
+  sourceUrl: claim.sourceUrl,
+  sourceType: claim.sourceType,
+  sourceReliability: claim.sourceReliability,
+  extractionMethod: claim.extractionMethod,
+  subjectEntityId: claim.subjectEntityId,
+  subjectEntityType: claim.subjectEntityType,
+  field: claim.field,
+  value: claim.value,
+  confidence: claim.confidence,
+  status: claim.status,
+});
+
+const createClaimChangelogEntry = (
+  type: CanonicalClaimChangelogEntryType,
+  current: SourceClaimEntity,
+  previous?: SourceClaimEntity
+): CanonicalClaimChangelogEntry => ({
+  type,
+  claimId: current.id,
+  subjectEntityId: current.subjectEntityId,
+  subjectEntityType: current.subjectEntityType,
+  field: current.field,
+  previousStatus: previous?.status,
+  currentStatus: current.status,
+});
+
+const emptyClaimChangelog = (): CanonicalClaimChangelog => ({
+  added: [],
+  changed: [],
+  demoted: [],
+  rejected: [],
+  conflicting: [],
+});
 
 const applyAcceptedRepairDecisions = (
   edges: InfluenceEdge[],
@@ -111,6 +181,43 @@ export const createCanonicalDatasetBuildInputs = (
   manualOverrides: [...inputs.manualOverrides],
   repairDecisions: [...inputs.repairDecisions],
 });
+
+export const generateCanonicalClaimChangelog = (
+  previousClaims: SourceClaimEntity[],
+  currentClaims: SourceClaimEntity[]
+): CanonicalClaimChangelog => {
+  const changelog = emptyClaimChangelog();
+  const previousById = new Map(previousClaims.map((claim) => [claim.id, claim]));
+
+  sortClaims(currentClaims).forEach((current) => {
+    const previous = previousById.get(current.id);
+    if (!previous) {
+      changelog.added.push(createClaimChangelogEntry("added", current));
+      return;
+    }
+
+    if (current.status === "conflicting" && previous.status !== "conflicting") {
+      changelog.conflicting.push(createClaimChangelogEntry("conflicting", current, previous));
+      return;
+    }
+
+    if (current.status === "rejected" && previous.status !== "rejected") {
+      changelog.rejected.push(createClaimChangelogEntry("rejected", current, previous));
+      return;
+    }
+
+    if (statusRank[current.status] < statusRank[previous.status]) {
+      changelog.demoted.push(createClaimChangelogEntry("demoted", current, previous));
+      return;
+    }
+
+    if (stableFingerprint(claimComparisonShape(current)) !== stableFingerprint(claimComparisonShape(previous))) {
+      changelog.changed.push(createClaimChangelogEntry("changed", current, previous));
+    }
+  });
+
+  return changelog;
+};
 
 export const buildCanonicalDataset = (inputs: CanonicalDatasetBuildInputs): CanonicalDatasetOutput => {
   const people = sortPeople(inputs.seedData.people);

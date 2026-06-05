@@ -1,5 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { buildCanonicalDataset, createCanonicalDatasetBuildInputs } from "./canonicalDataset";
+import {
+  buildCanonicalDataset,
+  createCanonicalDatasetBuildInputs,
+  generateCanonicalClaimChangelog,
+} from "./canonicalDataset";
+import { SourceClaimEntity } from "./types";
+
+const makeClaim = (
+  id: string,
+  overrides: Partial<SourceClaimEntity> = {}
+): SourceClaimEntity => ({
+  id,
+  type: "SourceClaim",
+  label: id,
+  sourceName: "Manual",
+  sourceType: "reference",
+  sourceReliability: 0.7,
+  extractionMethod: "manual_seed",
+  subjectEntityId: "person:a",
+  subjectEntityType: "Person",
+  field: "name",
+  value: "A",
+  confidence: 0.8,
+  status: "accepted",
+  ...overrides,
+});
 
 describe("canonical dataset build inputs", () => {
   it("defines the required canonical dataset input lanes", () => {
@@ -118,5 +143,37 @@ describe("canonical dataset build inputs", () => {
       },
     });
     expect(output.metadata.contentFingerprint).toMatch(/^[0-9a-f]{8}$/);
+  });
+
+  it("generates deterministic claim changelog categories", () => {
+    const previous = [
+      makeClaim("claim:changed", { value: "Original" }),
+      makeClaim("claim:demoted"),
+      makeClaim("claim:rejected"),
+      makeClaim("claim:conflicting"),
+      makeClaim("claim:stable"),
+    ];
+    const current = [
+      makeClaim("claim:stable"),
+      makeClaim("claim:conflicting", { status: "conflicting" }),
+      makeClaim("claim:rejected", { status: "rejected" }),
+      makeClaim("claim:demoted", { status: "candidate" }),
+      makeClaim("claim:changed", { value: "Corrected" }),
+      makeClaim("claim:added"),
+    ];
+
+    const changelog = generateCanonicalClaimChangelog(previous, current);
+
+    expect(changelog.added.map((entry) => entry.claimId)).toEqual(["claim:added"]);
+    expect(changelog.changed.map((entry) => entry.claimId)).toEqual(["claim:changed"]);
+    expect(changelog.demoted.map((entry) => entry.claimId)).toEqual(["claim:demoted"]);
+    expect(changelog.rejected.map((entry) => entry.claimId)).toEqual(["claim:rejected"]);
+    expect(changelog.conflicting.map((entry) => entry.claimId)).toEqual(["claim:conflicting"]);
+    expect(changelog.demoted[0]).toMatchObject({
+      previousStatus: "accepted",
+      currentStatus: "candidate",
+      subjectEntityId: "person:a",
+      field: "name",
+    });
   });
 });
