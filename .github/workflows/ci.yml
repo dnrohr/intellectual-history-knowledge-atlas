@@ -31,6 +31,9 @@ jobs:
       - name: Run TypeScript checks
         run: npm run lint
 
+      - name: Validate canonical dataset
+        run: npm run qa:canonical
+
       - name: Build
         run: npm run build
 

@@ -3703,7 +3703,7 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "bell_burnell", target: "thorne_kip", type: "Source-context neighbor", strength: 3, note: "Pulsar observations and relativistic compact-object theory share the observational context of neutron-star astrophysics" },
   { source: "thorne_kip", target: "weiss_rainer", type: "Collaboration", strength: 4, note: "LIGO gravitational-wave program joined theory and interferometer design" },
   { source: "weiss_rainer", target: "barish_barry", type: "Collaboration", strength: 4, note: "Weiss's interferometer design fed into Barish's large-scale LIGO construction and operations program" },
-  { source: "fermi", target: "bethe_hans", type: "Indirect influence", strength: 4, note: "Fermi's nuclear physics framed the reaction processes Bethe applied to stellar energy production" },
+  { source: "fermi_enrico", target: "bethe_hans", type: "Indirect influence", strength: 4, note: "Fermi's nuclear physics framed the reaction processes Bethe applied to stellar energy production" },
   { source: "bethe_hans", target: "gamow", type: "Source-context neighbor", strength: 3, note: "Stellar fusion cycles and Big Bang nucleosynthesis connect nuclear reaction physics to astrophysical origins" },
   { source: "roger_bacon", target: "bacon", type: "Indirect influence", strength: 4, note: "Championed empirical method and mathematical physics" },
   { source: "roger_bacon", target: "descartes", type: "Indirect influence", strength: 3, note: "Mathematical-physical empiricism tradition" },
