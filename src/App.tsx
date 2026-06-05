@@ -95,6 +95,15 @@ type WorkbenchTab =
   | "manualOverrides"
   | "exportRecovery";
 
+type AutomatedClaimDecisionStatus = "accepted" | "held" | "rejected" | "conflicting";
+
+type AutomatedClaimDecision = {
+  id: string;
+  label: string;
+  status: AutomatedClaimDecisionStatus;
+  reason: string;
+};
+
 type ReviewUndoSnapshot = {
   label: string;
   createdAt: string;
@@ -2922,6 +2931,69 @@ export default function App() {
   const topAutomationFindings = graphHealthReport.findings
     .filter((finding) => finding.severity !== "info")
     .slice(0, 4);
+  const automatedClaimDecisionFeed: AutomatedClaimDecision[] = [
+    ...importReviewQueue.slice(0, 4).map((item): AutomatedClaimDecision => {
+      const duplicateId = getDuplicateIdForCandidate(item.candidate);
+      if (duplicateId) {
+        return {
+          id: `import-conflict-${item.id}`,
+          label: item.candidate.name,
+          status: "conflicting",
+          reason: `Matched existing entity ${(peopleById.get(duplicateId) as Thinker | undefined)?.name || duplicateId}.`,
+        };
+      }
+      if (item.candidate.birth === null) {
+        return {
+          id: `import-rejected-${item.id}`,
+          label: item.candidate.name,
+          status: "rejected",
+          reason: "Rejected from automation because the candidate has no usable birth year.",
+        };
+      }
+      if (item.confidence >= importConfidenceThreshold) {
+        return {
+          id: `import-accepted-${item.id}`,
+          label: item.candidate.name,
+          status: "accepted",
+          reason: `Confidence ${item.confidence}% meets the ${importConfidenceThreshold}% threshold.`,
+        };
+      }
+      return {
+        id: `import-held-${item.id}`,
+        label: item.candidate.name,
+        status: "held",
+        reason: `Confidence ${item.confidence}% is below the ${importConfidenceThreshold}% threshold.`,
+      };
+    }),
+    ...suggestedLinks.slice(0, 4).map((candidate): AutomatedClaimDecision => ({
+      id: `link-${candidate.person.id}`,
+      label: selectedThinker ? `${selectedThinker.name} / ${candidate.person.name}` : candidate.person.name,
+      status: candidate.score >= 4 ? "accepted" : "held",
+      reason: candidate.score >= 4
+        ? `Relationship candidate scored ${candidate.score.toFixed(1)} from shared field, topic, lens, era, and chronology evidence.`
+        : `Held because the relationship score ${candidate.score.toFixed(1)} is below the high-confidence cutoff.`,
+    })),
+    ...importAuditLog.slice(0, 4).map((entry): AutomatedClaimDecision => ({
+      id: `audit-${entry.id}`,
+      label: entry.candidateName,
+      status: entry.status === "accepted"
+        ? "accepted"
+        : entry.status === "duplicate"
+        ? "conflicting"
+        : entry.status === "skipped"
+        ? "rejected"
+        : "held",
+      reason: entry.reason,
+    })),
+  ].slice(0, 8);
+  const getAutomatedClaimDecisionClass = (status: AutomatedClaimDecisionStatus) =>
+    status === "accepted"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+      : status === "conflicting"
+      ? "border-rose-500/30 bg-rose-500/10 text-rose-300"
+      : status === "rejected"
+      ? "border-slate-600 bg-slate-700/20 text-slate-400"
+      : "border-amber-500/30 bg-amber-500/10 text-amber-300";
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
       
@@ -4292,6 +4364,23 @@ export default function App() {
                       <div className="font-mono text-[8px] uppercase text-rose-300">Conflicting</div>
                       <div className="font-serif text-lg font-bold text-slate-100">{automationConflictCount}</div>
                     </div>
+                  </div>
+                  <div className="mt-2 space-y-1.5">
+                    {automatedClaimDecisionFeed.length > 0 ? automatedClaimDecisionFeed.slice(0, 4).map((decision) => (
+                      <div key={decision.id} className="rounded border border-[#252a3d] bg-[#0e1119] px-2 py-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate font-mono text-[9px] text-slate-300">{decision.label}</span>
+                          <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[7.5px] font-mono ${getAutomatedClaimDecisionClass(decision.status)}`}>
+                            {decision.status}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 line-clamp-2 font-mono text-[8px] leading-snug text-slate-600">{decision.reason}</div>
+                      </div>
+                    )) : (
+                      <div className="mt-2 rounded border border-[#252a3d] bg-[#0e1119] px-2 py-2 font-mono text-[9px] text-slate-600">
+                        No automated claim decisions yet.
+                      </div>
+                    )}
                   </div>
                 </div>
 
