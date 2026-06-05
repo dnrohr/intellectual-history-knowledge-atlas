@@ -15,7 +15,7 @@ Status notation:
 - Keep the Influence Atlas and scholar dossier as the primary exploration experience.
 - Reframe Source Studio as an automation, evidence, conflict, and override console rather than the main growth path for the dataset.
 - Make threads, paths, and lineages evidence-aware once typed relationships and claim records exist.
-- Add bulk edge validation so every relationship in the network can be confirmed with adequate evidence or removed from the canonical graph.
+- Add bulk edge validation and discovery so every relationship in the network can be confirmed with adequate evidence, removed from the canonical graph, or added when automated evidence confirms a missing edge.
 
 Reference documents:
 - `docs/automated-validation-roadmap.md`
@@ -264,19 +264,20 @@ Goal: keep the app easy to share while making data provenance clear.
 - [x] Add import/export so users can carry data between local, Codespaces, and hosted instances.
 - [x] Revisit hosted demo persistence once automated validation and canonical dataset generation are in place.
 
-### 13. Bulk Edge Validation
+### 13. Bulk Edge Validation And Discovery
 
-Goal: validate every network edge at scale until each edge has a final disposition: confirmed in the canonical graph or removed from it. Interim states such as needs-source or conflict must trigger automated source acquisition, rule refinement, or removal; there is no manual review lane.
+Goal: validate and expand network edges at scale until the canonical graph contains only confirmed relationships. Existing edges must be confirmed or removed. Missing relationship candidates must be auto-investigated and either added as confirmed edges or discarded. Interim states such as needs-source or conflict must trigger automated source acquisition, rule refinement, or removal; there is no manual review lane.
 
 - [ ] Define a bulk edge validation result model with:
   - edge identity and endpoints
+  - origin: existing edge or discovered candidate
   - structural status
   - evidence status
   - chronology status
   - source-claim coverage
   - confidence score
-  - recommended action: confirm, remove, or auto-investigate
-  - final disposition: confirmed or removed
+  - recommended action: confirm, add, remove, discard, or auto-investigate
+  - final disposition: confirmed existing edge, added confirmed edge, removed existing edge, or discarded candidate
   - blocking reasons
 - [ ] Add a deterministic validator for structural edge checks:
   - schema errors
@@ -300,13 +301,25 @@ Goal: validate every network edge at scale until each edge has a final dispositi
   - source-context neighbor
   - parallel development
   - canonical-thread edges
+- [ ] Generate missing edge candidates automatically from:
+  - source adapter relationship observations
+  - explicit claim records
+  - citation and work-to-work evidence
+  - advisor/student lineage
+  - coauthorship or correspondence evidence
+  - institutional and movement overlap with chronology constraints
+  - canonical thread gaps
+- [ ] Deduplicate discovered candidates against existing edges and each other before validation.
+- [ ] Add confirmed missing edges to the canonical graph with source claims, confidence, relationship type, and validation metadata.
 - [ ] Generate a bulk validation report grouped by:
-  - confirmed
-  - removed
+  - confirmed existing edges
+  - added confirmed edges
+  - removed existing edges
+  - discarded candidates
   - auto-investigating missing sources before final disposition
   - auto-resolving conflicts before final disposition
 - [ ] Add dry-run repair decisions from bulk validation findings.
-- [ ] Add an acceptance gate that fails while any edge lacks a confirmed or removed final disposition.
+- [ ] Add an acceptance gate that fails while any existing edge lacks a confirmed or removed final disposition, or any discovered candidate lacks an added or discarded final disposition.
 - [ ] Add snapshot and boundary tests for the bulk edge validator.
 - [ ] Wire bulk edge validation into CI for structural failures.
 - [ ] Add Source Studio visibility for bulk validation status, report export, and repair preview actions.
