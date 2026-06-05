@@ -42,9 +42,62 @@ export interface SourceAdapter {
   normalizeSourceClaims(observations: SourceObservation[]): SourceClaimDraft[];
 }
 
+export type SourceAdapterRunStatus = "completed" | "running" | "held" | "failed";
+
+export interface SourceAdapterRunRecord {
+  id: string;
+  adapterId: string;
+  adapterName: string;
+  runAt: string | null;
+  status: SourceAdapterRunStatus;
+  queryCount: number;
+  observationCount: number;
+  claimCount: number;
+  errorMessage?: string;
+}
+
+export interface SourceAdapterRunSummary {
+  totalRuns: number;
+  completedRuns: number;
+  failedRuns: number;
+  heldRuns: number;
+  latestRunAt: string | null;
+  latestErrors: Array<{
+    adapterId: string;
+    adapterName: string;
+    errorMessage: string;
+  }>;
+}
+
 export const createEmptyAdapterResult = <T>(adapterId: string): SourceAdapterFetchResult<T> => ({
   adapterId,
   observations: [],
   claims: [],
   records: [],
 });
+
+export const summarizeSourceAdapterRuns = (runs: SourceAdapterRunRecord[]): SourceAdapterRunSummary => {
+  const completedRuns = runs.filter((run) => run.status === "completed").length;
+  const failedRuns = runs.filter((run) => run.status === "failed").length;
+  const heldRuns = runs.filter((run) => run.status === "held").length;
+  const latestRunAt = runs
+    .map((run) => run.runAt)
+    .filter((runAt): runAt is string => Boolean(runAt))
+    .sort()
+    .at(-1) || null;
+
+  return {
+    totalRuns: runs.length,
+    completedRuns,
+    failedRuns,
+    heldRuns,
+    latestRunAt,
+    latestErrors: runs
+      .filter((run) => run.status === "failed" && run.errorMessage)
+      .map((run) => ({
+        adapterId: run.adapterId,
+        adapterName: run.adapterName,
+        errorMessage: run.errorMessage as string,
+      })),
+  };
+};

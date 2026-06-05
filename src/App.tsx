@@ -16,6 +16,7 @@ import EmptyState from "./components/EmptyState";
 import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
 import { CANONICAL_THREADS } from "./threads";
+import { SourceAdapterRunRecord, summarizeSourceAdapterRuns } from "./sourceAdapters";
 import {
   IMPORT_QUEUE_SCHEMA_VERSION,
   IMPORT_QUEUE_STORAGE_KEY,
@@ -3019,6 +3020,37 @@ export default function App() {
       : status === "rejected"
       ? "border-slate-600 bg-slate-700/20 text-slate-400"
       : "border-amber-500/30 bg-amber-500/10 text-amber-300";
+  const latestImportAuditAt = importAuditLog
+    .map((entry) => entry.reviewedAt)
+    .filter(Boolean)
+    .sort()
+    .at(-1) || null;
+  const sourceAdapterRunHistory: SourceAdapterRunRecord[] = EXTERNAL_SOURCES.map((source) => {
+    const queueCount = source.id === "wikidata" ? importReviewQueue.length : 0;
+    const auditCount = source.id === "wikidata" ? importAuditLog.length : 0;
+    const localActivityCount = queueCount + auditCount;
+    const requiresKey = source.status === "requires-api-key";
+    return {
+      id: `adapter-run:${source.id}`,
+      adapterId: source.id,
+      adapterName: source.name,
+      runAt: localActivityCount > 0 ? latestImportAuditAt : null,
+      status: requiresKey ? "failed" : localActivityCount > 0 ? "completed" : "held",
+      queryCount: localActivityCount,
+      observationCount: queueCount,
+      claimCount: auditCount,
+      errorMessage: requiresKey ? "Adapter requires an API key before automated runs can complete." : undefined,
+    };
+  });
+  const sourceAdapterRunSummary = summarizeSourceAdapterRuns(sourceAdapterRunHistory);
+  const getSourceAdapterRunClass = (status: SourceAdapterRunRecord["status"]) =>
+    status === "completed"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+      : status === "failed"
+      ? "border-rose-500/30 bg-rose-500/10 text-rose-300"
+      : status === "running"
+      ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+      : "border-amber-500/30 bg-amber-500/10 text-amber-300";
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0a0b10] text-[#dde3f0] font-sans antialiased selection:bg-[#7b9cf5]/30">
       
@@ -4875,6 +4907,64 @@ export default function App() {
 
               {workbenchTab === "sourceHealth" && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
+                  <div className="xl:col-span-12 rounded-md border border-[#22273b] bg-[#090a0f] p-3">
+                    <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Adapter Run History</span>
+                        <p className="mt-0.5 text-[10px] font-mono text-slate-600">
+                          Source adapter activity, held runs, and configuration errors.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-[8px] font-mono text-emerald-300">
+                          {sourceAdapterRunSummary.completedRuns} completed
+                        </span>
+                        <span className="rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-mono text-amber-300">
+                          {sourceAdapterRunSummary.heldRuns} held
+                        </span>
+                        <span className="rounded border border-rose-500/25 bg-rose-500/10 px-1.5 py-0.5 text-[8px] font-mono text-rose-300">
+                          {sourceAdapterRunSummary.failedRuns} failed
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+                      {sourceAdapterRunHistory.map((run) => (
+                        <div key={run.id} className="rounded-md border border-[#252a3d] bg-[#0e1119] p-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="truncate font-serif text-sm font-bold text-slate-100">{run.adapterName}</span>
+                            <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[8px] font-mono ${getSourceAdapterRunClass(run.status)}`}>
+                              {run.status}
+                            </span>
+                          </div>
+                          <div className="mt-1 grid grid-cols-3 gap-1 text-center font-mono text-[8px] text-slate-500">
+                            <span className="rounded border border-[#252a3d] bg-[#090a0f] px-1 py-1">{run.queryCount} queries</span>
+                            <span className="rounded border border-[#252a3d] bg-[#090a0f] px-1 py-1">{run.observationCount} obs</span>
+                            <span className="rounded border border-[#252a3d] bg-[#090a0f] px-1 py-1">{run.claimCount} claims</span>
+                          </div>
+                          <div className="mt-1 truncate font-mono text-[8.5px] text-slate-600">
+                            {run.runAt ? `Last run ${new Date(run.runAt).toLocaleString()}` : "No completed local run"}
+                          </div>
+                          {run.errorMessage && (
+                            <div className="mt-1 rounded border border-rose-500/20 bg-rose-500/10 px-2 py-1 font-mono text-[8px] text-rose-300">
+                              {run.errorMessage}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {sourceAdapterRunSummary.latestErrors.length > 0 && (
+                      <div className="mt-2 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-1.5">
+                        <div className="font-mono text-[8.5px] uppercase tracking-wider text-rose-300">Latest Error Summary</div>
+                        <div className="mt-1 space-y-1">
+                          {sourceAdapterRunSummary.latestErrors.map((error) => (
+                            <div key={error.adapterId} className="truncate font-mono text-[8.5px] text-slate-500">
+                              {error.adapterName}: {error.errorMessage}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <div className="xl:col-span-7 bg-[#090a0f] border border-[#22273b] rounded-md p-3">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">Topic Editor</span>

@@ -192,7 +192,7 @@ Goal: make Source Studio the place to inspect automation state, not the main way
 - [x] Keep batch paste, CSV import/export, JSON restore, and duplicate merge as fallback/admin tools.
 - [x] Show why an automated claim was accepted, held, rejected, or marked conflicting.
 - [x] Add undo/revert for automated repair batches.
-- [ ] Add source adapter run history and error summaries.
+- [x] Add source adapter run history and error summaries.
 
 ### 9. Threads And Guided Lineages
 
