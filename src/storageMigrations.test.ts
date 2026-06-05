@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ATLAS_STATE_SCHEMA_VERSION,
   ATLAS_STATE_STORAGE_KEY,
+  clearPersistedAtlasState,
   LEGACY_EDGES_STORAGE_KEY,
   LEGACY_PEOPLE_STORAGE_KEY,
   loadAtlasStateFromStorage,
@@ -104,5 +105,23 @@ describe("atlas storage migrations", () => {
     expect(store.values.has(PREVIOUS_ATLAS_STATE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_PEOPLE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_EDGES_STORAGE_KEY)).toBe(false);
+  });
+
+  it("clears persisted atlas state keys for public demo sessions", () => {
+    const store = storage([
+      [ATLAS_STATE_STORAGE_KEY, "current"],
+      [PREVIOUS_ATLAS_STATE_STORAGE_KEY, "previous"],
+      [LEGACY_PEOPLE_STORAGE_KEY, "people"],
+      [LEGACY_EDGES_STORAGE_KEY, "edges"],
+      ["atlas_import_queue_v2", "queue"],
+    ]);
+
+    clearPersistedAtlasState(store);
+
+    expect(store.values.has(ATLAS_STATE_STORAGE_KEY)).toBe(false);
+    expect(store.values.has(PREVIOUS_ATLAS_STATE_STORAGE_KEY)).toBe(false);
+    expect(store.values.has(LEGACY_PEOPLE_STORAGE_KEY)).toBe(false);
+    expect(store.values.has(LEGACY_EDGES_STORAGE_KEY)).toBe(false);
+    expect(store.values.has("atlas_import_queue_v2")).toBe(true);
   });
 });

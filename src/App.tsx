@@ -37,7 +37,7 @@ import {
   getDryRunRepairJobTriggers,
   planWeakUnsupportedEdgeDemotions,
 } from "./graphQuality";
-import { loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
+import { clearPersistedAtlasState, loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
 import { PUBLIC_DEMO_MODE } from "./runtimeConfig";
 import { 
   Plus, 
@@ -409,8 +409,10 @@ const getInitialTimelineBookmarks = (): TimelineBookmarkItem[] => {
 export default function App() {
   const [people, setPeople] = useState<Thinker[]>([]);
   const [edges, setEdges] = useState<InfluenceEdge[]>([]);
-  const persistAtlasState = (nextPeople = people, nextEdges = edges) =>
+  const persistAtlasState = (nextPeople = people, nextEdges = edges) => {
+    if (PUBLIC_DEMO_MODE) return;
     persistAtlasStateToStorage(nextPeople, nextEdges);
+  };
   const csvImportInputRef = useRef<HTMLInputElement | null>(null);
   const jsonImportInputRef = useRef<HTMLInputElement | null>(null);
   const threadImportInputRef = useRef<HTMLInputElement | null>(null);
@@ -630,6 +632,7 @@ export default function App() {
     const savedImportAuditLog = localStorage.getItem("atlas_import_audit_log_v1");
 
     if (PUBLIC_DEMO_MODE) {
+      clearPersistedAtlasState();
       setPeople(INITIAL_PEOPLE_DATA);
       setEdges(INITIAL_EDGES_DATA);
       setImportReviewQueue([]);
@@ -645,12 +648,12 @@ export default function App() {
       } else {
         setPeople(INITIAL_PEOPLE_DATA);
         setEdges(INITIAL_EDGES_DATA);
-        persistAtlasStateToStorage(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
+        persistAtlasState(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
       }
     } catch {
       setPeople(INITIAL_PEOPLE_DATA);
       setEdges(INITIAL_EDGES_DATA);
-      persistAtlasStateToStorage(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
+      persistAtlasState(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
     }
 
     if (savedImportQueue) {
@@ -749,7 +752,7 @@ export default function App() {
       setHighlightPath(null);
       setOverlapContemps([]);
       setBfsMapNodes([]);
-      persistAtlasStateToStorage(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
+      persistAtlasState(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
       localStorage.removeItem(IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
       localStorage.removeItem("atlas_import_audit_log_v1");

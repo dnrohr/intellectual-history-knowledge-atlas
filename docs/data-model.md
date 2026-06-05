@@ -54,6 +54,8 @@ Threads should only reference thinker IDs that exist in the seed data.
 
 The browser persists local atlas state in `atlas_state_v8`. That versioned object contains normalized people and edges. Import queues, audit logs, saved views, timeline bookmarks, imported threads, and rejected suggestions use separate localStorage keys.
 
+When `VITE_PUBLIC_DEMO_MODE=true`, the hosted demo treats the bundled canonical dataset as read-from-build state: it clears persisted atlas state on startup and skips atlas-state writes so public demo edits do not become browser persistence. Normal local mode remains the persistence path for user-created datasets and export/restore handoff.
+
 The app migrates older `atlas_people_v6`, `atlas_edges_v6`, and `atlas_state_v7` storage into `atlas_state_v8` on startup.
 
 ## Canonical Dataset Build Inputs

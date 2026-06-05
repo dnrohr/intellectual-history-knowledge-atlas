@@ -56,6 +56,13 @@ export const persistAtlasStateToStorage = (
   storage.removeItem(LEGACY_EDGES_STORAGE_KEY);
 };
 
+export const clearPersistedAtlasState = (storage: StorageLike = localStorage) => {
+  storage.removeItem(ATLAS_STATE_STORAGE_KEY);
+  storage.removeItem(PREVIOUS_ATLAS_STATE_STORAGE_KEY);
+  storage.removeItem(LEGACY_PEOPLE_STORAGE_KEY);
+  storage.removeItem(LEGACY_EDGES_STORAGE_KEY);
+};
+
 export const loadAtlasStateFromStorage = (storage: StorageLike = localStorage) => {
   const savedState = storage.getItem(ATLAS_STATE_STORAGE_KEY);
   if (savedState) {

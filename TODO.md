@@ -261,7 +261,7 @@ Goal: keep the app easy to share while making data provenance clear.
 - [x] Add public demo mode with sample data.
 - [x] Add private local data warning where appropriate.
 - [x] Add import/export so users can carry data between local, Codespaces, and hosted instances.
-- [ ] Revisit hosted demo persistence once automated validation and canonical dataset generation are in place.
+- [x] Revisit hosted demo persistence once automated validation and canonical dataset generation are in place.
 
 ## Completed Milestones
 

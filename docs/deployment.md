@@ -59,7 +59,7 @@ For public demo builds, set:
 VITE_PUBLIC_DEMO_MODE=true
 ```
 
-Demo mode starts from bundled sample data on each page load and shows a Demo badge.
+Demo mode starts from the bundled canonical sample data on each page load, clears persisted atlas state for that browser, skips atlas-state writes, and shows a Demo badge. Public demo edits are session-only; users should use export/restore in normal local mode when they want changes to travel between browsers or deployments.
 
 ## Local Data
 
