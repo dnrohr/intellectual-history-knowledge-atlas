@@ -60,3 +60,29 @@ export const ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE: Record<AcceptanceClaimType, Ac
 
 export const getAcceptanceThreshold = (claimType: AcceptanceClaimType) =>
   ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE[claimType];
+
+export interface StrictAcceptanceContext {
+  directInfluence?: boolean;
+  canonicalThreadEdge?: boolean;
+  crossCenturyJump?: boolean;
+  highBridgeScoreNode?: boolean;
+  disputedOrSparseTopic?: boolean;
+}
+
+export const applyStrictAcceptanceModifiers = (
+  threshold: AcceptanceThreshold,
+  context: StrictAcceptanceContext
+): AcceptanceThreshold => {
+  const increments = [
+    context.directInfluence ? 0.05 : 0,
+    context.canonicalThreadEdge ? 0.04 : 0,
+    context.crossCenturyJump ? 0.04 : 0,
+    context.highBridgeScoreNode ? 0.03 : 0,
+    context.disputedOrSparseTopic ? 0.04 : 0,
+  ];
+  const total = increments.reduce((sum, value) => sum + value, 0);
+  return {
+    accept: Math.min(0.99, Number((threshold.accept + total).toFixed(3))),
+    provisional: Math.min(0.95, Number((threshold.provisional + total / 2).toFixed(3))),
+  };
+};

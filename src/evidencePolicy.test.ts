@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE,
+  applyStrictAcceptanceModifiers,
   composeEvidenceConfidence,
   getAcceptanceThreshold,
   normalizeEvidenceConfidence,
@@ -38,5 +39,18 @@ describe("evidence policy", () => {
       ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE.basic_metadata.accept
     );
     expect(getAcceptanceThreshold("external_id")).toEqual({ accept: 0.7, provisional: 0.5 });
+  });
+
+  it("uses stricter thresholds for high-risk acceptance contexts", () => {
+    expect(applyStrictAcceptanceModifiers({ accept: 0.85, provisional: 0.65 }, {
+      directInfluence: true,
+      canonicalThreadEdge: true,
+      crossCenturyJump: true,
+      highBridgeScoreNode: true,
+      disputedOrSparseTopic: true,
+    })).toEqual({
+      accept: 0.99,
+      provisional: 0.75,
+    });
   });
 });
