@@ -3,6 +3,7 @@ import {
   InfluenceEdge,
   Institution,
   InstitutionEntity,
+  KnownRelationshipType,
   KnowledgeEntity,
   KnowledgeEntityType,
   Movement,
@@ -10,6 +11,7 @@ import {
   PersonEntity,
   RelationshipEntity,
   RelationshipEndpointType,
+  RelationshipTypeDefinition,
   SourceClaimEntity,
   Thinker,
   WorkEntity,
@@ -232,16 +234,47 @@ export const getMovementEntityId = (label: string) =>
 export const getInstitutionEntityId = (label: string) =>
   `institution:${normalizeIdPart(label)}`;
 
+export const RELATIONSHIP_TYPE_DEFINITIONS: RelationshipTypeDefinition[] = [
+  { type: "person authored work", sourceType: "Person", targetType: "Work" },
+  { type: "work introduced concept", sourceType: "Work", targetType: "Concept" },
+  { type: "person influenced person", sourceType: "Person", targetType: "Person" },
+  { type: "person mentored person", sourceType: "Person", targetType: "Person" },
+  { type: "person collaborated with person", sourceType: "Person", targetType: "Person" },
+  { type: "person participated in movement", sourceType: "Person", targetType: "Movement" },
+  { type: "person affiliated with institution", sourceType: "Person", targetType: "Institution" },
+  { type: "concept shaped movement", sourceType: "Concept", targetType: "Movement" },
+  { type: "work influenced work", sourceType: "Work", targetType: "Work" },
+];
+
+export const getRelationshipTypeDefinition = (relationshipType: string) =>
+  RELATIONSHIP_TYPE_DEFINITIONS.find((definition) => definition.type === relationshipType);
+
+export const isKnownRelationshipType = (relationshipType: string): relationshipType is KnownRelationshipType =>
+  Boolean(getRelationshipTypeDefinition(relationshipType));
+
+export const relationshipEndpointsMatchType = (
+  relationshipType: string,
+  sourceType: RelationshipEndpointType,
+  targetType: RelationshipEndpointType
+) => {
+  const definition = getRelationshipTypeDefinition(relationshipType);
+  if (!definition) return true;
+  return definition.sourceType === sourceType && definition.targetType === targetType;
+};
+
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
   const targetEntityType = edge.targetEntityType || "Person";
+  const relationshipType = isKnownRelationshipType(edge.type) && !relationshipEndpointsMatchType(edge.type, sourceEntityType, targetEntityType)
+    ? "person influenced person"
+    : edge.type;
   const sourceEntityId = sourceEntityType === "Person" ? getPersonEntityId(edge.source) : edge.source;
   const targetEntityId = targetEntityType === "Person" ? getPersonEntityId(edge.target) : edge.target;
 
   return {
-    id: edge.id || getRelationshipRecordId(sourceEntityId, targetEntityId, edge.type),
+    id: edge.id || getRelationshipRecordId(sourceEntityId, targetEntityId, relationshipType),
     type: "Relationship",
-    label: `${sourceEntityId} ${edge.type} ${targetEntityId}`,
+    label: `${sourceEntityId} ${relationshipType} ${targetEntityId}`,
     source: {
       entityId: sourceEntityId,
       entityType: sourceEntityType,
@@ -250,7 +283,7 @@ export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): R
       entityId: targetEntityId,
       entityType: targetEntityType,
     },
-    relationshipType: edge.type,
+    relationshipType,
     strength: edge.strength,
     confidence: edge.confidence,
     status: edge.status,

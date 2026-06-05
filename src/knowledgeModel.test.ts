@@ -13,6 +13,8 @@ import {
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
+  relationshipEndpointsMatchType,
+  RELATIONSHIP_TYPE_DEFINITIONS,
 } from "./knowledgeModel";
 import { Thinker } from "./types";
 
@@ -27,6 +29,23 @@ describe("knowledge model entities", () => {
       "SourceClaim",
       "Relationship",
     ]);
+  });
+
+  it("defines typed relationship vocabulary with endpoint constraints", () => {
+    expect(RELATIONSHIP_TYPE_DEFINITIONS).toEqual([
+      { type: "person authored work", sourceType: "Person", targetType: "Work" },
+      { type: "work introduced concept", sourceType: "Work", targetType: "Concept" },
+      { type: "person influenced person", sourceType: "Person", targetType: "Person" },
+      { type: "person mentored person", sourceType: "Person", targetType: "Person" },
+      { type: "person collaborated with person", sourceType: "Person", targetType: "Person" },
+      { type: "person participated in movement", sourceType: "Person", targetType: "Movement" },
+      { type: "person affiliated with institution", sourceType: "Person", targetType: "Institution" },
+      { type: "concept shaped movement", sourceType: "Concept", targetType: "Movement" },
+      { type: "work influenced work", sourceType: "Work", targetType: "Work" },
+    ]);
+    expect(relationshipEndpointsMatchType("person authored work", "Person", "Work")).toBe(true);
+    expect(relationshipEndpointsMatchType("person authored work", "Work", "Person")).toBe(false);
+    expect(relationshipEndpointsMatchType("Indirect influence", "Person", "Person")).toBe(true);
   });
 
   it("normalizes valid mixed entity records and drops malformed records", () => {

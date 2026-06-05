@@ -44,7 +44,7 @@ Goal: expand the atlas from person-to-person influence into a typed, source-back
 - [x] Add concepts as graph nodes.
 - [x] Add movements as graph nodes.
 - [x] Add institutions as graph nodes.
-- [ ] Allow typed edges such as:
+- [x] Allow typed edges such as:
   - person authored work
   - work introduced concept
   - person influenced person

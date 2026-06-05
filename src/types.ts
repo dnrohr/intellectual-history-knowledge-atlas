@@ -72,13 +72,30 @@ export interface RelationshipEndpoint {
   entityType: RelationshipEndpointType;
 }
 
+export type KnownRelationshipType =
+  | "person authored work"
+  | "work introduced concept"
+  | "person influenced person"
+  | "person mentored person"
+  | "person collaborated with person"
+  | "person participated in movement"
+  | "person affiliated with institution"
+  | "concept shaped movement"
+  | "work influenced work";
+
+export interface RelationshipTypeDefinition {
+  type: KnownRelationshipType;
+  sourceType: RelationshipEndpointType;
+  targetType: RelationshipEndpointType;
+}
+
 export interface InfluenceEdge {
   id?: string;
   source: string;
   target: string;
   sourceEntityType?: RelationshipEndpointType;
   targetEntityType?: RelationshipEndpointType;
-  type: string;
+  type: string | KnownRelationshipType;
   strength: number;
   note?: string | null;
   confidence?: number;
@@ -90,7 +107,7 @@ export interface RelationshipEntity extends KnowledgeEntityBase {
   type: "Relationship";
   source: RelationshipEndpoint;
   target: RelationshipEndpoint;
-  relationshipType: string;
+  relationshipType: string | KnownRelationshipType;
   strength?: number;
   confidence?: number;
   status?: InfluenceEdge["status"];
