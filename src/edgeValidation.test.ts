@@ -4,6 +4,7 @@ import {
   addConfirmedMissingEdgesToCanonicalGraph,
   buildBulkEdgeValidationReport,
   createBulkEdgeValidationResult,
+  createBulkEdgeRepairDecisions,
   createExistingEdgeValidationSubject,
   deduplicateMissingEdgeCandidates,
   generateMissingEdgeCandidates,
@@ -599,5 +600,59 @@ describe("bulk edge validation model", () => {
       autoResolvingConflicts: 1,
       total: 6,
     });
+  });
+
+  it("creates dry-run repair decisions from validation report groups", () => {
+    const subject = createExistingEdgeValidationSubject({ id: "edge:ab", source: "a", target: "b", type: "Influence", strength: 3 });
+    const report = buildBulkEdgeValidationReport([
+      createBulkEdgeValidationResult({
+        id: "added",
+        origin: "discovered-candidate",
+        subject,
+        structuralStatus: "valid",
+        evidenceStatus: "supported",
+        chronologyStatus: "valid",
+        sourceClaimCoverage: 1,
+        confidenceScore: 0.9,
+        recommendedAction: "add",
+        finalDisposition: "added-confirmed-edge",
+        blockingReasons: [],
+      }),
+      createBulkEdgeValidationResult({
+        id: "removed",
+        origin: "existing-edge",
+        subject,
+        structuralStatus: "invalid",
+        evidenceStatus: "unsupported",
+        chronologyStatus: "valid",
+        sourceClaimCoverage: 0,
+        confidenceScore: 0.2,
+        recommendedAction: "remove",
+        finalDisposition: "removed-existing-edge",
+        blockingReasons: ["self-link"],
+      }),
+      createBulkEdgeValidationResult({
+        id: "investigate",
+        origin: "existing-edge",
+        subject,
+        structuralStatus: "valid",
+        evidenceStatus: "unsupported",
+        chronologyStatus: "valid",
+        sourceClaimCoverage: 0,
+        confidenceScore: 0.4,
+        recommendedAction: "auto-investigate",
+        blockingReasons: ["missing-source-evidence"],
+      }),
+    ]);
+
+    expect(createBulkEdgeRepairDecisions(report).map((decision) => ({
+      action: decision.action,
+      dryRun: decision.dryRun,
+      reason: decision.reason,
+    }))).toEqual([
+      { action: "add-edge", dryRun: true, reason: "Add automatically confirmed missing edge." },
+      { action: "remove-edge", dryRun: true, reason: "self-link" },
+      { action: "auto-investigate-source", dryRun: true, reason: "missing-source-evidence" },
+    ]);
   });
 });

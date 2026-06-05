@@ -69,6 +69,23 @@ export interface BulkEdgeValidationReport {
   };
 }
 
+export type BulkEdgeRepairDecisionAction =
+  | "add-edge"
+  | "remove-edge"
+  | "discard-candidate"
+  | "auto-investigate-source"
+  | "auto-resolve-conflict";
+
+export interface BulkEdgeRepairDecision {
+  id: string;
+  dryRun: true;
+  action: BulkEdgeRepairDecisionAction;
+  resultId: string;
+  edgeId: string;
+  reason: string;
+  edge?: InfluenceEdge;
+}
+
 const LEGACY_RELATIONSHIP_TYPES = [
   "Collaboration",
   "Critique",
@@ -637,4 +654,66 @@ export const buildBulkEdgeValidationReport = (
       total: results.length,
     },
   };
+};
+
+export const createBulkEdgeRepairDecisions = (
+  report: BulkEdgeValidationReport
+): BulkEdgeRepairDecision[] => {
+  const decisions: BulkEdgeRepairDecision[] = [];
+  report.addedConfirmedEdges.forEach((result) => {
+    decisions.push({
+      id: `repair:add:${result.subject.id}`,
+      dryRun: true,
+      action: "add-edge",
+      resultId: result.id,
+      edgeId: result.subject.id,
+      reason: "Add automatically confirmed missing edge.",
+      edge: result.subject.edge,
+    });
+  });
+  report.removedExistingEdges.forEach((result) => {
+    decisions.push({
+      id: `repair:remove:${result.subject.id}`,
+      dryRun: true,
+      action: "remove-edge",
+      resultId: result.id,
+      edgeId: result.subject.id,
+      reason: result.blockingReasons.join("; ") || "Remove invalid or unsupported existing edge.",
+      edge: result.subject.edge,
+    });
+  });
+  report.discardedCandidates.forEach((result) => {
+    decisions.push({
+      id: `repair:discard:${result.subject.id}`,
+      dryRun: true,
+      action: "discard-candidate",
+      resultId: result.id,
+      edgeId: result.subject.id,
+      reason: result.blockingReasons.join("; ") || "Discard invalid discovered candidate.",
+      edge: result.subject.edge,
+    });
+  });
+  report.autoInvestigatingMissingSources.forEach((result) => {
+    decisions.push({
+      id: `repair:investigate:${result.subject.id}`,
+      dryRun: true,
+      action: "auto-investigate-source",
+      resultId: result.id,
+      edgeId: result.subject.id,
+      reason: result.blockingReasons.join("; ") || "Acquire stronger source evidence before final disposition.",
+      edge: result.subject.edge,
+    });
+  });
+  report.autoResolvingConflicts.forEach((result) => {
+    decisions.push({
+      id: `repair:conflict:${result.subject.id}`,
+      dryRun: true,
+      action: "auto-resolve-conflict",
+      resultId: result.id,
+      edgeId: result.subject.id,
+      reason: result.blockingReasons.join("; ") || "Resolve conflicting evidence before final disposition.",
+      edge: result.subject.edge,
+    });
+  });
+  return decisions;
 };

@@ -318,7 +318,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
   - discarded candidates
   - auto-investigating missing sources before final disposition
   - auto-resolving conflicts before final disposition
-- [ ] Add dry-run repair decisions from bulk validation findings.
+- [x] Add dry-run repair decisions from bulk validation findings.
 - [ ] Add an acceptance gate that fails while any existing edge lacks a confirmed or removed final disposition, or any discovered candidate lacks an added or discarded final disposition.
 - [ ] Add snapshot and boundary tests for the bulk edge validator.
 - [ ] Wire bulk edge validation into CI for structural failures.
