@@ -426,7 +426,7 @@ Status notation:
 - [x] Add error boundaries.
 - [x] Add runtime schema checks for localStorage data.
 - [x] Add localStorage migration system.
-- Add development seed reset/import tools.
+- [x] Add development seed reset/import tools.
 - Add documentation for data conventions and edge confidence levels.
 
 ## Deployment And Sharing
