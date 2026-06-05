@@ -221,6 +221,9 @@ const normalizeIdPart = (value: string) =>
 export const getWorkEntityId = (personId: string, title: string) =>
   `work:${normalizeIdPart(personId)}:${normalizeIdPart(title)}`;
 
+export const getConceptEntityId = (label: string) =>
+  `concept:${normalizeIdPart(label)}`;
+
 export const buildRelationshipEntityFromInfluenceEdge = (edge: InfluenceEdge): RelationshipEntity => {
   const sourceEntityType = edge.sourceEntityType || "Person";
   const targetEntityType = edge.targetEntityType || "Person";
@@ -325,3 +328,25 @@ export const buildWorkAuthorshipRelationships = (people: Thinker[]): Relationshi
       status: "accepted" as const,
     }))
   );
+
+export const buildConceptEntitiesFromThinkers = (people: Thinker[]): ConceptEntity[] => {
+  const concepts = new Map<string, ConceptEntity>();
+
+  people.forEach((person) => {
+    (person.subfields || []).forEach((conceptLabel) => {
+      const trimmedLabel = conceptLabel.trim();
+      if (!trimmedLabel) return;
+      const id = getConceptEntityId(trimmedLabel);
+      const existing = concepts.get(id);
+      const fields = new Set([...(existing?.fields || []), ...(person.fields || [])]);
+      concepts.set(id, {
+        id,
+        type: "Concept",
+        label: trimmedLabel,
+        fields: Array.from(fields).sort(),
+      });
+    });
+  });
+
+  return Array.from(concepts.values()).sort((a, b) => a.label.localeCompare(b.label));
+};

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildRelationshipEntityFromInfluenceEdge,
+  buildConceptEntitiesFromThinkers,
   buildPersonEntitiesFromThinkers,
   buildWorkAuthorshipRelationships,
   buildWorkEntitiesFromThinkers,
+  getConceptEntityId,
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
@@ -145,5 +147,42 @@ describe("knowledge model entities", () => {
       relationshipType: "person authored work",
       status: "accepted",
     }]);
+  });
+
+  it("projects thinker subfields into first-class concept nodes", () => {
+    const people: Thinker[] = [
+      {
+        id: "arendt",
+        name: "Hannah Arendt",
+        birth: 1906,
+        death: 1975,
+        fields: ["Philosophy"],
+        subfields: ["Public sphere", "Totalitarianism"],
+      },
+      {
+        id: "habermas",
+        name: "Jurgen Habermas",
+        birth: 1929,
+        death: null,
+        fields: ["Sociology", "Philosophy"],
+        subfields: ["Public sphere"],
+      },
+    ];
+
+    expect(getConceptEntityId("Public sphere")).toBe("concept:public-sphere");
+    expect(buildConceptEntitiesFromThinkers(people)).toEqual([
+      {
+        id: "concept:public-sphere",
+        type: "Concept",
+        label: "Public sphere",
+        fields: ["Philosophy", "Sociology"],
+      },
+      {
+        id: "concept:totalitarianism",
+        type: "Concept",
+        label: "Totalitarianism",
+        fields: ["Philosophy"],
+      },
+    ]);
   });
 });
