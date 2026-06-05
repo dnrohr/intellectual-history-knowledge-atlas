@@ -95,7 +95,7 @@ Goal: collect normalized evidence automatically without directly mutating canoni
 - [x] Add OpenAlex adapter for scholarly authors, works, concepts, institutions, citations, coauthorship, and topic neighborhoods.
 - [x] Add Crossref adapter for works, publication metadata, DOI-level evidence, and citations where available.
 - [x] Add VIAF and Library of Congress identifier capture.
-- [ ] Add Wikipedia/DBpedia summary fallback as low-confidence descriptive evidence.
+- [x] Add Wikipedia/DBpedia summary fallback as low-confidence descriptive evidence.
 - [ ] Add encyclopedia/manual-source adapters for stable intellectual-history references where APIs are limited.
 - [ ] Add stale-source warnings when imported or generated data has no usable source URL.
 
