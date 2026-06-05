@@ -10,6 +10,7 @@ interface DetailPanelProps {
   edges: InfluenceEdge[];
   onFindContemporaries: (id: string) => void;
   onShowBFS: (id: string) => void;
+  onOpenSourceStudio?: (id: string) => void;
 }
 
 interface GenealogyNode {
@@ -25,6 +26,7 @@ export default function DetailPanel({
   edges,
   onFindContemporaries,
   onShowBFS,
+  onOpenSourceStudio,
 }: DetailPanelProps) {
   const [activeTab, setActiveTab] = useState<"info" | "context" | "genealogy">("info");
   
@@ -731,7 +733,7 @@ export default function DetailPanel({
       {/* Explore-next actions */}
       <div className="shrink-0 p-4 border-t border-[#252a3d] bg-[#0d0f17] space-y-2.5">
         <div className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Explore Next</div>
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         <button
           onClick={() => onFindContemporaries(thinker.id)}
           className="flex items-center justify-center gap-1 px-3 py-2 bg-[#1c2030] hover:bg-[#252a3d] border border-[#252a3d] text-slate-300 font-mono text-[10px] font-semibold rounded transition-colors text-center cursor-pointer"
@@ -748,6 +750,16 @@ export default function DetailPanel({
           <GitBranch className="w-3 h-3 text-[#7b9cf5]" />
           <span>Successors Map</span>
         </button>
+        {onOpenSourceStudio && (
+          <button
+            onClick={() => onOpenSourceStudio(thinker.id)}
+            className="flex items-center justify-center gap-1 px-3 py-2 bg-[#1c2030] hover:bg-[#252a3d] border border-[#252a3d] text-slate-300 font-mono text-[10px] font-semibold rounded transition-colors text-center cursor-pointer"
+            title="Open this thinker's relationship and source review in Source Studio"
+          >
+            <BookOpen className="w-3 h-3 text-emerald-400" />
+            <span>Studio Review</span>
+          </button>
+        )}
         </div>
       </div>
     </div>

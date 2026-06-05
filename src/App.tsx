@@ -5664,6 +5664,10 @@ export default function App() {
                   edges={filteredEdges}
                   onFindContemporaries={handleFindContemporaries}
                   onShowBFS={handleShowBFS}
+                  onOpenSourceStudio={(id) => {
+                    selectPerson(id);
+                    openWorkbenchPanel("links");
+                  }}
                 />
               </div>
 
