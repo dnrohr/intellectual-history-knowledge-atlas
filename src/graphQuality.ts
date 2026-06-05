@@ -215,3 +215,22 @@ export const planIsolatedNodeConnections = (
       },
     }));
 };
+
+export const planWeakUnsupportedEdgeDemotions = (
+  edges: InfluenceEdge[],
+  confidenceThreshold = 0.5
+): GraphRepairDiff[] =>
+  edges
+    .filter((edge) =>
+      (edge.confidence ?? 0.5) < confidenceThreshold &&
+      (edge.sourceClaims || edge.claimIds || []).length === 0 &&
+      edge.status !== "needs_source"
+    )
+    .map((edge) => ({
+      action: "update-edge" as const,
+      reason: "Demote weak unsupported edge to needs_source.",
+      edge: {
+        ...edge,
+        status: "needs_source" as const,
+      },
+    }));

@@ -172,7 +172,7 @@ Goal: detect quality problems and repair common issues when confidence is high e
 - [x] Add automated audits for isolated nodes, sparse high-bridge nodes, unsupported edges, stale source claims, duplicate entities, dangling references, impossible dates, missing works, missing institutions, and over-broad fields or movements.
 - [x] Add critical thresholds that trigger dry-run repair jobs.
 - [x] Auto-connect isolated high-confidence nodes through validated relationship candidates.
-- [ ] Auto-demote weak unsupported edges to provisional status.
+- [x] Auto-demote weak unsupported edges to provisional status.
 - [ ] Auto-add missing source claims for accepted edges when reliable sources are found.
 - [ ] Produce repair-job diffs before mutating canonical data.
 - [ ] Add graph health reporting to the UI and dataset QA output.

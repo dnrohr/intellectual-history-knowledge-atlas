@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createSourceClaimEntity } from "./knowledgeModel";
-import { auditGraphQuality, getDryRunRepairJobTriggers, planIsolatedNodeConnections } from "./graphQuality";
+import {
+  auditGraphQuality,
+  getDryRunRepairJobTriggers,
+  planIsolatedNodeConnections,
+  planWeakUnsupportedEdgeDemotions,
+} from "./graphQuality";
 import { Thinker } from "./types";
 
 const person = (overrides: Partial<Thinker>): Thinker => ({
@@ -101,6 +106,17 @@ describe("graph quality audits", () => {
         status: "suggested",
         claimIds: [],
       },
+    }]);
+  });
+
+  it("plans demotion of weak unsupported edges to needs_source", () => {
+    expect(planWeakUnsupportedEdgeDemotions([
+      { source: "a", target: "b", type: "Influence", strength: 2, confidence: 0.3 },
+      { source: "b", target: "c", type: "Influence", strength: 2, confidence: 0.3, sourceClaims: ["claim"] },
+    ])).toEqual([{
+      action: "update-edge",
+      reason: "Demote weak unsupported edge to needs_source.",
+      edge: { source: "a", target: "b", type: "Influence", strength: 2, confidence: 0.3, status: "needs_source" },
     }]);
   });
 });
