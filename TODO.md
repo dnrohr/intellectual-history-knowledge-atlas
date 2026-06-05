@@ -1,193 +1,37 @@
 # Intellectual History Knowledge Atlas TODO
 
-This roadmap is intentionally ambitious. The goal is to make the atlas easier to extend, easier to trust, and easier to share without requiring the user to personally validate every thinker, topic, or relationship.
+This roadmap is intentionally ambitious. The goal is to make the atlas easier to extend, easier to trust, and easier to share without requiring a user to personally validate every thinker, topic, work, source, or relationship.
 
 Status notation:
 - `[x]` Implemented and verified in the current repo.
 - `[ ]` Still open.
 - `[ ] (partial)` Started or substantially covered, but not complete enough to close.
+- `[~]` Older milestone merged into a newer milestone or reframed as support work.
 
 ## Current Priorities
 
-- Improve relationship automation so imported thinkers arrive with auditable, evidence-weighted link suggestions.
-- Reduce manual labor in bulk imports through queue-level actions and source-aware autofill.
-- Expand the data model beyond person-to-person influence.
-- Make navigation scale as the number of thinkers, concepts, works, and institutions grows.
-- Prepare a hosted demo path that does not require local install or Codespaces.
+- Build a validated knowledge model where every entity, relationship, and source-backed fact can carry provenance.
+- Move from manual import/review toward automated source collection, claim validation, graph repair, and dry-run acceptance policies.
+- Keep the Influence Atlas and scholar dossier as the primary exploration experience.
+- Reframe Source Studio as an automation, evidence, conflict, and override console rather than the main growth path for the dataset.
+- Make threads, paths, and lineages evidence-aware once typed relationships and claim records exist.
 
-## Import And Data Automation
+Reference documents:
+- `docs/automated-validation-roadmap.md`
+- `docs/ui-redesign.md`
+- `docs/ui-button-taxonomy.md`
+- `docs/ui-interaction-qa-plan.md`
+- `docs/data-model.md`
+- `docs/source-provenance.md`
+- `docs/edge-confidence.md`
 
-- Add queue-level bulk actions:
-  - accept all non-duplicates
-  - accept all with top suggested link
-  - clear duplicate candidates
-  - clear low-confidence candidates
-  - clear entire queue
-- Add confidence thresholds for import queue actions.
-- Add a review status to queued items: `queued`, `edited`, `accepted`, `skipped`, `duplicate`.
-- Preserve rejected/skipped import items in a lightweight local audit log.
-- Add source-specific import quality labels.
-- Add richer duplicate detection:
-  - normalized name
-  - alternate names
-  - birth/death proximity
-  - same Wikidata ID/source URL
-  - similar works or movement
-- Add "merge duplicate" workflow for imported people.
-- Add auto-topic suggestions from imported description, occupation, field of work, notable works, and movement.
-- Add automatic era inference for manual and edited imports.
-- Add automatic bridge score suggestion based on source signals and relationship degree.
-- Add batch paste support for `name | birth | death | field | notes`.
-- Add CSV import.
-- Add CSV export.
-- Add JSON export/import for the whole atlas state.
-- Add import queue persistence versioning and migration.
-- Add "restore from exported state" workflow.
+## Active Roadmap
 
-## External Sources
+### 1. Validated Knowledge Model
 
-- Expand Wikidata import beyond people:
-  - works
-  - institutions
-  - movements
-  - concepts
-  - awards
-  - academic advisors/students where available
-- Add Wikidata relationship harvesting:
-  - student/advisor
-  - influenced by
-  - notable work
-  - field of work
-  - employer/institution
-  - member of movement
-- Add OpenAlex adapter for scholarly authors, works, concepts, and citation neighborhoods.
-- Add Crossref adapter for works and citations.
-- Add Library of Congress/VIAF identifier capture.
-- Add Stanford Encyclopedia / Internet Encyclopedia source links manually or semi-automatically.
-- Add Wikipedia summary fallback for readable descriptions.
-- Add source claim records so every imported fact can carry provenance.
-- Add stale-source warnings when imported data has no source URL.
+Goal: expand the atlas from person-to-person influence into a typed, source-backed knowledge graph.
 
-## Relationship Suggestions
-
-- Improve relationship scoring with:
-  - direct source claims
-  - chronology
-  - advisor/student relations
-  - citation chains
-  - shared works
-  - shared concepts
-  - shared movement
-  - shared institution
-  - source text overlap
-  - field/topic/lens overlap
-- Split relationship suggestions into categories:
-  - likely influence
-  - direct mentorship
-  - collaboration
-  - parallel development
-  - source-context neighbor
-  - needs review
-- Add suggested relationship confidence explanations.
-- Add "why this link?" detail drawer.
-- Add "reject suggested link" so the app learns from curation.
-- Add link review queue independent from import queue.
-- Add relationship source URLs and claim-level provenance.
-- Add relationship status: `suggested`, `accepted`, `rejected`, `needs_source`.
-- Add automated detection for isolated people and sparse neighborhoods.
-- Add "connect this person" workflow that proposes best candidates by evidence type.
-
-## Edges And Navigable Threads
-
-- Define a `Thread` concept for curated followable chains:
-  - title
-  - short purpose
-  - ordered people
-  - key works/concepts carried forward
-  - edge types used in the thread
-  - confidence/source status
-- Add a thread viewer that lets a user step through a chain one relationship at a time.
-- Add thread-aware graph highlighting:
-  - highlight the full thread
-  - dim unrelated graph regions
-  - show predecessor/current/successor context
-  - snap timeline and graph to each selected step
-- Add a "continue this thread" action on any selected person.
-- Add a "thread gaps" audit:
-  - missing intermediate figures
-  - missing edge sources
-  - weak or disputed edge claims
-  - overlong jumps across centuries
-- Add a "parallel thread" view for cases where multiple lineages converge.
-- Add a "branch point" marker for thinkers who split a tradition into competing paths.
-- Add a "convergence point" marker for thinkers who synthesize multiple threads.
-- Add thread labels to edges so a single edge can belong to multiple curated paths.
-- Add thread import/export so curated paths can be shared separately from the whole atlas.
-
-### Thread Expansion Tasks By Field
-
-- [x] Philosophy and logic:
-  - [x] Build ancient-to-modern metaphysics thread: Plato -> Aristotle -> Aquinas -> Descartes -> Kant -> Hegel.
-  - [x] Build logic/formalism thread: Aristotle -> Chrysippus -> Leibniz -> Boole -> Frege -> Russell -> Wittgenstein -> Turing.
-  - [x] Build empiricism/pragmatism thread: Bacon -> Locke -> Hume -> Mill -> James -> Dewey -> Rorty.
-  - [x] Build existentialism/post-structuralism thread: Kierkegaard -> Nietzsche -> Heidegger -> Sartre -> Beauvoir -> Foucault -> Derrida -> Butler.
-  - [x] Add missing or weak edges among Stoicism, Epicureanism, Scholasticism, Rationalism, Empiricism, German Idealism, Analytic Philosophy, Pragmatism, and Postmodernism.
-- [x] Mathematics:
-  - [x] Build geometry/topology thread: Euclid -> Descartes -> Gauss -> Riemann -> Poincare -> Hilbert -> Noether -> Atiyah -> Thurston -> Perelman.
-  - [x] Build calculus/analysis thread: Archimedes -> Newton/Leibniz -> Euler -> Fourier -> Cauchy -> Weierstrass -> Riemann.
-  - [x] Build probability/statistics thread: Pascal/Fermat -> Bayes -> Laplace -> Gauss -> Fisher -> Kolmogorov -> Shannon -> Pearl.
-  - [x] Build computation foundations thread: Leibniz -> Boole -> Frege -> Hilbert -> Godel -> Church -> Turing -> von Neumann -> Shannon.
-  - [x] Add source-backed edges for mentorship, collaboration, and theorem/program inheritance where current edges are only broad influence.
-- [x] Physics, astronomy, and cosmology:
-  - [x] Build mechanics thread: Archimedes -> Galileo -> Newton -> Lagrange/Hamilton -> Maxwell -> Einstein.
-  - [x] Build electromagnetism/information thread: Coulomb -> Ampere -> Faraday -> Maxwell -> Hertz -> Shannon -> Landauer.
-  - [x] Build quantum thread: Planck -> Einstein -> Bohr -> Heisenberg/Schrodinger/Dirac -> Feynman -> Dyson -> Weinberg.
-  - [x] Build relativity/cosmology thread: Einstein -> Eddington -> Lemaitre -> Gamow -> Peebles -> Guth -> Hawking/Penrose.
-  - [x] Build matter/particle thread: Thomson -> Rutherford -> Bohr -> Chadwick -> Fermi -> Gell-Mann -> Weinberg.
-- [x] Biology, medicine, and genetics:
-  - [x] Build evolution thread: Aristotle -> Linnaeus -> Lamarck -> Darwin -> Mendel -> Fisher/Haldane/Wright -> Gould/Dawkins.
-  - [x] Build microbiology/medicine thread: Harvey -> Pasteur -> Koch -> Lister -> Salk/Sabin.
-  - [x] Build molecular biology thread: Mendel -> Morgan -> Franklin -> Watson/Crick -> Brenner/Monod/Nirenberg -> Sanger -> Doudna/Venter.
-  - [x] Build ecology thread: Humboldt -> Tansley -> Hutchinson -> Odum -> Lovelock -> Wilson -> Carson.
-  - [x] Add edges connecting biological ideas to statistical, information-theoretic, and computational threads.
-- [x] Computing, AI, and cognitive science:
-  - [x] Build symbolic AI thread: Leibniz -> Boole -> Frege -> Russell -> Turing -> Newell/Simon -> McCarthy -> Minsky.
-  - [x] Build neural networks thread: McCulloch/Pitts -> Hebb -> Rosenblatt -> Minsky critique -> Rumelhart/Hinton -> LeCun/Bengio.
-  - [x] Build language/cognition thread: Saussure -> Chomsky -> Fodor -> Pinker and Chomsky -> Lakoff -> cognitive linguistics.
-  - [x] Build human-computer/network thread: Turing -> von Neumann -> Shannon -> Engelbart/Kay -> Berners-Lee.
-  - [x] Build causality/ML thread: Bayes -> Laplace -> Fisher -> Kolmogorov -> Pearl -> modern ML causality.
-- [x] Political thought, economics, and social theory:
-  - [x] Build social contract/liberalism thread: Hobbes -> Locke -> Rousseau -> Mill -> Rawls -> Nozick/Sen/Nussbaum.
-  - [x] Build political economy thread: Smith -> Ricardo/Malthus -> Marx -> Keynes/Hayek/Polanyi -> Sen.
-  - [x] Build sociology/social science thread: Comte -> Durkheim -> Weber -> Mauss -> Bourdieu -> Latour.
-  - [x] Build feminist thought thread: Wollstonecraft -> Harriet Taylor Mill -> Beauvoir -> hooks -> Butler.
-  - [x] Build postcolonial/cultural theory thread: Marx -> Gramsci -> Raymond Williams -> Said -> hooks.
-- [x] Literature, music, and aesthetics:
-  - [x] Build literary modernity thread: Goethe -> Dostoevsky/Kafka -> Borges -> postmodern literary theory.
-  - [x] Build aesthetics/romanticism thread: Kant -> Goethe -> Wagner -> Nietzsche -> modern aesthetics.
-  - [x] Add edges connecting literary figures to philosophy, psychology, and political thought where they transmit concepts rather than direct mentorship.
-- [x] Engineering, communication, and technology:
-  - [x] Build mechanical-to-electrical systems thread: Watt -> Faraday -> Maxwell -> Tesla/Edison -> Mead -> modern computing hardware.
-  - [x] Build communication networks thread: Gutenberg -> telegraph/telephone figures -> Nyquist -> Shannon -> Cerf/Metcalfe -> Berners-Lee.
-  - [x] Build aerospace thread: Tsiolkovsky -> Goddard -> von Braun/Korolev -> Johnson/Rich.
-  - [x] Build energy/materials thread: Volta -> Davy -> Faraday -> Goodenough -> contemporary storage technologies.
-
-### Edge Expansion Audit Tasks
-
-- [x] For each field, identify:
-  - [x] isolated people with zero incoming and zero outgoing explicit edges
-  - [x] people with only metadata-derived edges
-  - [x] high bridge-score people with too few explicit edges
-  - [x] repeated duplicate edges with conflicting direction/type
-  - [x] edges that should be split into mentorship, collaboration, influence, parallel development, or source-context neighbor
-- [ ] (partial) Add at least one incoming and one outgoing explicit edge for every high bridge-score thinker where historically defensible.
-- [ ] (partial) Add source notes for the top 100 most important thread edges.
-- [x] Create a "canonical threads" seed file separate from raw people/edges.
-- [x] Build a dataset QA report that lists thread coverage by field and era.
-
-## Data Model Expansion
-
-- Add first-class entities:
+- [ ] Add first-class entity types:
   - `Person`
   - `Work`
   - `Concept`
@@ -195,302 +39,297 @@ Status notation:
   - `Institution`
   - `SourceClaim`
   - `Relationship`
-- Replace person-only `InfluenceEdge` with typed relationship records.
-- Add works as graph nodes, not just strings.
-- Add concepts as graph nodes.
-- Add institutions as graph nodes.
-- Allow edges like:
+- [ ] Replace person-only `InfluenceEdge` records with typed relationship records.
+- [ ] Add works as graph nodes, not just strings on person records.
+- [ ] Add concepts as graph nodes.
+- [ ] Add movements as graph nodes.
+- [ ] Add institutions as graph nodes.
+- [ ] Allow typed edges such as:
   - person authored work
   - work introduced concept
   - person influenced person
+  - person mentored person
+  - person collaborated with person
   - person participated in movement
   - person affiliated with institution
   - concept shaped movement
   - work influenced work
-- Add source claim aggregation per entity and relationship.
-- Add schema validation for imported data.
-- Add migration path from current localStorage schema to expanded schema.
+- [ ] Add source claim aggregation per entity and relationship.
+- [ ] Add schema validation for imported and generated data.
+- [ ] Add migration path from the current localStorage schema to the expanded schema.
 
-## UI And Navigation
+### 2. Claim-Based Data Model
 
-### Major UI Rethink: Separate Atlas Exploration From Source Studio
+Goal: make every fact auditable before automating acceptance.
 
-- [x] Replace the current activity-heavy navigation with three top-level workspaces:
-  - Influence Atlas
-  - Source Studio
-  - Focus / Presentation
+- [ ] Add structured `SourceClaim` records.
+- [ ] Add claim IDs to people, works, institutions, concepts, movements, and relationships.
+- [ ] Split raw source observations from accepted atlas records.
+- [ ] Represent claim status: `observed`, `candidate`, `accepted`, `rejected`, `stale`, `conflicting`.
+- [ ] Track source type: reference, encyclopedia, bibliographic, primary text, institutional, citation index, curated dataset.
+- [ ] Track source reliability and recency.
+- [ ] Store extraction method: API field, parser, text extraction, citation graph, model-generated summary, manual seed.
+- [ ] Migrate current edge `sourceClaims?: string[]` URLs into structured claim records.
+- [ ] Compute source gaps from claim records instead of missing URLs alone.
+
+### 3. Source Adapter Layer
+
+Goal: collect normalized evidence automatically without directly mutating canonical atlas data.
+
+- [ ] Define a shared adapter interface for:
+  - entity search
+  - entity detail fetch
+  - relationship fetch
+  - work fetch
+  - affiliation fetch
+  - citation/reference fetch
+  - source claim normalization
+- [ ] Expand Wikidata harvesting beyond people:
+  - works
+  - institutions
+  - movements
+  - concepts
+  - awards
+  - academic advisors/students where available
+  - fields, employers, notable works, and movement membership
+- [ ] Add OpenAlex adapter for scholarly authors, works, concepts, institutions, citations, coauthorship, and topic neighborhoods.
+- [ ] Add Crossref adapter for works, publication metadata, DOI-level evidence, and citations where available.
+- [ ] Add VIAF and Library of Congress identifier capture.
+- [ ] Add Wikipedia/DBpedia summary fallback as low-confidence descriptive evidence.
+- [ ] Add encyclopedia/manual-source adapters for stable intellectual-history references where APIs are limited.
+- [ ] Add stale-source warnings when imported or generated data has no usable source URL.
+
+### 4. Entity Resolution
+
+Goal: automatically identify when source observations refer to the same underlying entity.
+
+- [ ] Add canonical entity IDs separate from source-specific IDs.
+- [ ] Score person matches using normalized names, alternate names, dates, fields, occupations, external IDs, works, institutions, and movements.
+- [ ] Score work matches using title, author, date, DOI, ISBN, OpenAlex ID, Wikidata ID, and translated titles.
+- [ ] Score institution, movement, and concept matches with type-specific rules.
+- [ ] Add automatic merge thresholds:
+  - auto-merge
+  - provisional merge
+  - keep separate
+  - conflict
+- [ ] Preserve conflicting observations instead of discarding them.
+- [ ] Keep manual merge and duplicate review as override/recovery tools, not the default import path.
+
+### 5. Relationship Evidence Engine
+
+Goal: generate, classify, and explain relationship candidates from evidence.
+
+- [ ] Generate direct mentorship candidates from advisor/student evidence.
+- [ ] Generate collaboration candidates from coauthorship, correspondence, institutional overlap, and jointly authored works.
+- [ ] Generate influence candidates from explicit source claims, citation paths, named mentions, advisor/student lineage, work-to-work reception, and movement membership with chronology.
+- [ ] Generate parallel-development candidates from shared concepts without direct transmission evidence.
+- [ ] Generate source-context neighbor candidates from source proximity without overclaiming influence.
+- [ ] Validate direction using chronology, source wording, and relationship type.
+- [ ] Split relationship suggestions into categories:
+  - likely influence
+  - direct mentorship
+  - collaboration
+  - parallel development
+  - source-context neighbor
+  - needs review
+- [ ] Add candidate records separate from accepted relationships.
+- [ ] Add relationship source URLs and claim-level provenance.
+- [ ] Add relationship status: `suggested`, `accepted`, `rejected`, `needs_source`.
+- [ ] Add "why this link?" evidence explanations.
+- [ ] Keep the link review queue as a low-confidence exception path.
+
+### 6. Evidence Scoring And Acceptance Policies
+
+Goal: decide what can be accepted automatically, what should remain provisional, and what should be rejected.
+
+- [ ] Split confidence into:
+  - identity confidence
+  - factual confidence
+  - relationship confidence
+  - source quality
+  - extraction confidence
+  - graph consistency
+- [ ] Define testable acceptance thresholds by claim type.
+- [ ] Use stricter thresholds for direct influence, canonical-thread edges, cross-century jumps, high bridge-score nodes, and disputed or sparse topics.
+- [ ] Use looser thresholds for basic metadata, stable external IDs, works with stable identifiers, and institution affiliations with direct source support.
+- [ ] Add automatic rejection for self-links, impossible chronology, duplicate opposite-direction edges, and unsupported direct influence from shared tags alone.
+- [ ] Add "accepted by policy" metadata to automatically accepted claims.
+- [ ] Add dry-run mode for automated acceptance.
+- [ ] Add tests for evidence scoring and acceptance/rejection policy boundaries.
+
+### 7. Graph Quality Audits And Repair
+
+Goal: detect quality problems and repair common issues when confidence is high enough.
+
+- [ ] Add graph-level quality metrics:
+  - sourced edge percentage
+  - accepted edge percentage
+  - average edge confidence
+  - isolated node count
+  - duplicate risk count
+  - source freshness
+  - canonical thread coverage
+- [ ] Add automated audits for isolated nodes, sparse high-bridge nodes, unsupported edges, stale source claims, duplicate entities, dangling references, impossible dates, missing works, missing institutions, and over-broad fields or movements.
+- [ ] Add critical thresholds that trigger dry-run repair jobs.
+- [ ] Auto-connect isolated high-confidence nodes through validated relationship candidates.
+- [ ] Auto-demote weak unsupported edges to provisional status.
+- [ ] Auto-add missing source claims for accepted edges when reliable sources are found.
+- [ ] Produce repair-job diffs before mutating canonical data.
+- [ ] Add graph health reporting to the UI and dataset QA output.
+
+### 8. Source Studio As Automation Console
+
+Goal: make Source Studio the place to inspect automation state, not the main way the graph grows.
+
+- [ ] Replace manual-import emphasis with automation status, evidence coverage, conflicts, and repair previews.
+- [ ] Add tabs or modes for:
+  - Source health
+  - Claim conflicts
+  - Candidate relationships
+  - Repair jobs
+  - Manual overrides
+  - Export/recovery
+- [ ] Keep batch paste, CSV import/export, JSON restore, and duplicate merge as fallback/admin tools.
+- [ ] Show why an automated claim was accepted, held, rejected, or marked conflicting.
+- [ ] Add undo/revert for automated repair batches.
+- [ ] Add source adapter run history and error summaries.
+
+### 9. Threads And Guided Lineages
+
+Goal: make curated threads evidence-aware and reusable after typed relationships exist.
+
+- [ ] Define a `Thread` concept for curated followable chains:
+  - title
+  - short purpose
+  - ordered entities
+  - key works/concepts carried forward
+  - edge types used in the thread
+  - confidence/source status
+- [ ] Add thread labels to relationships so a single relationship can belong to multiple curated paths.
+- [ ] Add a thread viewer that steps through a chain one relationship at a time.
+- [ ] Add thread-aware graph highlighting:
+  - highlight the full thread
+  - dim unrelated graph regions
+  - show predecessor/current/successor context
+  - sync timeline and graph to each selected step
+- [ ] Add a "continue this thread" action on a selected entity.
+- [ ] Add a "thread gaps" audit for missing intermediate figures, missing edge sources, weak claims, and overlong chronology jumps.
+- [ ] Add branch point and convergence point markers.
+- [ ] Add parallel-thread view for converging lineages.
+- [ ] Add thread import/export so curated paths can be shared separately from the whole atlas.
+
+### 10. Exploration UI Follow-Through
+
+Goal: keep the UI aligned with the network-first, dossier-centered product direction.
+
+- [x] Separate Atlas exploration from Source Studio.
 - [x] Make Influence Atlas the default network-first experience.
+- [x] Rebuild the scholar dossier as the primary selected-thinker card.
 - [x] Move importing, exporting, source providers, source audit, duplicate review, and bulk review actions out of the Atlas workspace.
-- [x] Create Source Studio as a separate workspace with focused tabs:
-  - Import
-  - Review
-  - Sources
-  - Export
-- [x] Rebuild the scholar dossier as the primary selected-thinker card:
-  - concise header
-  - why they matter
-  - key works and ideas
-  - influence neighborhood
-  - explore-next actions
-- [x] Move relationship editing and source review actions from the dossier into Source Studio entry points.
-- [x] Make the network canvas the dominant Atlas surface with the timeline as a compact expandable strip.
-- [x] Convert thinker index, filters, path tools, and saved views into drawers, sheets, or command-menu surfaces.
-- [x] Define every visible button as one of:
-  - navigate
-  - lens
-  - mutate
-  - utility
-- [x] Remove duplicate or overlapping controls after the button audit.
-- [x] Add mobile-first panel behavior:
-  - one primary view at a time
-  - dossier bottom sheet
-  - full-screen search/command sheet
-  - Source Studio as a separate tab
-- [x] See `docs/ui-redesign.md` for the implementation-facing panel and button contract.
+- [x] Convert index, filters, path tools, and saved views into drawers, sheets, or command-menu surfaces.
+- [x] Add mobile-first panel behavior.
+- [x] Fix hop controls, label density controls, oversized toolbar behavior, and graph clamping issues.
+- [ ] Continue interaction QA for layout overflow, unreachable controls, hidden scroll regions, overlay collisions, and non-working buttons.
+- [ ] Add regression coverage whenever a visual control bug is found.
+- [ ] Revisit minimap/overview behavior for dense graph states after typed entities expand the graph.
 
-### Major UI Direction: Reduce Screen Clutter And Prioritize The Current Activity
+### 11. Canonical Dataset Pipeline
 
-- [x] Reframe the app around an activity-first workspace:
-  - exploration
-  - focused thinker inspection
-  - relationship/path tracing
-  - dataset curation
-  - import/review work
-  - source/provenance auditing
-- [x] Make each activity own most of the available screen while keeping secondary tools available through drawers, menus, floating panels, or temporary overlays.
-- [x] Move persistent controls into contextual surfaces:
-  - top-level mode switcher for major activities
-  - compact command/action menu for less frequent actions
-  - right or bottom drawer for detail/curation tools
-  - floating quick actions for the current selection
-  - collapsible filter and lens controls
-  - transient inspector panels that can be closed or pinned
-- [x] Distinguish always-visible navigation from optional modification tools:
-  - keep search, current focus, and primary mode visible
-  - hide advanced filters until requested
-  - hide Workbench/review tools outside curation mode
-  - hide relationship editing controls behind selected-person actions
-  - make source/provenance tools available from edge/person inspectors rather than permanently visible
-- [x] Design the layout with mobile-app intuition even on desktop:
-  - bottom sheets for details and filters on narrow screens
-  - swipe/segmented navigation between timeline, graph, dossier, and workbench
-  - single-primary-pane mode for small screens
-  - tap-to-expand cards for dense thinker information
-  - floating action button or command palette for add/connect/review actions
-  - persistent back/close affordances for overlays and drawers
-- [x] Add responsive workspace modes:
-  - desktop: split panes with collapsible sidebars and resizable drawers
-  - tablet: one main view plus slide-over tools
-  - mobile: one main view plus bottom sheets and stacked activity tabs
-  - presentation/demo: minimal chrome with focused timeline or graph
-  - curation: denser controls, queues, and edit actions visible
-- [x] Add user-controlled chrome density:
-  - compact
-  - comfortable
-  - focus mode
-  - curation mode
-  - demo mode
-- [x] Add a panel/pane state model:
-  - closed
-  - floating
-  - docked
-  - pinned
-  - full-screen
-  - remembered per activity where useful
-- [x] Make the timeline usable at large scale:
-  - [x] keep year/axis context sticky and always visible
-  - [x] add timeline density modes for sparse, balanced, and compressed views
-  - [x] collapse non-focused thinkers into clusters, bands, or heat/rug marks
-  - [x] expand only selected neighborhoods, searched results, thread steps, or high-relevance clusters
-  - [x] add semantic zoom levels that change what is shown as the user zooms
-  - [x] support field/domain lanes that can be toggled or collapsed
-  - [x] let users hide low-bridge, unrelated, or unselected-field people while preserving context markers
-  - [x] show labels only for selected, hovered, path/thread, high-bridge, or search-match people
-  - [x] provide a "show nearby context" control instead of rendering everyone equally
-- [x] Add timeline navigation aids:
-  - [x] sticky BCE/CE year ruler
-  - [x] mini overview/range scrubber
-  - [x] jump-to-selected control
-  - [x] bookmarks for eras, threads, and saved views
-  - [x] visible "current window" date range indicator
-  - [x] quick reset to full range or selected-person lifespan
-- [x] Improve filtering as a primary interaction, not just a drawer:
-  - [x] saved filter presets
-  - [x] current-activity filter chips
-  - [x] quick toggles for selected field, selected era, selected thread, and selected neighborhood
-  - [x] relevance ranking for visible people
-  - [x] "only show connected to current focus"
-  - [x] "only show this thread"
-  - [x] "only show review gaps"
-- [x] Treat graph and timeline as coordinated lenses:
-  - [x] timeline can show compressed context while graph shows active neighborhood detail
-  - [x] graph can show relationship structure while timeline shows chronology for selected nodes
-  - [x] selection, path, thread, and filter state should move cleanly between views
-- [x] Add clear overlay behavior:
-  - [x] only one major drawer open by default
-  - [x] overlays should be dismissible, pinnable, and not trap critical controls
-  - [x] floating panels should avoid covering the selected node/timeline axis when possible
-  - [x] panels should remember whether the user prefers them docked or floating
-- [x] Add a UI audit pass for every major screen:
-  - [x] what is the user's current activity?
-  - [x] what must remain visible?
-  - [x] what can be hidden until requested?
-  - [x] what should be one tap/click away?
-  - [x] what can move into a drawer, menu, command palette, or bottom sheet?
+Goal: make the bundled dataset reproducible from source observations, validation policy, and repair jobs.
 
-  UI activity audit:
-  - Explore:
-    - Current activity: broad browsing, searching, filtering, and selecting thinkers.
-    - Must remain visible: search, active focus, current filters count, primary timeline/graph lens, selected dossier affordance.
-    - Hide until requested: detailed filter facets, curation queues, import forms, source-audit controls, dense relationship metadata.
-    - One tap/click away: filters, activity switcher, saved views, current-focus actions, relationship path finding.
-    - Drawer/menu/bottom sheet: filter drawer, command menu, compact mobile activity switcher, optional bottom-sheet dossier.
-  - Inspect:
-    - Current activity: close reading one selected thinker and their immediate neighborhood.
-    - Must remain visible: selected thinker, incoming/outgoing counts, graph lens, immediate relationships, dossier close/resize.
-    - Hide until requested: global index, full filter taxonomy, import/review queues, non-selected relationship suggestions.
-    - One tap/click away: neighborhood reset, lineage in/out, field/era filter chips, source review for selected thinker.
-    - Drawer/menu/bottom sheet: selected thinker dossier, relationship inspector, source/details subpanels.
-  - Trace:
-    - Current activity: finding bridges, paths, lineage chains, and thread chronology.
-    - Must remain visible: path finder, highlighted path/thread state, selected focus, split timeline/graph lenses.
-    - Hide until requested: broad curation workbench, import tools, full index groups, unrelated suggestions.
-    - One tap/click away: path clear, selected thinker as start/end, canonical threads, synchronized lens toggle.
-    - Drawer/menu/bottom sheet: path finder overlay, thread picker, compact path summary sheet.
-  - Curate:
-    - Current activity: accepting, rejecting, and repairing relationship/tag suggestions.
-    - Must remain visible: review queue, selected focus, suggestion confidence/reason, add/reject actions.
-    - Hide until requested: full timeline controls, unrelated import search, broad field filters, demo chrome.
-    - One tap/click away: workbench tabs, source audit, selected-person context, undo/recent actions.
-    - Drawer/menu/bottom sheet: docked/pinned workbench, suggestion detail drawer, command menu actions.
-  - Import:
-    - Current activity: bringing in external candidates and triaging duplicates.
-    - Must remain visible: import queue, candidate confidence, duplicate state, accept/edit/skip controls.
-    - Hide until requested: graph layout controls, relationship radar, full taxonomy unless editing tags.
-    - One tap/click away: batch lookup, queue filters, duplicate review, source links, import audit.
-    - Drawer/menu/bottom sheet: import workbench, candidate editor, duplicate detail panel.
-  - Sources:
-    - Current activity: checking evidence coverage and source gaps.
-    - Must remain visible: source gaps/review targets, selected thinker, relationship/source status, audit actions.
-    - Hide until requested: import drafting, broad layout controls, dense graph labels.
-    - One tap/click away: high-confidence suggestions, source-gap view, selected edge/source details.
-    - Drawer/menu/bottom sheet: source audit workbench, relationship inspector, command menu.
+- [ ] Define canonical dataset build inputs:
+  - seed data
+  - source adapter outputs
+  - claim records
+  - acceptance policies
+  - manual overrides
+  - repair decisions
+- [ ] Add deterministic dataset generation.
+- [ ] Add dataset version metadata.
+- [ ] Add changelog generation for added, changed, demoted, rejected, and conflicting claims.
+- [ ] Add snapshot tests for canonical data output.
+- [ ] Add CI checks that fail on impossible dates, invalid references, self-links, and schema errors.
 
-- [x] Add saved views/collections.
-- [x] Add default curated views:
-  - [x] Ancient foundations
-  - [x] Scientific Revolution
-  - [x] Enlightenment political thought
-  - [x] German Idealism
-  - [x] Evolution and biology
-  - [x] Logic to computation
-  - [x] Quantum physics
-  - [x] AI lineage
-  - [x] Critical theory and postmodernism
-- [x] Add "unlinked imports" view.
-- [x] Add "needs review" view.
-- [x] Add "high-confidence suggestions" view.
-- [x] Add "source gaps" view.
-- [x] Add compact relationship inspector.
-- [x] Add graph clustering by domain, movement, era, and institution.
-- [x] Add graph layout modes:
-  - [x] timeline-projected
-  - [x] force-directed
-  - [x] ego network
-  - [x] lineage tree
-  - [x] concept neighborhood
-- [x] Add better empty states and review guidance.
-- [x] Add keyboard shortcuts for review workflows.
-- [x] Add undo for accepting imports and relationships.
-- [x] Add visual distinction between confirmed and suggested edges.
-- [x] Add edge filters by type, confidence, and source status.
-- [x] Add label density controls for large graphs.
-- [x] Add minimap or overview navigator for large graph/timeline views.
+### 12. Hosted Demo And Sharing
 
-## Thinkers Index
-
-- [x] Add search result ranking instead of raw filtering only.
-- [x] Add index grouping by movement.
-- [x] Add index grouping by institution.
-- [x] Add index grouping by source/review status.
-- [x] Add "recently added" group.
-- [x] Add "recently reviewed" group.
-- [x] Add "orphans" group.
-- [x] Add "high bridge score" group.
-- [x] Add "needs source" group.
-- [x] Add row badges for edge count, source count, and review status.
-- [x] Add quick actions on index rows:
-  - [x] focus
-  - [x] connect
-  - [x] edit tags
-  - [x] review sources
-
-## Timeline
-
-- [x] Add richer range controls with named historical periods.
-- [x] Add timeline bookmarks.
-- [x] Add selected-person neighborhood overlay.
-- [x] Add density lanes by domain.
-- [x] Add edge arcs only for selected/focused neighborhoods by default.
-- [x] Add clearer BCE/CE axis treatment.
-- [x] Add confidence styling for timeline edges.
-- [x] Add movement/institution bands that can be toggled independently.
-
-## Quality And Engineering
-
-- [x] Split `src/App.tsx` into focused modules/components.
-- [x] Extract import queue logic into a hook or reducer.
-- [x] Extract relationship scoring into a testable utility.
-- [x] Extract taxonomy helpers into testable utilities.
-- Add unit tests for:
-  - [x] duplicate detection
-  - [x] candidate confidence scoring
-  - [x] relationship suggestion scoring
-  - [x] edge derivation from thinker metadata
-  - [x] taxonomy grouping
-  - [x] import queue persistence
-- Add Playwright tests for:
-  - [x] batch import queueing
-  - [x] accepting queued candidate
-  - [x] editing queued candidate
-  - [x] accepting candidate with suggested link
-  - [x] filter drawer taxonomy expansion
-  - [x] timeline drag behavior
-- [x] Add CI with lint/build/test.
-- [x] Add bundle splitting to reduce main JS size.
-- [x] Add error boundaries.
-- [x] Add runtime schema checks for localStorage data.
-- [x] Add localStorage migration system.
-- [x] Add development seed reset/import tools.
-- [x] Add documentation for data conventions and edge confidence levels.
-
-## Deployment And Sharing
+Goal: keep the app easy to share while making data provenance clear.
 
 - [x] Add production deployment target.
-- Evaluate:
-  - [x] Render
-  - [x] Railway
-  - [x] Fly.io
-  - [x] Vercel plus serverless API
-  - [x] Netlify plus serverless API
 - [x] Add GitHub Actions workflow for build verification.
 - [x] Add auto-deploy from `main`.
 - [x] Add environment variable documentation.
 - [x] Add public demo mode with sample data.
-- [x] Add "private local data" warning where appropriate.
+- [x] Add private local data warning where appropriate.
 - [x] Add import/export so users can carry data between local, Codespaces, and hosted instances.
+- [ ] Revisit hosted demo persistence once automated validation and canonical dataset generation are in place.
 
-## Documentation
+## Completed Milestones
 
-- [x] Write a data model overview.
-- [x] Write an import workflow guide.
-- [x] Write edge confidence guidelines.
-- [x] Write source provenance guidelines.
-- [x] Write taxonomy guidelines.
-- [x] Write deployment guide.
-- [x] Write Codespaces guide with update steps.
-- [x] Add screenshots/GIFs once UI stabilizes.
-- [x] Add changelog.
+These milestones are complete enough to keep as historical summaries rather than active implementation checklists.
+
+### UI Rethink And Navigation
+
+- [x] Reframed the app around activity-first workspaces.
+- [x] Separated Influence Atlas, Source Studio, and Focus/Presentation.
+- [x] Made the network canvas the dominant Atlas surface.
+- [x] Added a compact expandable timeline strip.
+- [x] Added mobile-first panel behavior, bottom-sheet dossier behavior, and full-screen command/search affordances.
+- [x] Added saved views, curated views, unlinked imports, needs review, high-confidence suggestions, and source gaps views.
+- [x] Added compact relationship inspector, graph clustering, layout modes, edge filters, label density controls, and overview navigation.
+- [x] Documented the panel/button contract in `docs/ui-redesign.md` and `docs/ui-button-taxonomy.md`.
+- [x] Added the interaction QA plan in `docs/ui-interaction-qa-plan.md`.
+
+### Thinkers Index
+
+- [x] Added search ranking, grouping by movement/institution/source/review status, recently added/reviewed groups, orphan/high-bridge/needs-source groups, row badges, and quick actions.
+
+### Timeline
+
+- [x] Added named historical ranges, bookmarks, neighborhood overlays, density lanes, selected/focused edge arcs, clearer BCE/CE treatment, confidence styling, and movement/institution bands.
+
+### Quality And Engineering
+
+- [x] Split `src/App.tsx` into focused modules/components.
+- [x] Extracted import queue logic into a hook or reducer.
+- [x] Extracted relationship scoring and taxonomy helpers into testable utilities.
+- [x] Added unit tests for duplicate detection, candidate confidence scoring, relationship suggestion scoring, edge derivation, taxonomy grouping, and import queue persistence.
+- [x] Added Playwright tests for batch import queueing, candidate acceptance/editing, suggested-link acceptance, filter drawer expansion, timeline drag behavior, and network controls.
+- [x] Added CI, bundle splitting, error boundaries, runtime schema checks, localStorage migrations, seed reset/import tools, and documentation for data conventions and edge confidence levels.
+
+### Documentation
+
+- [x] Wrote data model overview.
+- [x] Wrote import workflow guide.
+- [x] Wrote edge confidence guidelines.
+- [x] Wrote source provenance guidelines.
+- [x] Wrote taxonomy guidelines.
+- [x] Wrote deployment guide.
+- [x] Wrote Codespaces guide with update steps.
+- [x] Added screenshots/GIFs once UI stabilized.
+- [x] Added changelog.
+- [x] Added automated validation roadmap.
+
+## Merged Or Reframed Older Milestones
+
+### Import And Data Automation
+
+- `[~]` Older manual-import items now belong under Source Studio fallback/admin tooling, Claim-Based Data Model, Source Adapter Layer, Entity Resolution, and Evidence Scoring.
+- `[~]` Queue-level bulk actions, batch paste, CSV import/export, JSON import/export, restore, duplicate review, and manual merge should remain available as recovery tools rather than the primary dataset growth path.
+- `[~]` Auto-topic, era, bridge-score, duplicate-detection, and source-quality logic should be moved toward claim normalization, entity resolution, and validation policy.
+
+### External Sources
+
+- `[~]` External source work now belongs under Source Adapter Layer, Claim-Based Data Model, Entity Resolution, and Canonical Dataset Pipeline.
+- `[~]` Wikidata, OpenAlex, Crossref, VIAF/LOC, Wikipedia/DBpedia, SEP/IEP, and manual-source references should produce normalized claims before affecting canonical data.
+
+### Relationship Suggestions
+
+- `[~]` Relationship suggestions now belong under Relationship Evidence Engine, Evidence Scoring, and Graph Quality Audits.
+- `[~]` The link review queue should be retained for ambiguous, low-confidence, disputed, or high-impact candidates.
+
+### Edges And Navigable Threads
+
+- `[~]` Thread work is still important, but it should follow the typed relationship and source-claim model so threads can carry evidence, edge types, and confidence state.
 
 ## Tasks Codex Can Do Autonomously With Proper Privileges
 
@@ -499,28 +338,20 @@ Status notation:
 - Add GitHub Actions CI.
 - Add Playwright and implement browser tests.
 - Install and configure testing dependencies.
-- Refactor `App.tsx` into smaller components.
-- Build the relationship scoring utility and test suite.
-- Build the import queue reducer and test suite.
-- Add bulk queue actions.
-- Add CSV/JSON import-export.
-- Add schema validation and localStorage migrations.
-- Add source claim data structures.
-- Extend the Wikidata backend endpoint to collect more relationship properties.
+- Refactor modules and components while preserving existing app patterns.
+- Build claim, relationship, entity-resolution, and validation-policy utilities with focused test coverage.
+- Extend backend source adapters where public APIs are available.
 - Add OpenAlex/Crossref adapters if API/network access is approved.
-- Add deployment config for Render/Railway/Fly/Vercel.
-- Configure auto-deploy from GitHub.
-- Audit the dataset for duplicate explicit edges.
-- Audit the dataset for self-links.
-- Audit people with missing fields, topics, eras, or sources.
+- Audit the dataset for duplicate explicit edges, self-links, missing fields, missing topics, missing eras, missing sources, and sparse high-bridge nodes.
 - Generate candidate relationship batches from existing metadata and source signals.
-- Add documentation and keep it synchronized with implemented behavior.
+- Keep documentation synchronized with implemented behavior.
 
 ## Open Product Questions
 
 - Should suggested relationships be shown in the main graph by default, or only after acceptance?
-- Should imported people become local immediately, or remain staged until all links/tags are reviewed?
+- Which claim types can be accepted automatically without human review?
 - Should source claims be required for every accepted relationship?
-- Should confidence mean historical certainty, data-source quality, or review confidence?
+- Should confidence mean historical certainty, data-source quality, review confidence, or a composed score?
 - Should the atlas support multiple user-created datasets or one canonical dataset?
-- Should the hosted demo persist user edits, or reset per session?
+- Should the hosted demo persist user edits, reset per session, or expose only canonical data?
+- When should manual Source Studio overrides supersede automated validation policy?
