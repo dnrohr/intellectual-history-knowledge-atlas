@@ -1257,7 +1257,7 @@ export default function Timeline({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2 font-mono text-[9px] text-slate-500">
             <span className="uppercase tracking-wider text-[#5a6480]">Window</span>
-            <span className="rounded border border-[#252a3d] bg-[#080a0f] px-2 py-1 text-slate-300">
+            <span data-testid="timeline-window-range" className="rounded border border-[#252a3d] bg-[#080a0f] px-2 py-1 text-slate-300">
               {formatYearLabel(visibleStartYear)} to {formatYearLabel(visibleEndYear)}
             </span>
           </div>
@@ -1367,6 +1367,7 @@ export default function Timeline({
       <div className="flex flex-1 overflow-hidden relative">
         {/* Right timeline canvas scroll parent */}
         <div
+          data-testid="timeline-pan-surface"
           ref={containerRef}
           onWheel={handleWheel}
           onPointerDown={handlePointerDown}

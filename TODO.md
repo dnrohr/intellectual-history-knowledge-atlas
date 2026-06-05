@@ -420,7 +420,7 @@ Status notation:
   - [x] editing queued candidate
   - [x] accepting candidate with suggested link
   - [x] filter drawer taxonomy expansion
-  - timeline drag behavior
+  - [x] timeline drag behavior
 - Add CI with lint/build/test.
 - Add bundle splitting to reduce main JS size.
 - Add error boundaries.
