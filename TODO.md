@@ -97,7 +97,7 @@ Goal: collect normalized evidence automatically without directly mutating canoni
 - [x] Add VIAF and Library of Congress identifier capture.
 - [x] Add Wikipedia/DBpedia summary fallback as low-confidence descriptive evidence.
 - [x] Add encyclopedia/manual-source adapters for stable intellectual-history references where APIs are limited.
-- [ ] Add stale-source warnings when imported or generated data has no usable source URL.
+- [x] Add stale-source warnings when imported or generated data has no usable source URL.
 
 ### 4. Entity Resolution
 
