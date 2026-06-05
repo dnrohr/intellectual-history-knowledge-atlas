@@ -531,3 +531,56 @@ export const validateBulkEdgeRelationshipRules = (
     });
   });
 };
+
+export const validateDiscoveredEdgeCandidates = (
+  people: Thinker[],
+  candidates: InfluenceEdge[],
+  claims: SourceClaimEntity[] = [],
+  now: Date = new Date()
+): BulkEdgeValidationResult[] =>
+  validateBulkEdgeRelationshipRules(people, candidates, claims, now).map((result) => {
+    const finalDisposition: BulkEdgeFinalDisposition | undefined =
+      result.finalDisposition === "confirmed-existing-edge"
+        ? "added-confirmed-edge"
+        : result.finalDisposition === "removed-existing-edge"
+          ? "discarded-candidate"
+          : undefined;
+    const recommendedAction: BulkEdgeRecommendedAction =
+      finalDisposition === "added-confirmed-edge"
+        ? "add"
+        : finalDisposition === "discarded-candidate"
+          ? "discard"
+          : result.recommendedAction;
+    return createBulkEdgeValidationResult({
+      ...result,
+      id: result.id.replace("validation:structure:", "validation:candidate:"),
+      origin: "discovered-candidate",
+      recommendedAction,
+      finalDisposition,
+    });
+  });
+
+export const addConfirmedMissingEdgesToCanonicalGraph = (
+  edges: InfluenceEdge[],
+  candidateResults: BulkEdgeValidationResult[]
+): InfluenceEdge[] => {
+  const existingKeys = existingEdgeKeys(edges);
+  const additions = candidateResults
+    .filter((result) => result.origin === "discovered-candidate" && result.finalDisposition === "added-confirmed-edge")
+    .map((result) => result.subject.edge)
+    .filter((edge): edge is InfluenceEdge => Boolean(edge))
+    .filter((edge) => !existingKeys.has(canonicalCandidateKey(edge.source, edge.target, String(edge.type))))
+    .map((edge) => ({
+      ...edge,
+      id: edge.id?.replace(/^candidate:/, "edge:"),
+      status: "accepted" as const,
+      confidence: edge.confidence ?? 0.85,
+      note: [edge.note, "Added by bulk edge validation."].filter(Boolean).join(" "),
+    }));
+
+  return [...edges, ...additions].sort((left, right) =>
+    canonicalCandidateKey(left.source, left.target, String(left.type)).localeCompare(
+      canonicalCandidateKey(right.source, right.target, String(right.type))
+    )
+  );
+};

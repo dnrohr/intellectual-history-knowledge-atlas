@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   BulkEdgeValidationResult,
+  addConfirmedMissingEdgesToCanonicalGraph,
   createBulkEdgeValidationResult,
   createExistingEdgeValidationSubject,
   deduplicateMissingEdgeCandidates,
   generateMissingEdgeCandidates,
+  validateDiscoveredEdgeCandidates,
   validateBulkEdgeEvidence,
   validateBulkEdgeRelationshipRules,
   validateBulkEdgeStructure,
@@ -473,5 +475,57 @@ describe("bulk edge validation model", () => {
       claimIds: ["claim:one", "claim:two"],
     });
     expect(candidates[0].note).toBe("coauthorship evidence; correspondence evidence");
+  });
+
+  it("adds only confirmed discovered candidates to the canonical graph", () => {
+    const candidateResults = validateDiscoveredEdgeCandidates(
+      people,
+      [
+        {
+          id: "candidate:confirmed",
+          source: "a",
+          target: "b",
+          type: "Influence",
+          strength: 4,
+          confidence: 0.92,
+          note: "Explicit influence documented through citation reception.",
+          claimIds: ["claim:confirmed"],
+        },
+        {
+          id: "candidate:unresolved",
+          source: "b",
+          target: "c",
+          type: "Influence",
+          strength: 3,
+          confidence: 0.7,
+        },
+      ],
+      [
+        relationshipClaim("claim:confirmed", {
+          subjectEntityId: "candidate:confirmed",
+          value: "explicit influence documented through citation reception",
+          confidence: 0.92,
+        }),
+      ]
+    );
+
+    expect(candidateResults.map((result) => result.finalDisposition)).toEqual([
+      "added-confirmed-edge",
+      undefined,
+    ]);
+
+    const nextEdges = addConfirmedMissingEdgesToCanonicalGraph([], candidateResults);
+
+    expect(nextEdges).toEqual([{
+      id: "edge:confirmed",
+      source: "a",
+      target: "b",
+      type: "Influence",
+      strength: 4,
+      confidence: 0.92,
+      note: "Explicit influence documented through citation reception. Added by bulk edge validation.",
+      claimIds: ["claim:confirmed"],
+      status: "accepted",
+    }]);
   });
 });

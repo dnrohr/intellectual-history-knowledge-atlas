@@ -310,7 +310,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
   - institutional and movement overlap with chronology constraints
   - canonical thread gaps
 - [x] Deduplicate discovered candidates against existing edges and each other before validation.
-- [ ] Add confirmed missing edges to the canonical graph with source claims, confidence, relationship type, and validation metadata.
+- [x] Add confirmed missing edges to the canonical graph with source claims, confidence, relationship type, and validation metadata.
 - [ ] Generate a bulk validation report grouped by:
   - confirmed existing edges
   - added confirmed edges
