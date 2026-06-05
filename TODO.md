@@ -220,7 +220,7 @@ Status notation:
   - Source Studio
   - Focus / Presentation
 - [x] Make Influence Atlas the default network-first experience.
-- [ ] Move importing, exporting, source providers, source audit, duplicate review, and bulk review actions out of the Atlas workspace.
+- [x] Move importing, exporting, source providers, source audit, duplicate review, and bulk review actions out of the Atlas workspace.
 - [ ] Create Source Studio as a separate workspace with focused tabs:
   - Import
   - Review

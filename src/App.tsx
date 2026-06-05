@@ -2138,6 +2138,7 @@ export default function App() {
   ];
   const isCompactChrome = chromeDensity === "compact";
   const isReducedChrome = chromeDensity === "focus" || chromeDensity === "demo";
+  const isSourceStudio = activeWorkspace === "sources";
   const showSecondaryChrome = chromeDensity !== "demo";
   const showRelationshipToolbar = !isReducedChrome && activeWorkspace === "atlas";
   const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && activeWorkspace === "atlas";
@@ -2184,6 +2185,9 @@ export default function App() {
   };
 
   const openWorkbenchPanel = (tab?: typeof workbenchTab) => {
+    setActiveWorkspace("sources");
+    setActiveActivity(tab === "imports" ? "import" : tab === "duplicates" || tab === "tags" ? "curate" : "sources");
+    setChromeDensity("curation");
     closeMajorOverlays("workbench");
     if (tab) setWorkbenchTab(tab);
     setExtensionWorkbenchOpen(true);
@@ -2583,17 +2587,17 @@ export default function App() {
   const edgeTypeOptions = Array.from(new Set(edges.map((edge) => edge.type).filter(Boolean))).sort();
   const edgeMatchesReviewFilters = (edge: InfluenceEdge) => {
     if (edgeTypeFilter !== "all" && edge.type !== edgeTypeFilter) return false;
-    if ((edge.confidence ?? 1) < edgeConfidenceFilter) return false;
+    if (isSourceStudio && (edge.confidence ?? 1) < edgeConfidenceFilter) return false;
 
     const hasSources = Boolean(edge.sourceClaims && edge.sourceClaims.length > 0);
     const needsSource = edge.status === "needs_source" || !hasSources;
-    if (edgeSourceFilter === "sourced" && !hasSources) return false;
-    if (edgeSourceFilter === "needs_source" && !needsSource) return false;
+    if (isSourceStudio && edgeSourceFilter === "sourced" && !hasSources) return false;
+    if (isSourceStudio && edgeSourceFilter === "needs_source" && !needsSource) return false;
 
     return true;
   };
   const filteredEdges = edges.filter(edgeMatchesReviewFilters);
-  const hasActiveEdgeFilters = edgeTypeFilter !== "all" || edgeSourceFilter !== "all" || edgeConfidenceFilter > 0;
+  const hasActiveEdgeFilters = edgeTypeFilter !== "all" || (isSourceStudio && (edgeSourceFilter !== "all" || edgeConfidenceFilter > 0));
   const selectedLensLabels = selectedThinker
     ? Array.from(new Set(Object.values(inferLensTags(selectedThinker)).flat())).map(getLensOptionLabel).slice(0, 8)
     : [];
@@ -3573,19 +3577,21 @@ export default function App() {
               ) : (
                 <EmptyState
                   title="No Direct Relationships"
-                  detail="Use the workbench to add a provisional link, or switch to high-confidence suggestions to find nearby candidates."
-                  action={{ label: "Open Workbench", onClick: () => openWorkbenchPanel("links") }}
+                  detail="Use Trace Path, widen filters, or open Source Studio when you are ready to add or review relationships."
+                  action={isSourceStudio ? { label: "Open Review", onClick: () => openWorkbenchPanel("links") } : undefined}
                 />
               )}
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                onClick={() => openWorkbenchPanel("links")}
-                className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
-              >
-                Workbench
-              </button>
+              {isSourceStudio && (
+                <button
+                  onClick={() => openWorkbenchPanel("links")}
+                  className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer"
+                >
+                  Review
+                </button>
+              )}
               <button
                 onClick={() => setRelationshipInspectorOpen(false)}
                 className="rounded border border-[#252a3d] bg-[#090b10] p-1 text-slate-500 hover:text-slate-200 cursor-pointer"
@@ -3601,7 +3607,7 @@ export default function App() {
           <div className={`${showFocusContextBand ? "mt-3 " : ""}grid grid-cols-1 xl:grid-cols-[auto_1fr] gap-2 items-center`}>
             <div className="flex items-center gap-2 shrink-0">
               <span className="font-mono text-[9px] uppercase tracking-wider text-[#5a6480]">Connection Radar</span>
-              {showRadarCurationActions && (
+              {showRadarCurationActions && isSourceStudio && (
                 <button
                   onClick={() => {
                     openWorkbenchPanel("links");
@@ -3637,7 +3643,7 @@ export default function App() {
                             {formatYear(person.birth)} · {getSuggestedLinkReason(candidate)}
                           </div>
                         </button>
-                        {showRadarCurationActions && (
+                        {showRadarCurationActions && isSourceStudio && (
                           <button
                             onClick={() => addSuggestedRelationship(selectedThinker, person, `Shared context: ${getSuggestedLinkReason(candidate)}`)}
                             className="rounded border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-2 py-1 text-[9px] font-mono text-[#9bdaff] hover:border-[#9bdaff] cursor-pointer"
@@ -4052,29 +4058,33 @@ export default function App() {
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
-                  <select
-                    value={edgeSourceFilter}
-                    onChange={(event) => setEdgeSourceFilter(event.target.value as typeof edgeSourceFilter)}
-                    className="rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-400 outline-none"
-                    title="Filter edges by source status"
-                  >
-                    <option value="all">All sources</option>
-                    <option value="sourced">Sourced</option>
-                    <option value="needs_source">Needs source</option>
-                  </select>
-                  <label className="flex items-center gap-1.5 rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-500">
-                    <span>{Math.round(edgeConfidenceFilter * 100)}%+</span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      value={edgeConfidenceFilter}
-                      onChange={(event) => setEdgeConfidenceFilter(Number(event.target.value))}
-                      className="w-16 accent-[#7b9cf5]"
-                      title="Minimum edge confidence"
-                    />
-                  </label>
+                  {isSourceStudio && (
+                    <>
+                      <select
+                        value={edgeSourceFilter}
+                        onChange={(event) => setEdgeSourceFilter(event.target.value as typeof edgeSourceFilter)}
+                        className="rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-400 outline-none"
+                        title="Filter edges by source status"
+                      >
+                        <option value="all">All sources</option>
+                        <option value="sourced">Sourced</option>
+                        <option value="needs_source">Needs source</option>
+                      </select>
+                      <label className="flex items-center gap-1.5 rounded-md border border-[#252a3d] bg-[#090a0f] px-2 py-1 text-[10px] font-mono text-slate-500">
+                        <span>{Math.round(edgeConfidenceFilter * 100)}%+</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.05"
+                          value={edgeConfidenceFilter}
+                          onChange={(event) => setEdgeConfidenceFilter(Number(event.target.value))}
+                          className="w-16 accent-[#7b9cf5]"
+                          title="Minimum edge confidence"
+                        />
+                      </label>
+                    </>
+                  )}
                   {hasActiveEdgeFilters && (
                     <span className="text-[#5a6480]">
                       {filteredEdges.length}/{edges.length}
@@ -4118,7 +4128,7 @@ export default function App() {
 
       {/* ── MAIN WORKSPACE CONTAINER ── */}
       <AnimatePresence>
-        {extensionWorkbenchOpen && (
+        {isSourceStudio && extensionWorkbenchOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
