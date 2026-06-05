@@ -441,7 +441,7 @@ Status notation:
 - [x] Add GitHub Actions workflow for build verification.
 - [x] Add auto-deploy from `main`.
 - [x] Add environment variable documentation.
-- Add public demo mode with sample data.
+- [x] Add public demo mode with sample data.
 - Add "private local data" warning where appropriate.
 - Add import/export so users can carry data between local, Codespaces, and hosted instances.
 

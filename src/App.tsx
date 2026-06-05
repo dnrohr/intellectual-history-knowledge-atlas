@@ -31,6 +31,7 @@ import { scoreCandidateRelationship } from "./relationshipScoring";
 import { findDuplicateCandidateId, normalizeEntityName } from "./duplicateDetection";
 import { scoreCandidateConfidence } from "./importConfidence";
 import { loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
+import { PUBLIC_DEMO_MODE } from "./runtimeConfig";
 import { 
   Plus, 
   RefreshCcw, 
@@ -591,6 +592,14 @@ export default function App() {
       localStorage.getItem(IMPORT_QUEUE_STORAGE_KEY) ||
       localStorage.getItem(LEGACY_IMPORT_QUEUE_STORAGE_KEY);
     const savedImportAuditLog = localStorage.getItem("atlas_import_audit_log_v1");
+
+    if (PUBLIC_DEMO_MODE) {
+      setPeople(INITIAL_PEOPLE_DATA);
+      setEdges(INITIAL_EDGES_DATA);
+      setImportReviewQueue([]);
+      setImportAuditLog([]);
+      return;
+    }
 
     try {
       const savedAtlasState = loadAtlasStateFromStorage();
@@ -2863,6 +2872,9 @@ export default function App() {
             <span className="border-r border-[#22273b] pr-2.5">Thinkers: <b className="text-slate-300 font-bold">{people.length}</b></span>
             <span className="border-r border-[#22273b] pr-2.5">Lines: <b className="text-violet-400 font-bold">{edges.length}</b></span>
             <span>Matches: <b className="text-amber-500 font-bold">{processedPeople.length}</b></span>
+            {PUBLIC_DEMO_MODE && (
+              <span className="ml-2 rounded border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-cyan-200">Demo</span>
+            )}
           </div>
         </div>
 

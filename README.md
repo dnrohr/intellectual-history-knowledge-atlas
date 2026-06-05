@@ -565,6 +565,7 @@ Supported environment variables:
 - `PORT`: optional server port. Defaults to `3000`; hosted providers such as Render usually set this automatically.
 - `NODE_ENV`: set to `production` for production serving. The dev server uses Vite middleware when this is not `production`.
 - `APP_URL`: optional public URL for future hosted integrations. It is documented in `.env.example` but not required by the current app.
+- `VITE_PUBLIC_DEMO_MODE`: set to `true` for public demo builds that should start from bundled sample data on each page load.
 
 Copy `.env.example` to `.env` for local overrides. Do not commit secrets or API keys.
 
