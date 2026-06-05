@@ -4,6 +4,7 @@ import {
   applyLooseAcceptanceModifiers,
   applyStrictAcceptanceModifiers,
   composeEvidenceConfidence,
+  createAcceptedByPolicyMetadata,
   getAcceptanceThreshold,
   getAutomaticRejectionReasons,
   normalizeEvidenceConfidence,
@@ -83,5 +84,15 @@ describe("evidence policy", () => {
       "duplicate-opposite-direction",
       "unsupported-direct-influence-from-shared-tags",
     ]);
+  });
+
+  it("adds accepted-by-policy metadata for automatic acceptance", () => {
+    expect(createAcceptedByPolicyMetadata("basic-metadata-v1", 0.82, 0.75, "2026-06-05T00:00:00.000Z")).toEqual({
+      acceptedByPolicy: true,
+      policyName: "basic-metadata-v1",
+      acceptedAt: "2026-06-05T00:00:00.000Z",
+      score: 0.82,
+      threshold: 0.75,
+    });
   });
 });

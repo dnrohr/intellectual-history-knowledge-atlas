@@ -149,3 +149,24 @@ export const getAutomaticRejectionReasons = ({
   }
   return reasons;
 };
+
+export interface AcceptedByPolicyMetadata {
+  acceptedByPolicy: true;
+  policyName: string;
+  acceptedAt: string;
+  score: number;
+  threshold: number;
+}
+
+export const createAcceptedByPolicyMetadata = (
+  policyName: string,
+  score: number,
+  threshold: number,
+  acceptedAt = new Date().toISOString()
+): AcceptedByPolicyMetadata => ({
+  acceptedByPolicy: true,
+  policyName,
+  acceptedAt,
+  score,
+  threshold,
+});
