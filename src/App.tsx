@@ -2919,6 +2919,31 @@ export default function App() {
   const graphHealthReport = buildGraphHealthReport(people, edges, [], CANONICAL_THREADS);
   const graphRepairTriggers = getDryRunRepairJobTriggers(graphHealthReport.findings);
   const graphRepairPreview = createGraphRepairPreview("repair:source-studio-dry-run", planWeakUnsupportedEdgeDemotions(edges));
+  const applyGraphRepairPreview = () => {
+    if (graphRepairPreview.diffs.length === 0) {
+      window.alert("No repair diffs are available to apply.");
+      return;
+    }
+
+    captureReviewUndoSnapshot(`Applied repair preview: ${graphRepairPreview.diffs.length} diff${graphRepairPreview.diffs.length === 1 ? "" : "s"}`);
+    const nextEdges = [...edges];
+    graphRepairPreview.diffs.forEach((diff) => {
+      const existingIndex = nextEdges.findIndex((edge) =>
+        (diff.edge.id && edge.id === diff.edge.id) ||
+        (edge.source === diff.edge.source && edge.target === diff.edge.target && edge.type === diff.edge.type)
+      );
+      if (diff.action === "add-edge" && existingIndex === -1) {
+        nextEdges.push(diff.edge);
+        return;
+      }
+      if (diff.action === "update-edge" && existingIndex >= 0) {
+        nextEdges[existingIndex] = { ...nextEdges[existingIndex], ...diff.edge };
+      }
+    });
+    setEdges(nextEdges);
+    persistAtlasState(people, nextEdges);
+  };
+  const canRevertRepairPreview = reviewUndoSnapshot?.label.startsWith("Applied repair preview");
   const evidenceCoveragePercent = Math.round(graphHealthReport.metrics.sourcedEdgePercentage * 100);
   const conflictFindingCount = graphHealthReport.findings.filter((finding) =>
     finding.code === "duplicate-entity-risk" ||
@@ -5001,7 +5026,24 @@ export default function App() {
                           Proposed canonical edge changes generated from quality policies.
                         </p>
                       </div>
-                      <span className="font-mono text-[9px] text-slate-600">{graphRepairPreview.diffs.length}</span>
+                      <div className="flex items-center gap-1.5">
+                        {canRevertRepairPreview && (
+                          <button
+                            onClick={restoreReviewUndoSnapshot}
+                            className="rounded border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-[8.5px] font-mono text-amber-200 hover:bg-amber-500/20 cursor-pointer"
+                          >
+                            Revert Batch
+                          </button>
+                        )}
+                        <button
+                          onClick={applyGraphRepairPreview}
+                          disabled={graphRepairPreview.diffs.length === 0}
+                          className="rounded border border-emerald-500/35 bg-emerald-500/10 px-2 py-1 text-[8.5px] font-mono text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          Apply Batch
+                        </button>
+                        <span className="font-mono text-[9px] text-slate-600">{graphRepairPreview.diffs.length}</span>
+                      </div>
                     </div>
                     <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
                       {graphRepairPreview.diffs.length > 0 ? graphRepairPreview.diffs.map((diff) => {
