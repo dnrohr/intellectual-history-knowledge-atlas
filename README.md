@@ -124,6 +124,8 @@ Select a thinker from the timeline, graph, index, search results, thread stepper
 
 For the next major UI direction, see [UI Redesign: Network-First Atlas Workspace](docs/ui-redesign.md). The redesign separates the Influence Atlas from Source Studio so network exploration and scholar dossiers are no longer crowded by import, export, and provenance-management tools.
 
+For the long-term data direction, see [Automated Validation Roadmap](docs/automated-validation-roadmap.md). It outlines milestones for replacing manual import and edge review with automated source collection, claim validation, graph repair, and canonical dataset generation.
+
 ### Header Controls
 
 The header is the global navigation and action bar:
