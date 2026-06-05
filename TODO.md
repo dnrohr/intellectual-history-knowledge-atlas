@@ -25,6 +25,7 @@ Reference documents:
 - `docs/data-model.md`
 - `docs/source-provenance.md`
 - `docs/edge-confidence.md`
+- `docs/edge-validation.md`
 
 ## Active Roadmap
 
@@ -323,7 +324,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
 - [x] Add snapshot and boundary tests for the bulk edge validator.
 - [x] Wire bulk edge validation into CI for structural failures.
 - [x] Add Source Studio visibility for bulk validation status, report export, and repair preview actions.
-- [ ] Add documentation for the edge validation policy and review workflow.
+- [x] Add documentation for the edge validation policy and review workflow.
 
 ## Completed Milestones
 
