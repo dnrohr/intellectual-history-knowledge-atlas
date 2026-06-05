@@ -447,7 +447,7 @@ Status notation:
 
 ## Documentation
 
-- Write a data model overview.
+- [x] Write a data model overview.
 - Write an import workflow guide.
 - Write edge confidence guidelines.
 - Write source provenance guidelines.
