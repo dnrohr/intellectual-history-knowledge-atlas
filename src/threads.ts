@@ -1,5 +1,13 @@
 import { CanonicalThread, InfluenceEdge, Thread, ThreadSourceStatus } from "./types";
 
+export const THREAD_EXPORT_SCHEMA_VERSION = 1;
+
+export interface ThreadExportBundle {
+  schemaVersion: number;
+  exportedAt: string;
+  threads: CanonicalThread[];
+}
+
 const inferThreadSourceStatus = (thread: CanonicalThread): ThreadSourceStatus => {
   if (thread.sourceStatus) return thread.sourceStatus;
   if (thread.confidence === "high") return "sourced";
@@ -556,3 +564,33 @@ export const CANONICAL_THREADS: CanonicalThread[] = [
 ];
 
 export const THREADS: Thread[] = CANONICAL_THREADS.map(buildThreadFromCanonical);
+
+export const createThreadExportBundle = (
+  threads: CanonicalThread[],
+  exportedAt: string = new Date().toISOString()
+): ThreadExportBundle => ({
+  schemaVersion: THREAD_EXPORT_SCHEMA_VERSION,
+  exportedAt,
+  threads,
+});
+
+const isCanonicalThread = (value: unknown): value is CanonicalThread => {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Partial<CanonicalThread>;
+  return (
+    typeof item.id === "string" &&
+    typeof item.title === "string" &&
+    typeof item.field === "string" &&
+    typeof item.purpose === "string" &&
+    Array.isArray(item.people) &&
+    Array.isArray(item.concepts) &&
+    Array.isArray(item.edgeTypes) &&
+    ["high", "medium", "needs-review"].includes(String(item.confidence))
+  );
+};
+
+export const parseThreadExportBundle = (value: unknown): CanonicalThread[] => {
+  if (!value || typeof value !== "object") return [];
+  const bundle = value as Partial<ThreadExportBundle>;
+  return Array.isArray(bundle.threads) ? bundle.threads.filter(isCanonicalThread) : [];
+};

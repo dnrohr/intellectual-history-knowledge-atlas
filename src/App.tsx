@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Thinker, InfluenceEdge } from "./types";
+import { CanonicalThread, Thinker, InfluenceEdge } from "./types";
 import {
   INITIAL_PEOPLE_DATA,
   INITIAL_EDGES_DATA,
@@ -15,7 +15,7 @@ import PathFinder from "./components/PathFinder";
 import EmptyState from "./components/EmptyState";
 import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
-import { auditThreadGaps, CANONICAL_THREADS, getConvergingThreadGroups, getThreadJunctionMarkers, tagRelationshipsWithThreads } from "./threads";
+import { auditThreadGaps, CANONICAL_THREADS, createThreadExportBundle, getConvergingThreadGroups, getThreadJunctionMarkers, parseThreadExportBundle, tagRelationshipsWithThreads } from "./threads";
 import { SourceAdapterRunRecord, summarizeSourceAdapterRuns } from "./sourceAdapters";
 import {
   IMPORT_QUEUE_SCHEMA_VERSION,
@@ -168,6 +168,7 @@ type DefaultCuratedAtlasViewDefinition = {
 
 const REJECTED_LINK_SUGGESTIONS_STORAGE_KEY = "atlas_rejected_link_suggestions_v1";
 const LINK_REVIEW_QUEUE_STORAGE_KEY = "atlas_link_review_queue_v1";
+const IMPORTED_THREADS_STORAGE_KEY = "atlas_imported_threads_v1";
 const WORKBENCH_PANEL_MODE_STORAGE_KEY = "atlas_workbench_panel_mode_v1";
 const SAVED_ATLAS_VIEWS_STORAGE_KEY = "atlas_saved_views_v1";
 const TIMELINE_BOOKMARKS_STORAGE_KEY = "atlas_timeline_bookmarks_v1";
@@ -412,6 +413,7 @@ export default function App() {
     persistAtlasStateToStorage(nextPeople, nextEdges);
   const csvImportInputRef = useRef<HTMLInputElement | null>(null);
   const jsonImportInputRef = useRef<HTMLInputElement | null>(null);
+  const threadImportInputRef = useRef<HTMLInputElement | null>(null);
 
   // Layout Controls
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace>("atlas");
@@ -513,6 +515,13 @@ export default function App() {
   });
   const [savedAtlasViews, setSavedAtlasViews] = useState<SavedAtlasView[]>(getInitialSavedAtlasViews);
   const [customTimelineBookmarks, setCustomTimelineBookmarks] = useState<TimelineBookmarkItem[]>(getInitialTimelineBookmarks);
+  const [importedThreads, setImportedThreads] = useState<CanonicalThread[]>(() => {
+    try {
+      return parseThreadExportBundle(JSON.parse(localStorage.getItem(IMPORTED_THREADS_STORAGE_KEY) || "{}"));
+    } catch {
+      return [];
+    }
+  });
   const [activeSavedViewId, setActiveSavedViewId] = useState<string | null>(null);
   const [openSuggestionDetailKey, setOpenSuggestionDetailKey] = useState<string | null>(null);
   const [wikidataLoading, setWikidataLoading] = useState(false);
@@ -677,6 +686,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(TIMELINE_BOOKMARKS_STORAGE_KEY, JSON.stringify(customTimelineBookmarks));
   }, [customTimelineBookmarks]);
+
+  useEffect(() => {
+    localStorage.setItem(IMPORTED_THREADS_STORAGE_KEY, JSON.stringify(createThreadExportBundle(importedThreads)));
+  }, [importedThreads]);
 
   // Database additions
   const handleAddThinker = (newThinker: Thinker) => {
@@ -860,12 +873,8 @@ export default function App() {
     }
 
     if (onlyCurrentThread && selectedThreadId) {
-      const thread = CANONICAL_THREADS.find((item) => item.id === selectedThreadId);
-      const threadIds = new Set(
-        (thread?.people || [])
-          .map((name) => people.find((person) => person.name === name)?.id)
-          .filter(Boolean)
-      );
+      const thread = [...CANONICAL_THREADS, ...importedThreads].find((item) => item.id === selectedThreadId);
+      const threadIds = new Set(thread?.people || []);
       list = list.filter((p) => threadIds.has(p.id));
     }
 
@@ -2020,6 +2029,33 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
+  const exportThreadsJson = () => {
+    const blob = new Blob([JSON.stringify(createThreadExportBundle(threadDefinitions), null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "intellectual-history-atlas-threads.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importThreadsJson = async (file: File) => {
+    const parsed = JSON.parse(await file.text());
+    const nextThreads = parseThreadExportBundle(parsed);
+    if (nextThreads.length === 0) {
+      window.alert("This JSON file does not contain shareable atlas threads.");
+      return;
+    }
+    setImportedThreads((current) => {
+      const bundledIds = new Set(CANONICAL_THREADS.map((thread) => thread.id));
+      const byId = new Map(current.map((thread) => [thread.id, thread]));
+      nextThreads
+        .filter((thread) => !bundledIds.has(thread.id))
+        .forEach((thread) => byId.set(thread.id, thread));
+      return Array.from(byId.values());
+    });
+  };
+
   const importAtlasJson = async (file: File) => {
     const parsed = JSON.parse(await file.text());
     if (!Array.isArray(parsed.people) || !Array.isArray(parsed.edges)) {
@@ -2070,6 +2106,12 @@ export default function App() {
   const handleJsonImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) await importAtlasJson(file);
+    event.target.value = "";
+  };
+
+  const handleThreadImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) await importThreadsJson(file);
     event.target.value = "";
   };
 
@@ -2554,7 +2596,9 @@ export default function App() {
     return year < 0 ? `${Math.abs(year)} BCE` : `${year}`;
   };
   const peopleById = new Map(people.map((person) => [person.id, person]));
-  const canonicalThreads = CANONICAL_THREADS.map((thread) => ({
+  const importedUniqueThreads = importedThreads.filter((thread) => !CANONICAL_THREADS.some((bundledThread) => bundledThread.id === thread.id));
+  const threadDefinitions = [...CANONICAL_THREADS, ...importedUniqueThreads];
+  const canonicalThreads = threadDefinitions.map((thread) => ({
     ...thread,
     resolvedPeople: thread.people.map((id) => peopleById.get(id)).filter(Boolean) as Thinker[],
     missingPeople: thread.people.filter((id) => !peopleById.has(id)),
@@ -2574,8 +2618,8 @@ export default function App() {
       weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || (edge.sourceClaims || []).length === 0)).length,
     };
   }).filter((thread) => thread.resolvedPeople.length >= 2);
-  const threadJunctionMarkers = getThreadJunctionMarkers(CANONICAL_THREADS);
-  const convergingThreadGroups = getConvergingThreadGroups(CANONICAL_THREADS);
+  const threadJunctionMarkers = getThreadJunctionMarkers(threadDefinitions);
+  const convergingThreadGroups = getConvergingThreadGroups(threadDefinitions);
   const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
   const activeConvergingThreadGroup = activeCanonicalThread
     ? convergingThreadGroups.find((group) =>
@@ -2645,7 +2689,7 @@ export default function App() {
 
     return true;
   };
-  const threadTaggedEdges = tagRelationshipsWithThreads(edges, CANONICAL_THREADS);
+  const threadTaggedEdges = tagRelationshipsWithThreads(edges, threadDefinitions);
   const filteredEdges = threadTaggedEdges.filter(edgeMatchesReviewFilters);
   const hasActiveEdgeFilters = edgeTypeFilter !== "all" || (isSourceStudio && (edgeSourceFilter !== "all" || edgeConfidenceFilter > 0));
   const selectedLensLabels = selectedThinker
@@ -2943,7 +2987,7 @@ export default function App() {
   );
   const importQueueDuplicateCount = importReviewQueue.filter((item) => getDuplicateIdForCandidate(item.candidate)).length;
   const importQueueLowConfidenceCount = importReviewQueue.filter((item) => item.confidence < importConfidenceThreshold).length;
-  const graphHealthReport = buildGraphHealthReport(people, edges, [], CANONICAL_THREADS);
+  const graphHealthReport = buildGraphHealthReport(people, edges, [], threadDefinitions);
   const graphRepairTriggers = getDryRunRepairJobTriggers(graphHealthReport.findings);
   const graphRepairPreview = createGraphRepairPreview("repair:source-studio-dry-run", planWeakUnsupportedEdgeDemotions(edges));
   const applyGraphRepairPreview = () => {
@@ -5893,6 +5937,40 @@ export default function App() {
                       >
                         Export CSV
                       </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-[#252a3d] bg-[#090b10] p-4 lg:col-span-2">
+                    <div className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Thread Sharing</div>
+                    <h5 className="mt-1 font-serif text-lg font-bold text-slate-100">Import or export curated paths</h5>
+                    <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                      Thread JSON shares curated chains separately from the full atlas state; imported threads are kept local unless exported again.
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <input
+                        ref={threadImportInputRef}
+                        type="file"
+                        accept="application/json,.json"
+                        className="hidden"
+                        onChange={handleThreadImport}
+                      />
+                      <button
+                        type="button"
+                        onClick={exportThreadsJson}
+                        className="rounded-md border border-cyan-400/40 bg-cyan-400/10 px-3 py-2 text-[10px] font-mono text-cyan-200 hover:bg-cyan-400/20 cursor-pointer"
+                      >
+                        Export Threads
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => threadImportInputRef.current?.click()}
+                        className="rounded-md border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-3 py-2 text-[10px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+                      >
+                        Import Threads
+                      </button>
+                      <span className="font-mono text-[9px] text-slate-600">
+                        {threadDefinitions.length} available / {importedUniqueThreads.length} imported
+                      </span>
                     </div>
                   </div>
                 </div>

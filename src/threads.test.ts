@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { auditThreadGaps, buildThreadFromCanonical, getConvergingThreadGroups, getThreadJunctionMarkers, tagRelationshipsWithThreads, THREADS } from "./threads";
+import { auditThreadGaps, buildThreadFromCanonical, createThreadExportBundle, getConvergingThreadGroups, getThreadJunctionMarkers, parseThreadExportBundle, tagRelationshipsWithThreads, THREADS } from "./threads";
 import { CanonicalThread } from "./types";
 
 describe("threads", () => {
@@ -184,5 +184,27 @@ describe("threads", () => {
       threadIds: ["logic", "math"],
       incomingEntityIds: ["boole", "hilbert"],
     }]);
+  });
+
+  it("exports and parses shareable thread bundles", () => {
+    const thread: CanonicalThread = {
+      id: "shareable",
+      title: "Shareable",
+      field: "Logic",
+      purpose: "Share this path",
+      people: ["a", "b"],
+      concepts: ["logic"],
+      edgeTypes: ["Influence"],
+      confidence: "medium",
+    };
+    const bundle = createThreadExportBundle([thread], "2026-06-05T00:00:00.000Z");
+
+    expect(bundle).toEqual({
+      schemaVersion: 1,
+      exportedAt: "2026-06-05T00:00:00.000Z",
+      threads: [thread],
+    });
+    expect(parseThreadExportBundle(bundle)).toEqual([thread]);
+    expect(parseThreadExportBundle({ threads: [{ id: "bad" }] })).toEqual([]);
   });
 });
