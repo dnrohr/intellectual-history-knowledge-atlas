@@ -33,6 +33,47 @@ export interface CanonicalDatasetBuildInputs {
   repairDecisions: CanonicalRepairDecision[];
 }
 
+export interface CanonicalDatasetOutput {
+  version: 1;
+  people: Thinker[];
+  edges: InfluenceEdge[];
+  claims: SourceClaimEntity[];
+}
+
+const edgeKey = (edge: InfluenceEdge) =>
+  edge.id || `${edge.source}->${edge.target}:${edge.type}`;
+
+const sortPeople = (people: Thinker[]) =>
+  [...people].sort((left, right) => left.id.localeCompare(right.id));
+
+const sortEdges = (edges: InfluenceEdge[]) =>
+  [...edges].sort((left, right) => edgeKey(left).localeCompare(edgeKey(right)));
+
+const sortClaims = (claims: SourceClaimEntity[]) =>
+  [...claims].sort((left, right) => left.id.localeCompare(right.id));
+
+const applyAcceptedRepairDecisions = (
+  edges: InfluenceEdge[],
+  decisions: CanonicalRepairDecision[]
+) => {
+  const nextEdges = [...edges];
+  decisions
+    .filter((decision) => decision.accepted)
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .forEach((decision) => {
+      decision.diffs.forEach((diff) => {
+        const index = nextEdges.findIndex((edge) => edgeKey(edge) === edgeKey(diff.edge));
+        if (diff.action === "add-edge" && index === -1) {
+          nextEdges.push(diff.edge);
+        }
+        if (diff.action === "update-edge" && index >= 0) {
+          nextEdges[index] = { ...nextEdges[index], ...diff.edge };
+        }
+      });
+    });
+  return nextEdges;
+};
+
 export const createCanonicalDatasetBuildInputs = (
   inputs: CanonicalDatasetBuildInputs
 ): CanonicalDatasetBuildInputs => ({
@@ -45,4 +86,11 @@ export const createCanonicalDatasetBuildInputs = (
   acceptancePolicies: { ...inputs.acceptancePolicies },
   manualOverrides: [...inputs.manualOverrides],
   repairDecisions: [...inputs.repairDecisions],
+});
+
+export const buildCanonicalDataset = (inputs: CanonicalDatasetBuildInputs): CanonicalDatasetOutput => ({
+  version: 1,
+  people: sortPeople(inputs.seedData.people),
+  edges: sortEdges(applyAcceptedRepairDecisions(inputs.seedData.edges, inputs.repairDecisions)),
+  claims: sortClaims(inputs.claimRecords),
 });

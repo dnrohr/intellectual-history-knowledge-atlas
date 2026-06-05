@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createCanonicalDatasetBuildInputs } from "./canonicalDataset";
+import { buildCanonicalDataset, createCanonicalDatasetBuildInputs } from "./canonicalDataset";
 
 describe("canonical dataset build inputs", () => {
   it("defines the required canonical dataset input lanes", () => {
@@ -44,5 +44,66 @@ describe("canonical dataset build inputs", () => {
     ]);
     expect(inputs.seedData.people[0].id).toBe("a");
     expect(inputs.acceptancePolicies.relationship.accept).toBe(0.85);
+  });
+
+  it("generates deterministic canonical dataset output", () => {
+    const output = buildCanonicalDataset({
+      seedData: {
+        people: [
+          { id: "b", name: "B", birth: 1900, death: null, fields: ["Logic"] },
+          { id: "a", name: "A", birth: 1800, death: null, fields: ["Logic"] },
+        ],
+        edges: [
+          { source: "b", target: "a", type: "Influence", strength: 2 },
+        ],
+      },
+      sourceAdapterOutputs: [],
+      claimRecords: [{
+        id: "claim:b",
+        type: "SourceClaim",
+        label: "B",
+        sourceName: "Manual",
+        sourceType: "reference",
+        sourceReliability: 0.7,
+        extractionMethod: "manual_seed",
+        subjectEntityId: "person:b",
+        subjectEntityType: "Person",
+        field: "name",
+        value: "B",
+        confidence: 0.8,
+        status: "accepted",
+      }, {
+        id: "claim:a",
+        type: "SourceClaim",
+        label: "A",
+        sourceName: "Manual",
+        sourceType: "reference",
+        sourceReliability: 0.7,
+        extractionMethod: "manual_seed",
+        subjectEntityId: "person:a",
+        subjectEntityType: "Person",
+        field: "name",
+        value: "A",
+        confidence: 0.8,
+        status: "accepted",
+      }],
+      acceptancePolicies: {},
+      manualOverrides: [],
+      repairDecisions: [{
+        id: "repair:add-a-c",
+        accepted: true,
+        decidedAt: "2026-06-05T00:00:00.000Z",
+        reason: "Accepted repair",
+        diffs: [{
+          action: "add-edge",
+          reason: "Add missing edge",
+          edge: { source: "a", target: "c", type: "Influence", strength: 3 },
+        }],
+      }],
+    });
+
+    expect(output.people.map((person) => person.id)).toEqual(["a", "b"]);
+    expect(output.edges.map((edge) => `${edge.source}->${edge.target}`)).toEqual(["a->c", "b->a"]);
+    expect(output.claims.map((claim) => claim.id)).toEqual(["claim:a", "claim:b"]);
   });
 });

@@ -244,7 +244,7 @@ Goal: make the bundled dataset reproducible from source observations, validation
   - acceptance policies
   - manual overrides
   - repair decisions
-- [ ] Add deterministic dataset generation.
+- [x] Add deterministic dataset generation.
 - [ ] Add dataset version metadata.
 - [ ] Add changelog generation for added, changed, demoted, rejected, and conflicting claims.
 - [ ] Add snapshot tests for canonical data output.
