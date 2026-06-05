@@ -86,6 +86,12 @@ export interface BulkEdgeRepairDecision {
   edge?: InfluenceEdge;
 }
 
+export interface BulkEdgeAcceptanceGateResult {
+  passed: boolean;
+  unresolvedResultIds: string[];
+  message: string;
+}
+
 const LEGACY_RELATIONSHIP_TYPES = [
   "Collaboration",
   "Critique",
@@ -716,4 +722,25 @@ export const createBulkEdgeRepairDecisions = (
     });
   });
   return decisions;
+};
+
+export const evaluateBulkEdgeAcceptanceGate = (
+  results: BulkEdgeValidationResult[]
+): BulkEdgeAcceptanceGateResult => {
+  const unresolvedResultIds = results
+    .filter((result) => {
+      if (result.origin === "existing-edge") {
+        return result.finalDisposition !== "confirmed-existing-edge" && result.finalDisposition !== "removed-existing-edge";
+      }
+      return result.finalDisposition !== "added-confirmed-edge" && result.finalDisposition !== "discarded-candidate";
+    })
+    .map((result) => result.id)
+    .sort();
+  return {
+    passed: unresolvedResultIds.length === 0,
+    unresolvedResultIds,
+    message: unresolvedResultIds.length === 0
+      ? "Bulk edge validation acceptance gate passed."
+      : `Bulk edge validation acceptance gate failed for ${unresolvedResultIds.length} unresolved result(s).`,
+  };
 };

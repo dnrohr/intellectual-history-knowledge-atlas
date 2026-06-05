@@ -7,6 +7,7 @@ import {
   createBulkEdgeRepairDecisions,
   createExistingEdgeValidationSubject,
   deduplicateMissingEdgeCandidates,
+  evaluateBulkEdgeAcceptanceGate,
   generateMissingEdgeCandidates,
   validateDiscoveredEdgeCandidates,
   validateBulkEdgeEvidence,
@@ -654,5 +655,92 @@ describe("bulk edge validation model", () => {
       { action: "remove-edge", dryRun: true, reason: "self-link" },
       { action: "auto-investigate-source", dryRun: true, reason: "missing-source-evidence" },
     ]);
+  });
+
+  it("fails the acceptance gate while any edge or candidate is unresolved", () => {
+    const subject = createExistingEdgeValidationSubject({ source: "a", target: "b", type: "Influence", strength: 3 });
+    const base = {
+      subject,
+      structuralStatus: "valid" as const,
+      evidenceStatus: "supported" as const,
+      chronologyStatus: "valid" as const,
+      sourceClaimCoverage: 1,
+      confidenceScore: 0.9,
+      blockingReasons: [],
+    };
+
+    expect(evaluateBulkEdgeAcceptanceGate([
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "ok-existing",
+        origin: "existing-edge",
+        recommendedAction: "confirm",
+        finalDisposition: "confirmed-existing-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "unresolved-existing",
+        origin: "existing-edge",
+        recommendedAction: "auto-investigate",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "unresolved-candidate",
+        origin: "discovered-candidate",
+        recommendedAction: "auto-investigate",
+      }),
+    ])).toEqual({
+      passed: false,
+      unresolvedResultIds: ["unresolved-candidate", "unresolved-existing"],
+      message: "Bulk edge validation acceptance gate failed for 2 unresolved result(s).",
+    });
+  });
+
+  it("passes the acceptance gate when all existing edges and candidates have final dispositions", () => {
+    const subject = createExistingEdgeValidationSubject({ source: "a", target: "b", type: "Influence", strength: 3 });
+    const base = {
+      subject,
+      structuralStatus: "valid" as const,
+      evidenceStatus: "supported" as const,
+      chronologyStatus: "valid" as const,
+      sourceClaimCoverage: 1,
+      confidenceScore: 0.9,
+      blockingReasons: [],
+    };
+
+    expect(evaluateBulkEdgeAcceptanceGate([
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "confirmed",
+        origin: "existing-edge",
+        recommendedAction: "confirm",
+        finalDisposition: "confirmed-existing-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "removed",
+        origin: "existing-edge",
+        recommendedAction: "remove",
+        finalDisposition: "removed-existing-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "added",
+        origin: "discovered-candidate",
+        recommendedAction: "add",
+        finalDisposition: "added-confirmed-edge",
+      }),
+      createBulkEdgeValidationResult({
+        ...base,
+        id: "discarded",
+        origin: "discovered-candidate",
+        recommendedAction: "discard",
+        finalDisposition: "discarded-candidate",
+      }),
+    ])).toEqual({
+      passed: true,
+      unresolvedResultIds: [],
+      message: "Bulk edge validation acceptance gate passed.",
+    });
   });
 });
