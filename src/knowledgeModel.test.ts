@@ -18,8 +18,11 @@ import {
   getWorkEntityId,
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
+  normalizeSourceClaimStatus,
   relationshipEndpointsMatchType,
   RELATIONSHIP_TYPE_DEFINITIONS,
+  SOURCE_CLAIM_STATUSES,
+  isTerminalSourceClaimStatus,
   splitRawObservationsFromAcceptedRecords,
 } from "./knowledgeModel";
 import { Thinker } from "./types";
@@ -52,6 +55,21 @@ describe("knowledge model entities", () => {
     expect(relationshipEndpointsMatchType("person authored work", "Person", "Work")).toBe(true);
     expect(relationshipEndpointsMatchType("person authored work", "Work", "Person")).toBe(false);
     expect(relationshipEndpointsMatchType("Indirect influence", "Person", "Person")).toBe(true);
+  });
+
+  it("represents the source claim status lifecycle at runtime", () => {
+    expect(SOURCE_CLAIM_STATUSES).toEqual([
+      "observed",
+      "candidate",
+      "accepted",
+      "rejected",
+      "stale",
+      "conflicting",
+    ]);
+    expect(normalizeSourceClaimStatus("candidate")).toBe("candidate");
+    expect(normalizeSourceClaimStatus("unknown")).toBe("observed");
+    expect(isTerminalSourceClaimStatus("accepted")).toBe(true);
+    expect(isTerminalSourceClaimStatus("candidate")).toBe(false);
   });
 
   it("normalizes valid mixed entity records and drops malformed records", () => {

@@ -30,6 +30,15 @@ export const KNOWLEDGE_ENTITY_TYPES: KnowledgeEntityType[] = [
   "Relationship",
 ];
 
+export const SOURCE_CLAIM_STATUSES: SourceClaimStatus[] = [
+  "observed",
+  "candidate",
+  "accepted",
+  "rejected",
+  "stale",
+  "conflicting",
+];
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object";
 
@@ -265,6 +274,12 @@ export const getRelationshipTypeDefinition = (relationshipType: string) =>
 export const isKnownRelationshipType = (relationshipType: string): relationshipType is KnownRelationshipType =>
   Boolean(getRelationshipTypeDefinition(relationshipType));
 
+export const normalizeSourceClaimStatus = (status: unknown): SourceClaimStatus =>
+  SOURCE_CLAIM_STATUSES.includes(status as SourceClaimStatus) ? status as SourceClaimStatus : "observed";
+
+export const isTerminalSourceClaimStatus = (status: SourceClaimStatus) =>
+  ["accepted", "rejected", "stale", "conflicting"].includes(status);
+
 export const relationshipEndpointsMatchType = (
   relationshipType: string,
   sourceType: RelationshipEndpointType,
@@ -343,7 +358,7 @@ export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEnt
     field: draft.field,
     value: draft.value,
     confidence: normalizeRequiredConfidence(draft.confidence),
-    status: draft.status || "observed",
+    status: normalizeSourceClaimStatus(draft.status),
   };
 };
 
