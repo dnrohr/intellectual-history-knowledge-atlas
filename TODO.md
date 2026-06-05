@@ -450,7 +450,7 @@ Status notation:
 - [x] Write a data model overview.
 - [x] Write an import workflow guide.
 - [x] Write edge confidence guidelines.
-- Write source provenance guidelines.
+- [x] Write source provenance guidelines.
 - Write taxonomy guidelines.
 - Write deployment guide.
 - Write Codespaces guide with update steps.
