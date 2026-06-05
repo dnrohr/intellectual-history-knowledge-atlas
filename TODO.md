@@ -155,7 +155,7 @@ Goal: decide what can be accepted automatically, what should remain provisional,
 - [x] Add automatic rejection for self-links, impossible chronology, duplicate opposite-direction edges, and unsupported direct influence from shared tags alone.
 - [x] Add "accepted by policy" metadata to automatically accepted claims.
 - [x] Add dry-run mode for automated acceptance.
-- [ ] Add tests for evidence scoring and acceptance/rejection policy boundaries.
+- [x] Add tests for evidence scoring and acceptance/rejection policy boundaries.
 
 ### 7. Graph Quality Audits And Repair
 

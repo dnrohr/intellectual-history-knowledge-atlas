@@ -124,4 +124,23 @@ describe("evidence policy", () => {
       threshold: 0.75,
     });
   });
+
+  it("covers acceptance and rejection policy boundaries", () => {
+    const threshold = { accept: 0.8, provisional: 0.6 };
+
+    expect(evaluateAcceptancePolicy({ policyName: "test", score: 0.8, threshold }).decision).toBe("accepted");
+    expect(evaluateAcceptancePolicy({ policyName: "test", score: 0.799, threshold }).decision).toBe("provisional");
+    expect(evaluateAcceptancePolicy({ policyName: "test", score: 0.6, threshold }).decision).toBe("provisional");
+    expect(evaluateAcceptancePolicy({ policyName: "test", score: 0.599, threshold }).decision).toBe("rejected");
+    expect(evaluateAcceptancePolicy({
+      policyName: "test",
+      score: 1,
+      threshold,
+      rejectionReasons: ["self-link"],
+    })).toEqual({
+      decision: "rejected",
+      dryRun: false,
+      rejectionReasons: ["self-link"],
+    });
+  });
 });
