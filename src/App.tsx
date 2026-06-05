@@ -2610,6 +2610,20 @@ export default function App() {
   const focusCanonicalThread = (thread: (typeof canonicalThreads)[number]) => {
     focusCanonicalThreadRelationshipStep(thread, 0);
   };
+  const continueThreadFromPerson = (personId: string) => {
+    const preferredThread = activeCanonicalThread?.resolvedPeople.some((person) => person.id === personId)
+      ? activeCanonicalThread
+      : canonicalThreads.find((thread) => thread.resolvedPeople.some((person) => person.id === personId));
+    if (!preferredThread) {
+      window.alert("This thinker is not part of a curated thread yet.");
+      return;
+    }
+
+    const personIndex = preferredThread.resolvedPeople.findIndex((person) => person.id === personId);
+    const relationshipStep = Math.max(0, Math.min(personIndex, preferredThread.resolvedPeople.length - 2));
+    openWorkbenchPanel("candidateRelationships");
+    focusCanonicalThreadRelationshipStep(preferredThread, relationshipStep);
+  };
   const edgeTypeOptions = Array.from(new Set(edges.map((edge) => edge.type).filter(Boolean))).sort();
   const edgeMatchesReviewFilters = (edge: InfluenceEdge) => {
     if (edgeTypeFilter !== "all" && edge.type !== edgeTypeFilter) return false;
@@ -6243,6 +6257,7 @@ export default function App() {
                     selectPerson(id);
                     openWorkbenchPanel("candidateRelationships");
                   }}
+                  onContinueThread={continueThreadFromPerson}
                 />
               </div>
 
