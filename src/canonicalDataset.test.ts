@@ -105,5 +105,18 @@ describe("canonical dataset build inputs", () => {
     expect(output.people.map((person) => person.id)).toEqual(["a", "b"]);
     expect(output.edges.map((edge) => `${edge.source}->${edge.target}`)).toEqual(["a->c", "b->a"]);
     expect(output.claims.map((claim) => claim.id)).toEqual(["claim:a", "claim:b"]);
+    expect(output.metadata).toMatchObject({
+      datasetVersion: "canonical-v1",
+      generator: "buildCanonicalDataset",
+      inputCounts: {
+        people: 2,
+        edges: 1,
+        claims: 2,
+        sourceAdapterOutputs: 0,
+        manualOverrides: 0,
+        repairDecisions: 1,
+      },
+    });
+    expect(output.metadata.contentFingerprint).toMatch(/^[0-9a-f]{8}$/);
   });
 });

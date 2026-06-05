@@ -35,9 +35,24 @@ export interface CanonicalDatasetBuildInputs {
 
 export interface CanonicalDatasetOutput {
   version: 1;
+  metadata: CanonicalDatasetMetadata;
   people: Thinker[];
   edges: InfluenceEdge[];
   claims: SourceClaimEntity[];
+}
+
+export interface CanonicalDatasetMetadata {
+  datasetVersion: "canonical-v1";
+  generator: "buildCanonicalDataset";
+  inputCounts: {
+    people: number;
+    edges: number;
+    claims: number;
+    sourceAdapterOutputs: number;
+    manualOverrides: number;
+    repairDecisions: number;
+  };
+  contentFingerprint: string;
 }
 
 const edgeKey = (edge: InfluenceEdge) =>
@@ -51,6 +66,15 @@ const sortEdges = (edges: InfluenceEdge[]) =>
 
 const sortClaims = (claims: SourceClaimEntity[]) =>
   [...claims].sort((left, right) => left.id.localeCompare(right.id));
+
+const stableFingerprint = (value: unknown) => {
+  const text = JSON.stringify(value);
+  let hash = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    hash = (hash * 31 + text.charCodeAt(index)) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+};
 
 const applyAcceptedRepairDecisions = (
   edges: InfluenceEdge[],
@@ -88,9 +112,27 @@ export const createCanonicalDatasetBuildInputs = (
   repairDecisions: [...inputs.repairDecisions],
 });
 
-export const buildCanonicalDataset = (inputs: CanonicalDatasetBuildInputs): CanonicalDatasetOutput => ({
-  version: 1,
-  people: sortPeople(inputs.seedData.people),
-  edges: sortEdges(applyAcceptedRepairDecisions(inputs.seedData.edges, inputs.repairDecisions)),
-  claims: sortClaims(inputs.claimRecords),
-});
+export const buildCanonicalDataset = (inputs: CanonicalDatasetBuildInputs): CanonicalDatasetOutput => {
+  const people = sortPeople(inputs.seedData.people);
+  const edges = sortEdges(applyAcceptedRepairDecisions(inputs.seedData.edges, inputs.repairDecisions));
+  const claims = sortClaims(inputs.claimRecords);
+  return {
+    version: 1,
+    metadata: {
+      datasetVersion: "canonical-v1",
+      generator: "buildCanonicalDataset",
+      inputCounts: {
+        people: inputs.seedData.people.length,
+        edges: inputs.seedData.edges.length,
+        claims: inputs.claimRecords.length,
+        sourceAdapterOutputs: inputs.sourceAdapterOutputs.length,
+        manualOverrides: inputs.manualOverrides.length,
+        repairDecisions: inputs.repairDecisions.length,
+      },
+      contentFingerprint: stableFingerprint({ people, edges, claims }),
+    },
+    people,
+    edges,
+    claims,
+  };
+};
