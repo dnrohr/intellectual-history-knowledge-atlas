@@ -110,3 +110,42 @@ export const applyLooseAcceptanceModifiers = (
     provisional: Math.max(0.35, Number((threshold.provisional - total / 2).toFixed(3))),
   };
 };
+
+export interface AutomaticRejectionInput {
+  sourceId: string;
+  targetId: string;
+  relationshipType: string;
+  sourceBirth?: number | null;
+  targetBirth?: number | null;
+  existingOppositeDirection?: boolean;
+  evidence: string[];
+}
+
+export const getAutomaticRejectionReasons = ({
+  sourceId,
+  targetId,
+  relationshipType,
+  sourceBirth,
+  targetBirth,
+  existingOppositeDirection = false,
+  evidence,
+}: AutomaticRejectionInput) => {
+  const reasons: string[] = [];
+  const evidenceText = evidence.join(" ").toLowerCase();
+  if (sourceId === targetId) reasons.push("self-link");
+  if (sourceBirth !== undefined && sourceBirth !== null && targetBirth !== undefined && targetBirth !== null && sourceBirth > targetBirth + 20) {
+    reasons.push("impossible-chronology");
+  }
+  if (existingOppositeDirection) reasons.push("duplicate-opposite-direction");
+  if (
+    relationshipType === "person influenced person" &&
+    evidence.length > 0 &&
+    evidence.every((item) => item.toLowerCase().includes("shared")) &&
+    !evidenceText.includes("explicit") &&
+    !evidenceText.includes("citation") &&
+    !evidenceText.includes("reception")
+  ) {
+    reasons.push("unsupported-direct-influence-from-shared-tags");
+  }
+  return reasons;
+};

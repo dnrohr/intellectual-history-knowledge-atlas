@@ -5,6 +5,7 @@ import {
   applyStrictAcceptanceModifiers,
   composeEvidenceConfidence,
   getAcceptanceThreshold,
+  getAutomaticRejectionReasons,
   normalizeEvidenceConfidence,
 } from "./evidencePolicy";
 
@@ -65,5 +66,22 @@ describe("evidence policy", () => {
       accept: 0.61,
       provisional: 0.505,
     });
+  });
+
+  it("automatically rejects invalid or unsupported relationship claims", () => {
+    expect(getAutomaticRejectionReasons({
+      sourceId: "a",
+      targetId: "a",
+      relationshipType: "person influenced person",
+      sourceBirth: 1950,
+      targetBirth: 1900,
+      existingOppositeDirection: true,
+      evidence: ["shared movement"],
+    })).toEqual([
+      "self-link",
+      "impossible-chronology",
+      "duplicate-opposite-direction",
+      "unsupported-direct-influence-from-shared-tags",
+    ]);
   });
 });
