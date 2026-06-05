@@ -112,6 +112,8 @@ Use the app's reset control if you want to restore the bundled seed dataset. Res
 
 ## Main Interface
 
+![Atlas overview](docs/screenshots/atlas-overview.png)
+
 The app has three primary exploration surfaces:
 
 - **Timeline**: shows people by date, era bands, works, movements, and relationship arcs.
