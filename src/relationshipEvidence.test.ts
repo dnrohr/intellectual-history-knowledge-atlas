@@ -6,7 +6,9 @@ import {
   generateParallelDevelopmentCandidates,
   generateSourceContextNeighborCandidates,
   classifyRelationshipSuggestion,
+  attachRelationshipCandidateProvenance,
   buildRelationshipCandidateStore,
+  getRelationshipCandidateProvenance,
   validateRelationshipDirection,
 } from "./relationshipEvidence";
 
@@ -186,5 +188,21 @@ describe("relationship evidence", () => {
     expect(store.acceptedRelationships).toEqual([candidate.relationship]);
     expect(store.candidates).toEqual([]);
     expect(buildRelationshipCandidateStore([candidate]).candidates).toEqual([candidate]);
+  });
+
+  it("attaches relationship source URLs and claim-level provenance", () => {
+    const [candidate] = generateMentorshipCandidates([{ personId: "student", advisors: ["mentor"] }]);
+    const withProvenance = attachRelationshipCandidateProvenance(candidate, {
+      sourceUrls: ["https://example.com/source"],
+      claimIds: ["claim:mentor-student"],
+    });
+
+    expect(withProvenance.relationship.claimIds).toEqual(["claim:mentor-student"]);
+    expect(getRelationshipCandidateProvenance(withProvenance)).toEqual({
+      candidateId: candidate.id,
+      sourceUrls: ["https://example.com/source"],
+      claimIds: ["claim:mentor-student"],
+      evidence: ["advisor/student evidence"],
+    });
   });
 });

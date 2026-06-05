@@ -133,7 +133,7 @@ Goal: generate, classify, and explain relationship candidates from evidence.
   - source-context neighbor
   - needs review
 - [x] Add candidate records separate from accepted relationships.
-- [ ] Add relationship source URLs and claim-level provenance.
+- [x] Add relationship source URLs and claim-level provenance.
 - [ ] Add relationship status: `suggested`, `accepted`, `rejected`, `needs_source`.
 - [ ] Add "why this link?" evidence explanations.
 - [ ] Keep the link review queue as a low-confidence exception path.

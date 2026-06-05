@@ -33,6 +33,15 @@ export interface RelationshipCandidate {
   status: "suggested" | "accepted" | "rejected" | "needs_source";
   confidence: number;
   evidence: string[];
+  sourceUrls?: string[];
+  claimIds?: string[];
+}
+
+export interface RelationshipCandidateProvenance {
+  candidateId: string;
+  sourceUrls: string[];
+  claimIds: string[];
+  evidence: string[];
 }
 
 export interface RelationshipCandidateStore {
@@ -401,3 +410,25 @@ export const buildRelationshipCandidateStore = (
     candidates: candidates.filter((candidate) => !acceptedIds.has(candidate.relationship.id)),
   };
 };
+
+export const attachRelationshipCandidateProvenance = (
+  candidate: RelationshipCandidate,
+  provenance: { sourceUrls?: string[]; claimIds?: string[] }
+): RelationshipCandidate => ({
+  ...candidate,
+  sourceUrls: Array.from(new Set([...(candidate.sourceUrls || []), ...(provenance.sourceUrls || [])])),
+  claimIds: Array.from(new Set([...(candidate.claimIds || []), ...(provenance.claimIds || [])])),
+  relationship: {
+    ...candidate.relationship,
+    claimIds: Array.from(new Set([...(candidate.relationship.claimIds || []), ...(provenance.claimIds || [])])),
+  },
+});
+
+export const getRelationshipCandidateProvenance = (
+  candidate: RelationshipCandidate
+): RelationshipCandidateProvenance => ({
+  candidateId: candidate.id,
+  sourceUrls: candidate.sourceUrls || [],
+  claimIds: candidate.claimIds || candidate.relationship.claimIds || [],
+  evidence: candidate.evidence,
+});
