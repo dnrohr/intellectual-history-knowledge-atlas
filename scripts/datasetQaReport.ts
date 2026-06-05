@@ -1,4 +1,5 @@
 import { INITIAL_EDGES_DATA, INITIAL_PEOPLE_DATA } from "../src/data";
+import { buildGraphHealthReport } from "../src/graphQuality";
 import { CANONICAL_THREADS } from "../src/threads";
 import { InfluenceEdge, Thinker } from "../src/types";
 
@@ -8,6 +9,7 @@ const HIGH_BRIDGE_SCORE = 4;
 const explicitEdges = INITIAL_EDGES_DATA.filter((edge) => edge.source !== "metadata");
 const explicitEdgeKeys = new Set(explicitEdges.map((edge) => `${edge.source}->${edge.target}`));
 const peopleById = new Map(INITIAL_PEOPLE_DATA.map((person) => [person.id, person]));
+const graphHealthReport = buildGraphHealthReport(INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA, [], CANONICAL_THREADS);
 
 const hasExplicitEdge = (personId: string) =>
   explicitEdges.some((edge) => edge.source === personId || edge.target === personId);
@@ -95,6 +97,16 @@ console.log("");
 console.log(`People: ${INITIAL_PEOPLE_DATA.length}`);
 console.log(`Explicit edges: ${explicitEdges.length}`);
 console.log(`Canonical threads: ${CANONICAL_THREADS.length}`);
+console.log("");
+
+console.log("## Graph Health");
+console.log(`- Sourced edge percentage: ${graphHealthReport.metrics.sourcedEdgePercentage}`);
+console.log(`- Accepted edge percentage: ${graphHealthReport.metrics.acceptedEdgePercentage}`);
+console.log(`- Average edge confidence: ${graphHealthReport.metrics.averageEdgeConfidence}`);
+console.log(`- Isolated node count: ${graphHealthReport.metrics.isolatedNodeCount}`);
+console.log(`- Duplicate risk count: ${graphHealthReport.metrics.duplicateRiskCount}`);
+console.log(`- Canonical thread coverage: ${graphHealthReport.metrics.canonicalThreadCoverage}`);
+console.log(`- Findings: ${graphHealthReport.summary.critical} critical, ${graphHealthReport.summary.warning} warning, ${graphHealthReport.summary.info} info`);
 console.log("");
 
 console.log("## Edge Expansion Audit By Field");

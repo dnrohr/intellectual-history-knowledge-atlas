@@ -54,6 +54,16 @@ export interface GraphRepairPreview {
   diffs: GraphRepairDiff[];
 }
 
+export interface GraphHealthReport {
+  metrics: GraphQualityMetrics;
+  findings: GraphQualityAuditFinding[];
+  summary: {
+    critical: number;
+    warning: number;
+    info: number;
+  };
+}
+
 const percent = (count: number, total: number) =>
   total === 0 ? 0 : Number((count / total).toFixed(3));
 
@@ -281,3 +291,23 @@ export const createGraphRepairPreview = (
   applied: false,
   diffs,
 });
+
+export const buildGraphHealthReport = (
+  people: Thinker[],
+  edges: InfluenceEdge[],
+  claims: SourceClaimEntity[] = [],
+  threads: CanonicalThread[] = [],
+  now: Date = new Date()
+): GraphHealthReport => {
+  const metrics = computeGraphQualityMetrics(people, edges, claims, threads, now);
+  const findings = auditGraphQuality(people, edges, claims, now);
+  return {
+    metrics,
+    findings,
+    summary: {
+      critical: findings.filter((finding) => finding.severity === "critical").length,
+      warning: findings.filter((finding) => finding.severity === "warning").length,
+      info: findings.filter((finding) => finding.severity === "info").length,
+    },
+  };
+};

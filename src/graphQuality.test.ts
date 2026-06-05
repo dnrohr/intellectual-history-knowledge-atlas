@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSourceClaimEntity } from "./knowledgeModel";
-import { computeGraphQualityMetrics } from "./graphQuality";
+import { buildGraphHealthReport, computeGraphQualityMetrics } from "./graphQuality";
 import { InfluenceEdge, Thinker } from "./types";
 
 const person = (id: string, name = id): Thinker => ({
@@ -53,5 +53,13 @@ describe("graph quality", () => {
       averageSourceFreshnessDays: 4,
       canonicalThreadCoverage: 0.4,
     });
+  });
+
+  it("builds graph health reports for UI and QA output", () => {
+    const report = buildGraphHealthReport([person("a")], [], [], []);
+
+    expect(report.metrics.isolatedNodeCount).toBe(1);
+    expect(report.summary.warning).toBeGreaterThan(0);
+    expect(report.findings[0]).toMatchObject({ code: "isolated-node" });
   });
 });
