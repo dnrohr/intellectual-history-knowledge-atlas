@@ -1,4 +1,5 @@
 import { InfluenceEdge, KnownRelationshipType, SourceClaimEntity, Thinker } from "./types";
+import { getSourceClaimRecencyDays } from "./knowledgeModel";
 
 export type BulkEdgeValidationOrigin = "existing-edge" | "discovered-candidate";
 export type BulkEdgeStructuralStatus = "valid" | "invalid";
@@ -164,6 +165,87 @@ export const validateBulkEdgeStructure = (
       confidenceScore: edge.confidence ?? 0.5,
       recommendedAction: structuralStatus === "valid" ? "auto-investigate" : "remove",
       finalDisposition: structuralStatus === "valid" ? undefined : "removed-existing-edge",
+      blockingReasons,
+    });
+  });
+};
+
+const relationshipSubjectIdForEdge = (edge: InfluenceEdge) =>
+  edge.id || `relationship:person:${edge.source}:${edge.type}:person:${edge.target}`;
+
+const isHighImpactEdge = (edge: InfluenceEdge) =>
+  edge.status === "accepted" ||
+  edge.strength >= 4 ||
+  (edge.threadIds || []).length > 0;
+
+const isUsableRelationshipClaim = (claim: SourceClaimEntity) =>
+  claim.subjectEntityType === "Relationship" &&
+  claim.status !== "rejected" &&
+  claim.status !== "conflicting" &&
+  claim.status !== "stale";
+
+export const validateBulkEdgeEvidence = (
+  people: Thinker[],
+  edges: InfluenceEdge[],
+  claims: SourceClaimEntity[] = [],
+  now: Date = new Date()
+): BulkEdgeValidationResult[] => {
+  const claimsById = new Map(claims.map((claim) => [claim.id, claim]));
+  return validateBulkEdgeStructure(people, edges).map((result) => {
+    const edge = result.subject.edge;
+    if (!edge || result.structuralStatus === "invalid") return result;
+
+    const claimIds = edge.claimIds || [];
+    const sourceUrls = edge.sourceClaims || [];
+    const attachedClaims = claimIds.map((claimId) => claimsById.get(claimId)).filter((claim): claim is SourceClaimEntity => Boolean(claim));
+    const relationshipId = relationshipSubjectIdForEdge(edge);
+    const directRelationshipClaims = attachedClaims.filter((claim) =>
+      claim.subjectEntityType === "Relationship" &&
+      (claim.subjectEntityId === relationshipId || claimIds.includes(claim.id))
+    );
+    const usableRelationshipClaims = directRelationshipClaims.filter(isUsableRelationshipClaim);
+    const staleClaims = attachedClaims.filter((claim) => claim.status === "stale" || (getSourceClaimRecencyDays(claim, now) ?? 0) > 3650);
+    const rejectedOrConflictingClaims = attachedClaims.filter((claim) => claim.status === "rejected" || claim.status === "conflicting");
+    const blockingReasons = [...result.blockingReasons];
+
+    if (claimIds.length === 0 && sourceUrls.length === 0) blockingReasons.push("missing-source-evidence");
+    if (staleClaims.length > 0) blockingReasons.push("stale-source-claim");
+    if (edge.status === "accepted" && rejectedOrConflictingClaims.length > 0) {
+      blockingReasons.push("rejected-or-conflicting-claim-on-accepted-edge");
+    }
+    if (isHighImpactEdge(edge) && (edge.confidence ?? 0.5) < 0.75) {
+      blockingReasons.push("weak-confidence-high-impact-edge");
+    }
+    if (attachedClaims.length > 0 && directRelationshipClaims.length === 0) {
+      blockingReasons.push("endpoint-only-source-claims");
+    }
+
+    const referenceCount = claimIds.length + sourceUrls.length;
+    const supportedReferenceCount = usableRelationshipClaims.length + sourceUrls.length;
+    const sourceClaimCoverage = referenceCount === 0
+      ? 0
+      : Number((supportedReferenceCount / referenceCount).toFixed(3));
+    const evidenceStatus: BulkEdgeEvidenceStatus =
+      rejectedOrConflictingClaims.length > 0
+        ? "conflicting"
+        : blockingReasons.includes("weak-confidence-high-impact-edge")
+          ? "weak"
+          : sourceClaimCoverage > 0
+            ? "supported"
+            : "unsupported";
+    const confidenceScore = Math.min(1, Number((((edge.confidence ?? 0.5) + sourceClaimCoverage) / 2).toFixed(3)));
+    const finalDisposition: BulkEdgeFinalDisposition | undefined =
+      evidenceStatus === "supported" && blockingReasons.length === 0
+        ? "confirmed-existing-edge"
+        : undefined;
+
+    return createBulkEdgeValidationResult({
+      ...result,
+      evidenceStatus,
+      sourceClaimCoverage,
+      confidenceScore,
+      recommendedAction: finalDisposition ? "confirm" : "auto-investigate",
+      finalDisposition,
       blockingReasons,
     });
   });

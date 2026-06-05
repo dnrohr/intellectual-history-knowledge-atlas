@@ -3,15 +3,36 @@ import {
   BulkEdgeValidationResult,
   createBulkEdgeValidationResult,
   createExistingEdgeValidationSubject,
+  validateBulkEdgeEvidence,
   validateBulkEdgeStructure,
 } from "./edgeValidation";
-import { InfluenceEdge, Thinker } from "./types";
+import { InfluenceEdge, SourceClaimEntity, Thinker } from "./types";
 
 const people: Thinker[] = [
   { id: "a", name: "A", birth: 1800, death: 1860, fields: ["Philosophy"] },
   { id: "b", name: "B", birth: 1850, death: 1910, fields: ["Philosophy"] },
   { id: "c", name: "C", birth: 1900, death: 1970, fields: ["Philosophy"] },
 ];
+
+const relationshipClaim = (
+  id: string,
+  overrides: Partial<SourceClaimEntity> = {}
+): SourceClaimEntity => ({
+  id,
+  type: "SourceClaim",
+  label: id,
+  sourceName: "Manual",
+  sourceType: "reference",
+  sourceReliability: 0.8,
+  extractionMethod: "manual_seed",
+  subjectEntityId: "edge:ab",
+  subjectEntityType: "Relationship",
+  field: "relationshipType",
+  value: "Influence",
+  confidence: 0.86,
+  status: "accepted",
+  ...overrides,
+});
 
 describe("bulk edge validation model", () => {
   it("models existing edge validation with final confirmed or removed dispositions", () => {
@@ -117,6 +138,122 @@ describe("bulk edge validation model", () => {
       recommendedAction: "auto-investigate",
       finalDisposition: undefined,
       blockingReasons: [],
+    });
+  });
+
+  it("confirms structurally valid edges with usable relationship evidence", () => {
+    const [result] = validateBulkEdgeEvidence(
+      people,
+      [{
+        id: "edge:ab",
+        source: "a",
+        target: "b",
+        type: "Influence",
+        strength: 3,
+        confidence: 0.9,
+        claimIds: ["claim:ab"],
+      }],
+      [relationshipClaim("claim:ab")]
+    );
+
+    expect(result).toMatchObject({
+      evidenceStatus: "supported",
+      sourceClaimCoverage: 1,
+      recommendedAction: "confirm",
+      finalDisposition: "confirmed-existing-edge",
+      blockingReasons: [],
+    });
+  });
+
+  it("routes missing or weak evidence to automated investigation", () => {
+    const results = validateBulkEdgeEvidence(
+      people,
+      [
+        { id: "edge:missing", source: "a", target: "b", type: "Influence", strength: 3 },
+        {
+          id: "edge:endpoint-only",
+          source: "b",
+          target: "c",
+          type: "Influence",
+          strength: 3,
+          claimIds: ["claim:endpoint"],
+        },
+        {
+          id: "edge:weak",
+          source: "a",
+          target: "c",
+          type: "Influence",
+          strength: 5,
+          confidence: 0.4,
+          claimIds: ["claim:weak"],
+        },
+      ],
+      [
+        relationshipClaim("claim:endpoint", {
+          subjectEntityId: "person:a",
+          subjectEntityType: "Person",
+          field: "existence",
+        }),
+        relationshipClaim("claim:weak", { subjectEntityId: "edge:weak" }),
+      ]
+    );
+
+    expect(results.map((result) => result.blockingReasons)).toEqual([
+      ["missing-source-evidence"],
+      ["endpoint-only-source-claims"],
+      ["weak-confidence-high-impact-edge"],
+    ]);
+    expect(results.map((result) => result.recommendedAction)).toEqual([
+      "auto-investigate",
+      "auto-investigate",
+      "auto-investigate",
+    ]);
+  });
+
+  it("detects stale and rejected or conflicting source claims on accepted edges", () => {
+    const results = validateBulkEdgeEvidence(
+      people,
+      [
+        {
+          id: "edge:stale",
+          source: "a",
+          target: "b",
+          type: "Influence",
+          strength: 3,
+          claimIds: ["claim:stale"],
+        },
+        {
+          id: "edge:conflict",
+          source: "b",
+          target: "c",
+          type: "Influence",
+          strength: 3,
+          confidence: 0.9,
+          status: "accepted",
+          claimIds: ["claim:conflict"],
+        },
+      ],
+      [
+        relationshipClaim("claim:stale", {
+          subjectEntityId: "edge:stale",
+          status: "stale",
+          observedAt: "2000-01-01T00:00:00.000Z",
+        }),
+        relationshipClaim("claim:conflict", {
+          subjectEntityId: "edge:conflict",
+          status: "conflicting",
+        }),
+      ],
+      new Date("2026-06-05T00:00:00.000Z")
+    );
+
+    expect(results[0]).toMatchObject({
+      evidenceStatus: "unsupported",
+      blockingReasons: ["stale-source-claim"],
+    });
+    expect(results[1]).toMatchObject({
+      evidenceStatus: "conflicting",
+      blockingReasons: ["rejected-or-conflicting-claim-on-accepted-edge"],
     });
   });
 });

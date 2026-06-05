@@ -287,7 +287,7 @@ Goal: validate and expand network edges at scale until the canonical graph conta
   - duplicate same-direction edges
   - duplicate opposite-direction conflicts
   - invalid relationship types
-- [ ] Add evidence coverage checks for every edge:
+- [x] Add evidence coverage checks for every edge:
   - missing claim IDs or source URLs
   - stale source claims
   - rejected or conflicting claims attached to accepted edges
