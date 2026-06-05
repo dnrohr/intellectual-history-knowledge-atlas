@@ -439,7 +439,7 @@ Status notation:
   - [x] Vercel plus serverless API
   - [x] Netlify plus serverless API
 - [x] Add GitHub Actions workflow for build verification.
-- Add auto-deploy from `main`.
+- [x] Add auto-deploy from `main`.
 - Add environment variable documentation.
 - Add public demo mode with sample data.
 - Add "private local data" warning where appropriate.

@@ -3,6 +3,7 @@ services:
     name: intellectual-history-knowledge-atlas
     runtime: node
     plan: free
+    autoDeploy: true
     buildCommand: npm ci && npm run build
     startCommand: npm run start
     envVars:
