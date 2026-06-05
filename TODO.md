@@ -233,7 +233,7 @@ Status notation:
   - influence neighborhood
   - explore-next actions
 - [x] Move relationship editing and source review actions from the dossier into Source Studio entry points.
-- [ ] Make the network canvas the dominant Atlas surface with the timeline as a compact expandable strip.
+- [x] Make the network canvas the dominant Atlas surface with the timeline as a compact expandable strip.
 - [ ] Convert thinker index, filters, path tools, and saved views into drawers, sheets, or command-menu surfaces.
 - [ ] Define every visible button as one of:
   - navigate

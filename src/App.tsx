@@ -409,6 +409,7 @@ export default function App() {
   const [sidebarWidth, setSidebarWidth] = useState(220);
   const [detailWidth, setDetailWidth] = useState(380);
   const [splitHeightRatio, setSplitHeightRatio] = useState(50);
+  const [timelineStripExpanded, setTimelineStripExpanded] = useState(false);
 
   // Selection & Advanced Year range filters
   const [selectedId, setSelectedId] = useState<string | null>("plato");
@@ -5549,15 +5550,72 @@ export default function App() {
             </div>
  
             {/* COSMOS NETWORK FORCE MAP MODE */}
-            <div className={`flex-1 min-h-0 relative p-4 ${viewMode === "network" ? "block h-full" : "hidden"}`}>
-              <NetworkGraph
-                people={processedPeople}
-                edges={filteredEdges}
-                selectedId={selectedId}
-                onSelect={selectPerson}
-                highlightPath={highlightPath}
-                coordinatedFocusDepth={coordinatedLenses ? 2 : undefined}
-              />
+            <div className={`flex-1 min-h-0 relative bg-[#090b10] ${viewMode === "network" ? "flex h-full flex-col" : "hidden"}`}>
+              <div className="min-h-0 flex-1 p-4">
+                <NetworkGraph
+                  people={processedPeople}
+                  edges={filteredEdges}
+                  selectedId={selectedId}
+                  onSelect={selectPerson}
+                  highlightPath={highlightPath}
+                  coordinatedFocusDepth={coordinatedLenses ? 2 : undefined}
+                />
+              </div>
+              {activeWorkspace === "atlas" && (
+                <div className={`shrink-0 border-t border-[#22273b] bg-[#080a0f] transition-[height] duration-200 ${timelineStripExpanded ? "h-[320px]" : "h-[132px]"}`}>
+                  <div className="flex h-8 items-center justify-between border-b border-[#1b2030] px-4">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Clock className="h-3.5 w-3.5 text-amber-400" />
+                      <span className="font-mono text-[9px] uppercase tracking-wider text-slate-500">Timeline Context</span>
+                      {selectedThinker && (
+                        <span className="truncate text-[10px] font-mono text-slate-300">
+                          {selectedThinker.name} · {formatYear(selectedThinker.birth)} to {formatYear(selectedThinker.death)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setTimelineStripExpanded((prev) => !prev)}
+                        className="rounded border border-[#252a3d] bg-[#10131d] px-2 py-1 text-[9px] font-mono text-slate-400 hover:text-slate-100 cursor-pointer"
+                        title={timelineStripExpanded ? "Collapse timeline strip" : "Expand timeline strip"}
+                      >
+                        {timelineStripExpanded ? "Collapse" : "Expand"}
+                      </button>
+                      <button
+                        onClick={() => setViewMode("timeline")}
+                        className="rounded border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-2 py-1 text-[9px] font-mono text-[#9bdaff] hover:bg-[#7b9cf5]/20 cursor-pointer"
+                        title="Open full timeline lens"
+                      >
+                        Full
+                      </button>
+                    </div>
+                  </div>
+                  <div className="h-[calc(100%-2rem)] overflow-hidden">
+                    <Timeline
+                      people={processedPeople}
+                      edges={filteredEdges}
+                      selectedId={selectedId}
+                      onSelect={selectPerson}
+                      highlightPath={highlightPath}
+                      logScale={logScale}
+                      onToggleLogScale={() => setLogScale((prev) => !prev)}
+                      showMov={showMov}
+                      showEdges={filteredEdges.length <= 180 ? showEdges : false}
+                      showWorks={timelineStripExpanded && showWorks}
+                      showLabels={timelineStripExpanded && showLabels}
+                      zoom={zoom}
+                      setZoom={setZoom}
+                      searchQuery={searchQuery}
+                      minYear={minYear}
+                      maxYear={maxYear}
+                      timelineBookmarks={timelineBookmarks}
+                      onSaveTimelineBookmark={saveTimelineBookmark}
+                      onRemoveTimelineBookmark={removeTimelineBookmark}
+                      coordinatedNearbyContext={coordinatedLenses}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
  
             {/* SPLIT COMBINED VIEW MODE */}
