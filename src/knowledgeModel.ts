@@ -385,6 +385,25 @@ export const getAggregatedClaimIdsForSubject = (
     aggregation.subjectEntityType === subjectEntityType
   )?.claimIds || [];
 
+export const getRelationshipSourceGapIdsFromClaims = (
+  relationships: RelationshipEntity[],
+  claims: SourceClaimEntity[]
+) => {
+  const supportedRelationshipIds = new Set(
+    claims
+      .filter((claim) =>
+        claim.subjectEntityType === "Relationship" &&
+        claim.status !== "rejected" &&
+        claim.status !== "stale"
+      )
+      .map((claim) => claim.subjectEntityId)
+  );
+
+  return relationships
+    .filter((relationship) => !supportedRelationshipIds.has(relationship.id))
+    .map((relationship) => relationship.id);
+};
+
 export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEntity => {
   const id = draft.id || getSourceClaimEntityId(draft.subjectEntityId, draft.field, draft.sourceName, draft.value);
   return {

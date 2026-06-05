@@ -16,6 +16,7 @@ import {
   getAggregatedClaimIdsForSubject,
   getInstitutionEntityId,
   getMovementEntityId,
+  getRelationshipSourceGapIdsFromClaims,
   getSourceClaimRecencyDays,
   getSourceClaimEntityId,
   getWorkEntityId,
@@ -213,6 +214,51 @@ describe("knowledge model entities", () => {
       confidence: 0.75,
       status: "observed",
     }]);
+  });
+
+  it("computes relationship source gaps from claim records", () => {
+    const supported = buildRelationshipEntityFromInfluenceEdge({
+      source: "arendt",
+      target: "habermas",
+      type: "person influenced person",
+      strength: 4,
+    });
+    const staleOnly = buildRelationshipEntityFromInfluenceEdge({
+      source: "arendt",
+      target: "heidegger",
+      type: "person influenced person",
+      strength: 4,
+    });
+    const unsupported = buildRelationshipEntityFromInfluenceEdge({
+      source: "habermas",
+      target: "arendt",
+      type: "person influenced person",
+      strength: 4,
+    });
+
+    const claims = [
+      createSourceClaimEntity({
+        sourceName: "Manual",
+        subjectEntityId: supported.id,
+        subjectEntityType: "Relationship",
+        field: "relationshipType",
+        value: "person influenced person",
+        status: "accepted",
+      }),
+      createSourceClaimEntity({
+        sourceName: "Old cache",
+        subjectEntityId: staleOnly.id,
+        subjectEntityType: "Relationship",
+        field: "relationshipType",
+        value: "person influenced person",
+        status: "stale",
+      }),
+    ];
+
+    expect(getRelationshipSourceGapIdsFromClaims([supported, staleOnly, unsupported], claims)).toEqual([
+      staleOnly.id,
+      unsupported.id,
+    ]);
   });
 
   it("projects current thinker works into first-class work nodes", () => {
