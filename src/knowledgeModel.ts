@@ -494,3 +494,14 @@ export const buildInstitutionEntities = (institutions: Institution[]): Instituti
       figureIds: institution.figures.map(getPersonEntityId),
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
+
+export const buildExpandedKnowledgeEntitiesFromAtlas = (
+  people: Thinker[],
+  edges: InfluenceEdge[]
+): KnowledgeEntity[] => [
+  ...buildPersonEntitiesFromThinkers(people),
+  ...buildWorkEntitiesFromThinkers(people),
+  ...buildConceptEntitiesFromThinkers(people),
+  ...buildMovementEntities(people),
+  ...edges.map(buildRelationshipEntityFromInfluenceEdge),
+];

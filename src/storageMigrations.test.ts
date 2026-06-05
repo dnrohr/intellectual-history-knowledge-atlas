@@ -5,6 +5,7 @@ import {
   LEGACY_EDGES_STORAGE_KEY,
   LEGACY_PEOPLE_STORAGE_KEY,
   loadAtlasStateFromStorage,
+  PREVIOUS_ATLAS_STATE_STORAGE_KEY,
   persistAtlasStateToStorage,
   serializeAtlasState,
 } from "./storageMigrations";
@@ -42,6 +43,11 @@ describe("atlas storage migrations", () => {
     expect(serialized.version).toBe(ATLAS_STATE_SCHEMA_VERSION);
     expect(serialized.people).toHaveLength(2);
     expect(serialized.edges).toHaveLength(1);
+    expect(serialized.entities.map((entity: { type: string }) => entity.type)).toEqual([
+      "Person",
+      "Person",
+      "Relationship",
+    ]);
   });
 
   it("loads current versioned storage", () => {
@@ -51,6 +57,23 @@ describe("atlas storage migrations", () => {
 
     expect(loaded?.people).toHaveLength(2);
     expect(loaded?.edges).toHaveLength(1);
+    expect(loaded?.entities).toHaveLength(3);
+  });
+
+  it("migrates previous versioned storage into expanded state storage", () => {
+    const previousState = {
+      version: 7,
+      updatedAt: new Date().toISOString(),
+      people: [person("source"), person("target")],
+      edges: [edge],
+    };
+    const store = storage([[PREVIOUS_ATLAS_STATE_STORAGE_KEY, JSON.stringify(previousState)]]);
+
+    const loaded = loadAtlasStateFromStorage(store);
+
+    expect(loaded?.entities.map((entity) => entity.type)).toEqual(["Person", "Person", "Relationship"]);
+    expect(store.values.has(ATLAS_STATE_STORAGE_KEY)).toBe(true);
+    expect(store.values.has(PREVIOUS_ATLAS_STATE_STORAGE_KEY)).toBe(false);
   });
 
   it("migrates legacy people and edge keys into versioned storage", () => {
@@ -63,12 +86,14 @@ describe("atlas storage migrations", () => {
 
     expect(loaded?.edges).toHaveLength(1);
     expect(store.values.has(ATLAS_STATE_STORAGE_KEY)).toBe(true);
+    expect(store.values.has(PREVIOUS_ATLAS_STATE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_PEOPLE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_EDGES_STORAGE_KEY)).toBe(false);
   });
 
   it("persists only the current storage key", () => {
     const store = storage([
+      [PREVIOUS_ATLAS_STATE_STORAGE_KEY, "legacy"],
       [LEGACY_PEOPLE_STORAGE_KEY, "legacy"],
       [LEGACY_EDGES_STORAGE_KEY, "legacy"],
     ]);
@@ -76,6 +101,7 @@ describe("atlas storage migrations", () => {
     persistAtlasStateToStorage([person("source"), person("target")], [edge], store);
 
     expect(store.values.has(ATLAS_STATE_STORAGE_KEY)).toBe(true);
+    expect(store.values.has(PREVIOUS_ATLAS_STATE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_PEOPLE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_EDGES_STORAGE_KEY)).toBe(false);
   });

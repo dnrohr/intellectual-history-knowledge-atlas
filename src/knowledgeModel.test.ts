@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregateSourceClaimsBySubject,
+  buildExpandedKnowledgeEntitiesFromAtlas,
   buildRelationshipEntityFromInfluenceEdge,
   buildConceptEntitiesFromThinkers,
   buildInstitutionEntities,
@@ -317,5 +318,31 @@ describe("knowledge model entities", () => {
       },
     ]);
     expect(getAggregatedClaimIdsForSubject(aggregations, "relationship:1", "Relationship")).toEqual(["claim:relationship:1"]);
+  });
+
+  it("builds expanded knowledge entities from the current atlas state", () => {
+    const people: Thinker[] = [{
+      id: "arendt",
+      name: "Hannah Arendt",
+      birth: 1906,
+      death: 1975,
+      fields: ["Philosophy"],
+      subfields: ["Public sphere"],
+      movement: "Postwar",
+      works: ["The Human Condition"],
+    }];
+
+    expect(buildExpandedKnowledgeEntitiesFromAtlas(people, [{
+      source: "arendt",
+      target: "arendt",
+      type: "person influenced person",
+      strength: 1,
+    }]).map((entity) => entity.type)).toEqual([
+      "Person",
+      "Work",
+      "Concept",
+      "Movement",
+      "Relationship",
+    ]);
   });
 });
