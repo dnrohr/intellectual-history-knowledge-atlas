@@ -76,7 +76,7 @@ Goal: make every fact auditable before automating acceptance.
 
 Goal: collect normalized evidence automatically without directly mutating canonical atlas data.
 
-- [ ] Define a shared adapter interface for:
+- [x] Define a shared adapter interface for:
   - entity search
   - entity detail fetch
   - relationship fetch
