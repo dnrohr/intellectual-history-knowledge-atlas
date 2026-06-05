@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { auditThreadGaps, buildThreadFromCanonical, tagRelationshipsWithThreads, THREADS } from "./threads";
+import { auditThreadGaps, buildThreadFromCanonical, getThreadJunctionMarkers, tagRelationshipsWithThreads, THREADS } from "./threads";
 import { CanonicalThread } from "./types";
 
 describe("threads", () => {
@@ -104,6 +104,56 @@ describe("threads", () => {
       "missing-edge-source",
       "weak-claim",
       "overlong-chronology-jump",
+    ]));
+  });
+
+  it("marks branch and convergence points across curated threads", () => {
+    const markers = getThreadJunctionMarkers([
+      {
+        id: "one",
+        title: "One",
+        field: "Logic",
+        purpose: "One",
+        people: ["a", "b", "d"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+      {
+        id: "two",
+        title: "Two",
+        field: "Logic",
+        purpose: "Two",
+        people: ["a", "c", "d"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+      {
+        id: "three",
+        title: "Three",
+        field: "Logic",
+        purpose: "Three",
+        people: ["x", "a", "e"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+      {
+        id: "four",
+        title: "Four",
+        field: "Logic",
+        purpose: "Four",
+        people: ["y", "a", "f"],
+        concepts: [],
+        edgeTypes: ["Influence"],
+        confidence: "medium",
+      },
+    ]);
+
+    expect(markers).toEqual(expect.arrayContaining([
+      expect.objectContaining({ entityId: "a", kind: "both", incomingCount: 2, outgoingCount: 4 }),
+      expect.objectContaining({ entityId: "d", kind: "convergence", incomingCount: 2 }),
     ]));
   });
 });

@@ -15,7 +15,7 @@ import PathFinder from "./components/PathFinder";
 import EmptyState from "./components/EmptyState";
 import { CONTROLLED_TOPICS, ATLAS_LENSES, inferLensTags, getLensOptionLabel, getDomainForField, buildDisciplineGroups, buildSubfieldsByField, buildTopicGroupsByField } from "./taxonomy";
 import { EXTERNAL_SOURCES } from "./externalSources";
-import { auditThreadGaps, CANONICAL_THREADS, tagRelationshipsWithThreads } from "./threads";
+import { auditThreadGaps, CANONICAL_THREADS, getThreadJunctionMarkers, tagRelationshipsWithThreads } from "./threads";
 import { SourceAdapterRunRecord, summarizeSourceAdapterRuns } from "./sourceAdapters";
 import {
   IMPORT_QUEUE_SCHEMA_VERSION,
@@ -2574,6 +2574,7 @@ export default function App() {
       weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || (edge.sourceClaims || []).length === 0)).length,
     };
   }).filter((thread) => thread.resolvedPeople.length >= 2);
+  const threadJunctionMarkers = getThreadJunctionMarkers(CANONICAL_THREADS);
   const activeCanonicalThread = canonicalThreads.find((thread) => thread.id === selectedThreadId) || null;
   const timelineBookmarks: TimelineBookmarkItem[] = [
     ...(selectedThinker ? [{ id: `focus-${selectedThinker.id}`, label: "Saved: Focus", year: selectedThinker.birth, kind: "saved" as const }] : []),
@@ -4536,7 +4537,14 @@ export default function App() {
                       <span className="font-mono text-[9px] text-slate-600">{canonicalThreads.length}</span>
                     </div>
                     <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
-                      {canonicalThreads.map((thread) => (
+                      {canonicalThreads.map((thread) => {
+                        const threadMarkers = threadJunctionMarkers.filter((marker) =>
+                          marker.threadIds.includes(thread.id) ||
+                          thread.people.includes(marker.entityId)
+                        );
+                        const branchCount = threadMarkers.filter((marker) => marker.kind === "branch" || marker.kind === "both").length;
+                        const convergenceCount = threadMarkers.filter((marker) => marker.kind === "convergence" || marker.kind === "both").length;
+                        return (
                         <button
                           key={thread.id}
                           onClick={() => focusCanonicalThread(thread)}
@@ -4590,9 +4598,20 @@ export default function App() {
                                 {thread.gapFindings.length} audit gaps
                               </span>
                             )}
+                            {branchCount > 0 && (
+                              <span className="rounded border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-[8px] font-mono text-cyan-200">
+                                {branchCount} branch
+                              </span>
+                            )}
+                            {convergenceCount > 0 && (
+                              <span className="rounded border border-violet-400/30 bg-violet-400/10 px-1.5 py-0.5 text-[8px] font-mono text-violet-200">
+                                {convergenceCount} convergence
+                              </span>
+                            )}
                           </div>
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                     {activeCanonicalThread && (
                       <div className="mt-3 rounded-md border border-[#252a3d] bg-[#0b0d14] p-2">

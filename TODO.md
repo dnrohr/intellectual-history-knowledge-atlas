@@ -214,7 +214,7 @@ Goal: make curated threads evidence-aware and reusable after typed relationships
   - sync timeline and graph to each selected step
 - [x] Add a "continue this thread" action on a selected entity.
 - [x] Add a "thread gaps" audit for missing intermediate figures, missing edge sources, weak claims, and overlong chronology jumps.
-- [ ] Add branch point and convergence point markers.
+- [x] Add branch point and convergence point markers.
 - [ ] Add parallel-thread view for converging lineages.
 - [ ] Add thread import/export so curated paths can be shared separately from the whole atlas.
 

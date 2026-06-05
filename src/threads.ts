@@ -59,6 +59,49 @@ export interface ThreadGapAuditFinding {
   message: string;
 }
 
+export interface ThreadJunctionMarker {
+  entityId: string;
+  kind: "branch" | "convergence" | "both";
+  threadIds: string[];
+  incomingCount: number;
+  outgoingCount: number;
+}
+
+export const getThreadJunctionMarkers = (threads: CanonicalThread[]): ThreadJunctionMarker[] => {
+  const incoming = new Map<string, Set<string>>();
+  const outgoing = new Map<string, Set<string>>();
+  const threadIdsByEntity = new Map<string, Set<string>>();
+
+  threads.forEach((thread) => {
+    thread.people.forEach((personId) => {
+      threadIdsByEntity.set(personId, new Set([...(threadIdsByEntity.get(personId) || []), thread.id]));
+    });
+    thread.people.slice(0, -1).forEach((sourceId, index) => {
+      const targetId = thread.people[index + 1];
+      outgoing.set(sourceId, new Set([...(outgoing.get(sourceId) || []), targetId]));
+      incoming.set(targetId, new Set([...(incoming.get(targetId) || []), sourceId]));
+    });
+  });
+
+  return Array.from(threadIdsByEntity.keys())
+    .map((entityId) => {
+      const incomingCount = incoming.get(entityId)?.size || 0;
+      const outgoingCount = outgoing.get(entityId)?.size || 0;
+      const isBranch = outgoingCount > 1;
+      const isConvergence = incomingCount > 1;
+      if (!isBranch && !isConvergence) return null;
+      return {
+        entityId,
+        kind: isBranch && isConvergence ? "both" as const : isBranch ? "branch" as const : "convergence" as const,
+        threadIds: Array.from(threadIdsByEntity.get(entityId) || []),
+        incomingCount,
+        outgoingCount,
+      };
+    })
+    .filter((marker): marker is ThreadJunctionMarker => Boolean(marker))
+    .sort((a, b) => b.incomingCount + b.outgoingCount - (a.incomingCount + a.outgoingCount) || a.entityId.localeCompare(b.entityId));
+};
+
 export const auditThreadGaps = (
   threads: CanonicalThread[],
   people: Array<{ id: string; birth: number }>,
