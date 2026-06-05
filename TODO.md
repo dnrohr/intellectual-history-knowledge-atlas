@@ -119,7 +119,7 @@ Goal: automatically identify when source observations refer to the same underlyi
 
 Goal: generate, classify, and explain relationship candidates from evidence.
 
-- [ ] Generate direct mentorship candidates from advisor/student evidence.
+- [x] Generate direct mentorship candidates from advisor/student evidence.
 - [ ] Generate collaboration candidates from coauthorship, correspondence, institutional overlap, and jointly authored works.
 - [ ] Generate influence candidates from explicit source claims, citation paths, named mentions, advisor/student lineage, work-to-work reception, and movement membership with chronology.
 - [ ] Generate parallel-development candidates from shared concepts without direct transmission evidence.
