@@ -246,7 +246,7 @@ Status notation:
   - dossier bottom sheet
   - full-screen search/command sheet
   - Source Studio as a separate tab
-- [ ] See `docs/ui-redesign.md` for the implementation-facing panel and button contract.
+- [x] See `docs/ui-redesign.md` for the implementation-facing panel and button contract.
 
 ### Major UI Direction: Reduce Screen Clutter And Prioritize The Current Activity
 
