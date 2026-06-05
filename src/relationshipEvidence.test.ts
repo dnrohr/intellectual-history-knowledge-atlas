@@ -5,6 +5,7 @@ import {
   generateMentorshipCandidates,
   generateParallelDevelopmentCandidates,
   generateSourceContextNeighborCandidates,
+  validateRelationshipDirection,
 } from "./relationshipEvidence";
 
 describe("relationship evidence", () => {
@@ -141,5 +142,29 @@ describe("relationship evidence", () => {
       confidence: 0.35,
       evidence: ["source proximity without influence claim: sep:logic#ancient"],
     }]);
+  });
+
+  it("validates relationship direction using chronology, wording, and relationship type", () => {
+    expect(validateRelationshipDirection({
+      sourceId: "late",
+      targetId: "early",
+      relationshipType: "person influenced person",
+      sourceBirth: 1950,
+      targetBirth: 1900,
+      sourceWording: "late was influenced by early",
+    })).toEqual({
+      valid: false,
+      warnings: ["chronology-direction", "wording-suggests-reverse-direction"],
+      suggestedSourceId: "early",
+      suggestedTargetId: "late",
+    });
+
+    expect(validateRelationshipDirection({
+      sourceId: "a",
+      targetId: "b",
+      relationshipType: "Source-context neighbor",
+      sourceBirth: 2000,
+      targetBirth: 1900,
+    })).toEqual({ valid: true, warnings: [] });
   });
 });

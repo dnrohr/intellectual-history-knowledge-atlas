@@ -35,6 +35,22 @@ export interface RelationshipCandidate {
   evidence: string[];
 }
 
+export interface RelationshipDirectionValidationInput {
+  sourceId: string;
+  targetId: string;
+  relationshipType: string;
+  sourceBirth?: number | null;
+  targetBirth?: number | null;
+  sourceWording?: string;
+}
+
+export interface RelationshipDirectionValidation {
+  valid: boolean;
+  warnings: string[];
+  suggestedSourceId?: string;
+  suggestedTargetId?: string;
+}
+
 const personEntityId = (id: string) => id.startsWith("person:") ? id : `person:${id}`;
 
 const mentorshipCandidate = (mentorId: string, studentId: string, evidence: string): RelationshipCandidate => {
@@ -314,4 +330,45 @@ export const generateSourceContextNeighborCandidates = (
   });
 
   return Array.from(candidates.values());
+};
+
+const nonDirectionalRelationshipTypes = new Set(["Source-context neighbor", "parallel development"]);
+
+export const validateRelationshipDirection = ({
+  sourceId,
+  targetId,
+  relationshipType,
+  sourceBirth,
+  targetBirth,
+  sourceWording = "",
+}: RelationshipDirectionValidationInput): RelationshipDirectionValidation => {
+  const warnings: string[] = [];
+  const wording = sourceWording.toLowerCase();
+
+  if (sourceId === targetId) warnings.push("self-link");
+  if (nonDirectionalRelationshipTypes.has(relationshipType)) {
+    return { valid: warnings.length === 0, warnings };
+  }
+
+  if (
+    sourceBirth !== undefined &&
+    sourceBirth !== null &&
+    targetBirth !== undefined &&
+    targetBirth !== null &&
+    sourceBirth > targetBirth + 20
+  ) {
+    warnings.push("chronology-direction");
+  }
+
+  if (wording.includes("influenced by") || wording.includes("student of") || wording.includes("mentored by")) {
+    warnings.push("wording-suggests-reverse-direction");
+  }
+
+  return {
+    valid: warnings.length === 0,
+    warnings,
+    ...(warnings.includes("chronology-direction") || warnings.includes("wording-suggests-reverse-direction")
+      ? { suggestedSourceId: targetId, suggestedTargetId: sourceId }
+      : {}),
+  };
 };
