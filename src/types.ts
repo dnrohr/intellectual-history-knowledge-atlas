@@ -126,11 +126,20 @@ export interface CanonicalThread {
 }
 
 export type SourceClaimStatus = "observed" | "candidate" | "accepted" | "rejected" | "stale" | "conflicting";
+export type SourceType =
+  | "reference"
+  | "encyclopedia"
+  | "bibliographic"
+  | "primary_text"
+  | "institutional"
+  | "citation_index"
+  | "curated_dataset";
 
 export interface SourceClaimEntity extends KnowledgeEntityBase {
   type: "SourceClaim";
   sourceName: string;
   sourceUrl?: string;
+  sourceType: SourceType;
   subjectEntityId: string;
   subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   field: string;
@@ -144,6 +153,7 @@ export interface SourceClaimDraft {
   label?: string;
   sourceName: string;
   sourceUrl?: string;
+  sourceType?: SourceType;
   subjectEntityId: string;
   subjectEntityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   field: string;
@@ -156,6 +166,7 @@ export interface SourceObservation {
   id: string;
   sourceName: string;
   sourceUrl?: string;
+  sourceType?: SourceType;
   observedAt: string;
   raw: unknown;
   normalizedClaims: SourceClaimDraft[];
@@ -166,6 +177,7 @@ export interface SourceClaim {
   id: string;
   sourceName: string;
   sourceUrl?: string;
+  sourceType?: SourceType;
   entityType: Exclude<KnowledgeEntityType, "SourceClaim">;
   entityId: string;
   field: string;

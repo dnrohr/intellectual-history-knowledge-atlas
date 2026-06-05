@@ -19,9 +19,11 @@ import {
   KNOWLEDGE_ENTITY_TYPES,
   normalizeKnowledgeEntities,
   normalizeSourceClaimStatus,
+  normalizeSourceType,
   relationshipEndpointsMatchType,
   RELATIONSHIP_TYPE_DEFINITIONS,
   SOURCE_CLAIM_STATUSES,
+  SOURCE_TYPES,
   isTerminalSourceClaimStatus,
   splitRawObservationsFromAcceptedRecords,
 } from "./knowledgeModel";
@@ -72,6 +74,20 @@ describe("knowledge model entities", () => {
     expect(isTerminalSourceClaimStatus("candidate")).toBe(false);
   });
 
+  it("tracks source type categories at runtime", () => {
+    expect(SOURCE_TYPES).toEqual([
+      "reference",
+      "encyclopedia",
+      "bibliographic",
+      "primary_text",
+      "institutional",
+      "citation_index",
+      "curated_dataset",
+    ]);
+    expect(normalizeSourceType("bibliographic")).toBe("bibliographic");
+    expect(normalizeSourceType("unknown")).toBe("reference");
+  });
+
   it("normalizes valid mixed entity records and drops malformed records", () => {
     const entities = normalizeKnowledgeEntities([
       { id: "person:arendt", type: "Person", label: "Hannah Arendt", thinkerId: "arendt", birth: 1906, death: 1975, fields: ["Philosophy"], claimIds: ["claim:1"] },
@@ -94,6 +110,7 @@ describe("knowledge model entities", () => {
       "Relationship",
     ]);
     expect(entities.find((entity) => entity.type === "SourceClaim")?.confidence).toBe(1);
+    expect(entities.find((entity) => entity.type === "SourceClaim")).toMatchObject({ sourceType: "reference" });
     expect(entities.find((entity) => entity.type === "Work")).toMatchObject({
       identifiers: { isbn: "9780156701532" },
     });
@@ -354,6 +371,7 @@ describe("knowledge model entities", () => {
     expect(createSourceClaimEntity({
       sourceName: "SEP",
       sourceUrl: "https://plato.stanford.edu/",
+      sourceType: "encyclopedia",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
       field: "birth",
@@ -366,6 +384,7 @@ describe("knowledge model entities", () => {
       label: "SEP: birth",
       sourceName: "SEP",
       sourceUrl: "https://plato.stanford.edu/",
+      sourceType: "encyclopedia",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
       field: "birth",
@@ -394,6 +413,7 @@ describe("knowledge model entities", () => {
         normalizedClaims: [{
           sourceName: "Wikidata",
           sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+          sourceType: "curated_dataset",
           subjectEntityId: "person:arendt",
           subjectEntityType: "Person",
           field: "birth",
@@ -411,6 +431,7 @@ describe("knowledge model entities", () => {
       label: "Wikidata: birth",
       sourceName: "Wikidata",
       sourceUrl: "https://www.wikidata.org/wiki/Q60025",
+      sourceType: "curated_dataset",
       subjectEntityId: "person:arendt",
       subjectEntityType: "Person",
       field: "birth",

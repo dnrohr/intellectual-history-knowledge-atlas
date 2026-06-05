@@ -16,6 +16,7 @@ import {
   SourceClaimStatus,
   SourceClaimEntity,
   SourceObservation,
+  SourceType,
   Thinker,
   WorkEntity,
 } from "./types";
@@ -37,6 +38,16 @@ export const SOURCE_CLAIM_STATUSES: SourceClaimStatus[] = [
   "rejected",
   "stale",
   "conflicting",
+];
+
+export const SOURCE_TYPES: SourceType[] = [
+  "reference",
+  "encyclopedia",
+  "bibliographic",
+  "primary_text",
+  "institutional",
+  "citation_index",
+  "curated_dataset",
 ];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -145,7 +156,6 @@ const normalizeInstitutionEntity = (value: Record<string, unknown>): Institution
 
 const normalizeSourceClaimEntity = (value: Record<string, unknown>): SourceClaimEntity | null => {
   if (!hasEntityBase(value, "SourceClaim")) return null;
-  const claimStatuses = ["observed", "candidate", "accepted", "rejected", "stale", "conflicting"];
   if (
     typeof value.sourceName !== "string" ||
     typeof value.subjectEntityId !== "string" ||
@@ -154,7 +164,7 @@ const normalizeSourceClaimEntity = (value: Record<string, unknown>): SourceClaim
     typeof value.field !== "string" ||
     typeof value.value !== "string" ||
     !isFiniteNumber(value.confidence) ||
-    !claimStatuses.includes(String(value.status))
+    !SOURCE_CLAIM_STATUSES.includes(value.status as SourceClaimStatus)
   ) {
     return null;
   }
@@ -166,6 +176,7 @@ const normalizeSourceClaimEntity = (value: Record<string, unknown>): SourceClaim
     claimIds: normalizeClaimIds(value.claimIds),
     sourceName: value.sourceName,
     sourceUrl: typeof value.sourceUrl === "string" ? value.sourceUrl : undefined,
+    sourceType: normalizeSourceType(value.sourceType),
     subjectEntityId: value.subjectEntityId,
     subjectEntityType: value.subjectEntityType as SourceClaimEntity["subjectEntityType"],
     field: value.field,
@@ -277,6 +288,9 @@ export const isKnownRelationshipType = (relationshipType: string): relationshipT
 export const normalizeSourceClaimStatus = (status: unknown): SourceClaimStatus =>
   SOURCE_CLAIM_STATUSES.includes(status as SourceClaimStatus) ? status as SourceClaimStatus : "observed";
 
+export const normalizeSourceType = (sourceType: unknown): SourceType =>
+  SOURCE_TYPES.includes(sourceType as SourceType) ? sourceType as SourceType : "reference";
+
 export const isTerminalSourceClaimStatus = (status: SourceClaimStatus) =>
   ["accepted", "rejected", "stale", "conflicting"].includes(status);
 
@@ -353,6 +367,7 @@ export const createSourceClaimEntity = (draft: SourceClaimDraft): SourceClaimEnt
     label: draft.label || `${draft.sourceName}: ${draft.field}`,
     sourceName: draft.sourceName,
     sourceUrl: draft.sourceUrl,
+    sourceType: normalizeSourceType(draft.sourceType),
     subjectEntityId: draft.subjectEntityId,
     subjectEntityType: draft.subjectEntityType,
     field: draft.field,
