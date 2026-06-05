@@ -33,3 +33,30 @@ export const composeEvidenceConfidence = (
     normalized.graphConsistency * 0.15
   ).toFixed(3));
 };
+
+export type AcceptanceClaimType =
+  | "identity"
+  | "basic_metadata"
+  | "external_id"
+  | "work_metadata"
+  | "institution_affiliation"
+  | "direct_influence"
+  | "relationship";
+
+export interface AcceptanceThreshold {
+  accept: number;
+  provisional: number;
+}
+
+export const ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE: Record<AcceptanceClaimType, AcceptanceThreshold> = {
+  identity: { accept: 0.9, provisional: 0.7 },
+  basic_metadata: { accept: 0.75, provisional: 0.55 },
+  external_id: { accept: 0.7, provisional: 0.5 },
+  work_metadata: { accept: 0.75, provisional: 0.55 },
+  institution_affiliation: { accept: 0.8, provisional: 0.6 },
+  direct_influence: { accept: 0.92, provisional: 0.75 },
+  relationship: { accept: 0.85, provisional: 0.65 },
+};
+
+export const getAcceptanceThreshold = (claimType: AcceptanceClaimType) =>
+  ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE[claimType];

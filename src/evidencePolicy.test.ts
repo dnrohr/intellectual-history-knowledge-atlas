@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { composeEvidenceConfidence, normalizeEvidenceConfidence } from "./evidencePolicy";
+import {
+  ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE,
+  composeEvidenceConfidence,
+  getAcceptanceThreshold,
+  normalizeEvidenceConfidence,
+} from "./evidencePolicy";
 
 describe("evidence policy", () => {
   it("splits confidence into normalized components", () => {
@@ -26,5 +31,12 @@ describe("evidence policy", () => {
       extraction: 0.9,
       graphConsistency: 0.5,
     })).toBe(0.755);
+  });
+
+  it("defines testable acceptance thresholds by claim type", () => {
+    expect(ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE.direct_influence.accept).toBeGreaterThan(
+      ACCEPTANCE_THRESHOLDS_BY_CLAIM_TYPE.basic_metadata.accept
+    );
+    expect(getAcceptanceThreshold("external_id")).toEqual({ accept: 0.7, provisional: 0.5 });
   });
 });
