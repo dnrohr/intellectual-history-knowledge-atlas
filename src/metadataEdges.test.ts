@@ -24,8 +24,9 @@ describe("deriveMetadataInfluenceEdges", () => {
       target: "target",
       type: "Recorded influence",
       strength: 3,
-      confidence: 0.6,
+      confidence: 0.85,
       note: "Derived from existing thinker influence metadata",
+      sourceClaims: ["https://en.wikipedia.org/wiki/Person"],
     }]);
   });
 
