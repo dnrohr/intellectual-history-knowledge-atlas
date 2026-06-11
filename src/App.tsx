@@ -424,14 +424,14 @@ export default function App() {
   const threadImportInputRef = useRef<HTMLInputElement | null>(null);
 
   // Layout Controls
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>("atlas");
-  const [activeActivity, setActiveActivity] = useState<WorkspaceActivity>("explore");
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>("focus");
+  const [activeActivity, setActiveActivity] = useState<WorkspaceActivity>("inspect");
   const [viewMode, setViewMode] = useState<"timeline" | "network" | "split">("network");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [extensionWorkbenchOpen, setExtensionWorkbenchOpen] = useState(false);
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
-  const [chromeDensity, setChromeDensity] = useState<ChromeDensity>("comfortable");
+  const [chromeDensity, setChromeDensity] = useState<ChromeDensity>("focus");
   const [workbenchPanelMode, setWorkbenchPanelMode] = useState<Exclude<PanelMode, "closed">>(() => {
     const savedMode = localStorage.getItem(WORKBENCH_PANEL_MODE_STORAGE_KEY);
     return isWorkbenchPanelMode(savedMode) ? savedMode : "docked";
@@ -780,6 +780,13 @@ export default function App() {
     }
     setOverlapContemps([]);
     setBfsMapNodes([]);
+  };
+
+  const openScholarDossier = (id: string) => {
+    selectPerson(id);
+    setActiveWorkspace((current) => current === "focus" ? "atlas" : current);
+    setActiveActivity("inspect");
+    setChromeDensity((current) => current === "focus" ? "comfortable" : current);
   };
 
   // Compile unique lists of subfields dynamically from active thinker collection
@@ -6233,6 +6240,18 @@ export default function App() {
                                     </span>
                                   </div>
                                   <div className="flex shrink-0 items-center gap-0.5 pr-2 pl-1 opacity-55 transition-opacity group-hover:opacity-100">
+                                    <button
+                                      onClick={() => openScholarDossier(p.id)}
+                                      className={`rounded border p-0.5 transition-colors cursor-pointer ${
+                                        isSelected
+                                          ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]"
+                                          : "border-[#252a3d] bg-[#0b0d14] text-slate-500 hover:border-[#7b9cf5] hover:text-[#9bdaff]"
+                                      }`}
+                                      title={`Open scholar card for ${p.name}`}
+                                      aria-label={`Open scholar card for ${p.name}`}
+                                    >
+                                      <ChevronRight className="h-3 w-3" />
+                                    </button>
                                     {[
                                       { label: "F", title: "Focus", action: () => selectPerson(p.id) },
                                       { label: "C", title: "Connect", action: () => { selectPerson(p.id); openWorkbenchPanel("candidateRelationships"); } },

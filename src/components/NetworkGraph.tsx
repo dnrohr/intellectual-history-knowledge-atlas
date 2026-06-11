@@ -635,6 +635,11 @@ export default function NetworkGraph({
         highlightedEdgeKeys.add(`${highlightPath[i]}->${highlightPath[i + 1]}`);
       }
     }
+    const getDepthContextAlpha = (depth: number) => {
+      if (depth <= 1) return 1;
+      if (depth === 2) return 0.58;
+      return 0.34;
+    };
 
     // Helper to calculate coordinates along quadratic bezier curves
     const getQuadraticPoint = (valT: number, x0: number, y0: number, x1: number, y1: number, x2: number, y2: number) => {
@@ -674,7 +679,7 @@ export default function NetworkGraph({
       ctx.save();
       // Faint out inactive lines if there's a selection
       if (isAnySelected && !isEdgeActive && !inHighlightPath) {
-        ctx.globalAlpha = 0.28;
+        ctx.globalAlpha = isFocusedContextEdge ? getDepthContextAlpha(focusEdgeDepth) : 0.28;
       }
       if (edgeVisual.isSuggested && !isEdgeActive && !inHighlightPath) {
         ctx.globalAlpha *= 0.78;
@@ -700,8 +705,9 @@ export default function NetworkGraph({
           : isSourceSelected ? "rgba(123, 156, 245, 0.9)" : "rgba(167, 139, 250, 0.9)";
         ctx.lineWidth = edgeVisual.isSuggested ? 1.25 : 1.8;
       } else if (isFocusedContextEdge) {
-        ctx.strokeStyle = edgeVisual.isSuggested ? "rgba(56, 189, 248, 0.34)" : "rgba(123, 156, 245, 0.42)";
-        ctx.lineWidth = edgeVisual.isSuggested ? 0.7 : 0.9;
+        const focusWeight = focusEdgeDepth === 2 ? 1.2 : 1;
+        ctx.strokeStyle = edgeVisual.isSuggested ? "rgba(56, 189, 248, 0.48)" : "rgba(123, 156, 245, 0.58)";
+        ctx.lineWidth = (edgeVisual.isSuggested ? 0.7 : 0.9) * focusWeight;
       } else {
         ctx.strokeStyle = edgeVisual.isSuggested
           ? "rgba(56, 189, 248, 0.14)"
@@ -724,7 +730,7 @@ export default function NetworkGraph({
           : edgeVisual.needsSource || edgeVisual.lowConfidence
           ? "rgba(251, 191, 36, 0.72)"
           : isFocusedContextEdge
-          ? "rgba(123, 156, 245, 0.45)"
+          ? focusEdgeDepth === 2 ? "rgba(123, 156, 245, 0.68)" : "rgba(123, 156, 245, 0.45)"
           : "rgba(123, 156, 245, 0.95)";
         ctx.beginPath();
         const startX = l.target.x! - l.target.r * Math.cos(angle);
@@ -747,7 +753,7 @@ export default function NetworkGraph({
           
           ctx.save();
           if (isFocusedContextEdge && !inHighlightPath) {
-            ctx.globalAlpha = focusEdgeDepth > 2 ? 0.28 : 0.42;
+            ctx.globalAlpha = focusEdgeDepth === 2 ? 0.58 : 0.32;
           }
           ctx.beginPath();
           ctx.arc(pt.x, pt.y, isFocusedContextEdge ? 1.5 : 2.2, 0, Math.PI * 2);
@@ -770,11 +776,12 @@ export default function NetworkGraph({
       const isSelected = n.id === selectedId;
       const inHighlightPath = highlightPath && highlightPath.includes(n.id);
       const isHover = hoveredNode?.id === n.id;
+      const focusDepth = focusDepthById.get(n.id);
 
       ctx.save();
       // Faint out inactive nodes if there's a selection
       if (isAnySelected && !activeSet.has(n.id)) {
-        ctx.globalAlpha = 0.38;
+        ctx.globalAlpha = focusDepth !== undefined ? getDepthContextAlpha(focusDepth) : 0.38;
       }
 
       // Outer rings representation (Premium glowing halo aura!)
