@@ -859,7 +859,7 @@ export default function NetworkGraph({
         requestRef.current = null;
       }
     };
-  }, [selectedId, highlightPath, effectiveFocusDepth, clusterMode, labelDensity]);
+  }, [selectedId, highlightPath, effectiveFocusDepth, clusterMode, layoutMode, labelDensity]);
 
   useEffect(() => {
     if (effectiveFocusDepth === "all") {
