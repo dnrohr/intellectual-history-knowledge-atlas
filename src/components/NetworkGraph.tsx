@@ -597,7 +597,7 @@ export default function NetworkGraph({
 
     const focusSet = new Set<string>();
     const focusDepthById = new Map<string, number>();
-    if (selectedId && effectiveFocusDepth !== "all") {
+    if (selectedId) {
       focusSet.add(selectedId);
       focusDepthById.set(selectedId, 0);
       const queue: { id: string; depth: number }[] = [{ id: selectedId, depth: 0 }];
@@ -605,7 +605,7 @@ export default function NetworkGraph({
 
       while (queue.length > 0) {
         const current = queue.shift()!;
-        if (current.depth >= effectiveFocusDepth) continue;
+        if (effectiveFocusDepth !== "all" && current.depth >= effectiveFocusDepth) continue;
 
         linksRef.current.forEach((link) => {
           const neighbor =
@@ -628,7 +628,7 @@ export default function NetworkGraph({
     if (highlightPath) {
       highlightPath.forEach((id) => focusSet.add(id));
     }
-    const shouldLimitFocus = focusSet.size > 0;
+    const shouldLimitFocus = effectiveFocusDepth !== "all" && focusSet.size > 0;
     const highlightedEdgeKeys = new Set<string>();
     if (highlightPath) {
       for (let i = 0; i < highlightPath.length - 1; i += 1) {
@@ -638,7 +638,8 @@ export default function NetworkGraph({
     const getDepthContextAlpha = (depth: number) => {
       if (depth <= 1) return 1;
       if (depth === 2) return 0.58;
-      return 0.34;
+      if (depth === 3) return 0.34;
+      return 0.16;
     };
 
     // Helper to calculate coordinates along quadratic bezier curves
@@ -667,9 +668,7 @@ export default function NetworkGraph({
       const focusEdgeDepth = Math.max(sourceDepth ?? 0, targetDepth ?? 0);
       const isFocusedContextEdge =
         Boolean(selectedId) &&
-        focusDepth !== "all" &&
-        focusDepth !== 1 &&
-        shouldLimitFocus &&
+        (effectiveFocusDepth === "all" || effectiveFocusDepth !== 1) &&
         !isEdgeActive &&
         sourceDepth !== undefined &&
         targetDepth !== undefined &&
@@ -679,7 +678,7 @@ export default function NetworkGraph({
       ctx.save();
       // Faint out inactive lines if there's a selection
       if (isAnySelected && !isEdgeActive && !inHighlightPath) {
-        ctx.globalAlpha = isFocusedContextEdge ? getDepthContextAlpha(focusEdgeDepth) : 0.28;
+        ctx.globalAlpha = isFocusedContextEdge ? getDepthContextAlpha(focusEdgeDepth) : selectedId ? 0.12 : 0.28;
       }
       if (edgeVisual.isSuggested && !isEdgeActive && !inHighlightPath) {
         ctx.globalAlpha *= 0.78;
@@ -776,12 +775,12 @@ export default function NetworkGraph({
       const isSelected = n.id === selectedId;
       const inHighlightPath = highlightPath && highlightPath.includes(n.id);
       const isHover = hoveredNode?.id === n.id;
-      const focusDepth = focusDepthById.get(n.id);
+      const nodeFocusDepth = focusDepthById.get(n.id);
 
       ctx.save();
       // Faint out inactive nodes if there's a selection
       if (isAnySelected && !activeSet.has(n.id)) {
-        ctx.globalAlpha = focusDepth !== undefined ? getDepthContextAlpha(focusDepth) : 0.38;
+        ctx.globalAlpha = nodeFocusDepth !== undefined ? getDepthContextAlpha(nodeFocusDepth) : 0.12;
       }
 
       // Outer rings representation (Premium glowing halo aura!)
