@@ -1,4 +1,5 @@
 import { Thinker, InfluenceEdge, Movement, Institution } from "./types";
+import { normalizeEdgeStatus } from "./storageSchemas";
 
 export const FIELD_COLOR: Record<string, string> = {
   "Mathematics":     "#4a9eff",
@@ -3272,9 +3273,22 @@ export const deriveMetadataInfluenceEdges = (people: Thinker[], explicitEdges: I
   );
 };
 
+const normalizeSeedEdge = (edge: InfluenceEdge): InfluenceEdge => {
+  const confidence = edge.confidence === undefined ? undefined : Math.max(0, Math.min(1, edge.confidence));
+  const sourceClaims = edge.sourceClaims || [];
+  const claimIds = edge.claimIds || [];
+  return {
+    ...edge,
+    confidence,
+    sourceClaims,
+    claimIds,
+    status: normalizeEdgeStatus(edge.status, confidence, sourceClaims, claimIds),
+  };
+};
+
 const dedupeEdges = (edges: InfluenceEdge[]) => {
   const seen = new Set<string>();
-  return edges.filter((edge) => {
+  return edges.map(normalizeSeedEdge).filter((edge) => {
     const key = `${edge.source}->${edge.target}`;
     if (seen.has(key)) return false;
     seen.add(key);

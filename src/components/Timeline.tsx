@@ -46,7 +46,8 @@ type EdgeArcScope = "focus" | "all";
 
 const getEdgeVisualState = (edge: InfluenceEdge) => {
   const isSuggested = edge.status === "suggested";
-  const needsSource = edge.status === "needs_source" || !edge.sourceClaims || edge.sourceClaims.length === 0;
+  const hasSources = (edge.sourceClaims?.length || 0) > 0 || (edge.claimIds?.length || 0) > 0;
+  const needsSource = edge.status === "needs_source" || !hasSources;
   const confidence = Math.max(0, Math.min(1, edge.confidence ?? 1));
   const lowConfidence = confidence < 0.5;
   return {

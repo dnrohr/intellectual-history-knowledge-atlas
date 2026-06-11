@@ -1,6 +1,6 @@
 import { buildExpandedKnowledgeEntitiesFromAtlas, normalizeKnowledgeEntities } from "./knowledgeModel";
 import { InfluenceEdge, KnowledgeEntity, Thinker } from "./types";
-import { normalizeStoredEdges, normalizeStoredPeople } from "./storageSchemas";
+import { hasEdgeSourceEvidence, normalizeEdgeStatus, normalizeStoredEdges, normalizeStoredPeople } from "./storageSchemas";
 
 export const ATLAS_STATE_SCHEMA_VERSION = 8;
 export const ATLAS_STATE_STORAGE_KEY = "atlas_state_v8";
@@ -29,6 +29,72 @@ export const normalizeStoredAtlasState = (value: unknown) => {
     people,
     edges,
     entities: entities.length > 0 ? entities : buildExpandedKnowledgeEntitiesFromAtlas(people, edges),
+  };
+};
+
+const getEdgeMergeKey = (edge: InfluenceEdge) =>
+  `${edge.sourceEntityType || "Person"}:${edge.source}->${edge.targetEntityType || "Person"}:${edge.target}:${edge.type}`;
+
+const mergeUniqueStrings = (...values: Array<string[] | undefined>) =>
+  Array.from(new Set(values.flatMap((items) => items || [])));
+
+const mergeCanonicalEdgeEvidence = (storedEdge: InfluenceEdge, seedEdge: InfluenceEdge): InfluenceEdge => {
+  const sourceClaims = mergeUniqueStrings(storedEdge.sourceClaims, seedEdge.sourceClaims);
+  const claimIds = mergeUniqueStrings(storedEdge.claimIds, seedEdge.claimIds);
+  const threadIds = mergeUniqueStrings(storedEdge.threadIds, seedEdge.threadIds);
+  const confidence = Math.max(storedEdge.confidence ?? 0, seedEdge.confidence ?? 0) || undefined;
+  const status = storedEdge.status === "rejected"
+    ? storedEdge.status
+    : normalizeEdgeStatus(
+        seedEdge.status === "accepted" || storedEdge.status === "accepted" ? "accepted" : storedEdge.status,
+        confidence,
+        sourceClaims,
+        claimIds
+      );
+
+  return {
+    ...storedEdge,
+    confidence,
+    sourceClaims,
+    claimIds,
+    threadIds,
+    status,
+  };
+};
+
+export const mergeAtlasStateWithCanonicalSeed = (
+  atlasState: { people: Thinker[]; edges: InfluenceEdge[] },
+  canonicalPeople: Thinker[],
+  canonicalEdges: InfluenceEdge[]
+) => {
+  const mergedPeople = [...atlasState.people];
+  const peopleIds = new Set(mergedPeople.map((person) => person.id));
+  canonicalPeople.forEach((person) => {
+    if (!peopleIds.has(person.id)) {
+      mergedPeople.push(person);
+      peopleIds.add(person.id);
+    }
+  });
+
+  const normalizedSeedEdges = normalizeStoredEdges(canonicalEdges, mergedPeople);
+  const edgeByKey = new Map<string, InfluenceEdge>();
+  normalizeStoredEdges(atlasState.edges, mergedPeople).forEach((edge) => {
+    edgeByKey.set(getEdgeMergeKey(edge), edge);
+  });
+
+  normalizedSeedEdges.forEach((seedEdge) => {
+    const key = getEdgeMergeKey(seedEdge);
+    const storedEdge = edgeByKey.get(key);
+    edgeByKey.set(key, storedEdge ? mergeCanonicalEdgeEvidence(storedEdge, seedEdge) : seedEdge);
+  });
+
+  const mergedEdges = Array.from(edgeByKey.values()).filter((edge) =>
+    edge.status !== "accepted" || hasEdgeSourceEvidence(edge)
+  );
+
+  return {
+    people: normalizeStoredPeople(mergedPeople),
+    edges: normalizeStoredEdges(mergedEdges, mergedPeople),
   };
 };
 

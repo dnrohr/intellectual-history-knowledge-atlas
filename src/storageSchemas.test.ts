@@ -44,6 +44,48 @@ describe("localStorage schema normalization", () => {
     expect(edges[0].targetEntityType).toBe("Person");
     expect(edges[0].confidence).toBe(1);
     expect(edges[0].sourceClaims).toEqual(["https://example.com"]);
+    expect(edges[0].status).toBe("suggested");
+  });
+
+  it("marks high-confidence sourced edges accepted by default", () => {
+    const people = normalizeStoredPeople([
+      { id: "source", name: "Source", birth: 1900, death: null, fields: ["Philosophy"] },
+      { id: "target", name: "Target", birth: 1910, death: null, fields: ["Philosophy"] },
+    ]);
+
+    const edges = normalizeStoredEdges([
+      { source: "source", target: "target", type: "Influence", strength: 4, confidence: 0.85, sourceClaims: ["https://example.com"] },
+    ], people);
+
+    expect(edges[0].status).toBe("accepted");
+  });
+
+  it("preserves claim and thread provenance while normalizing source status", () => {
+    const people = normalizeStoredPeople([
+      { id: "source", name: "Source", birth: 1900, death: null, fields: ["Philosophy"] },
+      { id: "target", name: "Target", birth: 1910, death: null, fields: ["Philosophy"] },
+    ]);
+
+    const edges = normalizeStoredEdges([
+      { source: "source", target: "target", type: "Influence", strength: 4, confidence: 0.9, claimIds: ["claim:edge"], threadIds: ["thread:logic"] },
+    ], people);
+
+    expect(edges[0].claimIds).toEqual(["claim:edge"]);
+    expect(edges[0].threadIds).toEqual(["thread:logic"]);
+    expect(edges[0].status).toBe("accepted");
+  });
+
+  it("marks unsupported edges as needing source by default", () => {
+    const people = normalizeStoredPeople([
+      { id: "source", name: "Source", birth: 1900, death: null, fields: ["Philosophy"] },
+      { id: "target", name: "Target", birth: 1910, death: null, fields: ["Philosophy"] },
+    ]);
+
+    const edges = normalizeStoredEdges([
+      { source: "source", target: "target", type: "Influence", strength: 4 },
+    ], people);
+
+    expect(edges[0].status).toBe("needs_source");
   });
 
   it("preserves typed relationship endpoints for expanded graph records", () => {

@@ -332,7 +332,7 @@ const relationshipRuleReasons = (
   if ((type === "Parallel" || type === "Parallel development") && !/(parallel|independent|shared concept|concurrent|rival school)/.test(text)) {
     reasons.push("parallel-development-needs-non-transmission-evidence");
   }
-  if ((edge.threadIds || []).length > 0 && ((edge.confidence ?? 0.5) < 0.85 || (edge.claimIds || edge.sourceClaims || []).length === 0)) {
+  if ((edge.threadIds || []).length > 0 && ((edge.confidence ?? 0.5) < 0.85 || ((edge.claimIds?.length || 0) + (edge.sourceClaims?.length || 0)) === 0)) {
     reasons.push("canonical-thread-edge-needs-high-confidence-source-support");
   }
 

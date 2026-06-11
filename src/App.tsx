@@ -42,7 +42,8 @@ import {
   createBulkEdgeRepairDecisions,
   validateBulkEdgeStructure,
 } from "./edgeValidation";
-import { clearPersistedAtlasState, loadAtlasStateFromStorage, persistAtlasStateToStorage } from "./storageMigrations";
+import { hasEdgeSourceEvidence } from "./storageSchemas";
+import { clearPersistedAtlasState, loadAtlasStateFromStorage, mergeAtlasStateWithCanonicalSeed, persistAtlasStateToStorage } from "./storageMigrations";
 import { PUBLIC_DEMO_MODE } from "./runtimeConfig";
 import { 
   Plus, 
@@ -648,8 +649,10 @@ export default function App() {
     try {
       const savedAtlasState = loadAtlasStateFromStorage();
       if (savedAtlasState) {
-        setPeople(savedAtlasState.people);
-        setEdges(savedAtlasState.edges);
+        const mergedAtlasState = mergeAtlasStateWithCanonicalSeed(savedAtlasState, INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
+        setPeople(mergedAtlasState.people);
+        setEdges(mergedAtlasState.edges);
+        persistAtlasStateToStorage(mergedAtlasState.people, mergedAtlasState.edges);
       } else {
         setPeople(INITIAL_PEOPLE_DATA);
         setEdges(INITIAL_EDGES_DATA);
@@ -2623,7 +2626,7 @@ export default function App() {
       stepEdges: pairEdges,
       gapFindings: auditThreadGaps([thread], people, edges),
       edgeGapCount: pairEdges.filter((edge) => !edge).length,
-      weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || (edge.sourceClaims || []).length === 0)).length,
+      weakEdgeCount: pairEdges.filter((edge) => edge && ((edge.confidence ?? 1) < 0.5 || !hasEdgeSourceEvidence(edge))).length,
     };
   }).filter((thread) => thread.resolvedPeople.length >= 2);
   const threadJunctionMarkers = getThreadJunctionMarkers(threadDefinitions);
@@ -2690,7 +2693,7 @@ export default function App() {
     if (edgeTypeFilter !== "all" && edge.type !== edgeTypeFilter) return false;
     if (isSourceStudio && (edge.confidence ?? 1) < edgeConfidenceFilter) return false;
 
-    const hasSources = Boolean(edge.sourceClaims && edge.sourceClaims.length > 0);
+    const hasSources = hasEdgeSourceEvidence(edge);
     const needsSource = edge.status === "needs_source" || !hasSources;
     if (isSourceStudio && edgeSourceFilter === "sourced" && !hasSources) return false;
     if (isSourceStudio && edgeSourceFilter === "needs_source" && !needsSource) return false;
@@ -2721,7 +2724,7 @@ export default function App() {
           const otherId = edge.source === selectedId ? edge.target : edge.source;
           const other = people.find((person) => person.id === otherId);
           const direction = edge.source === selectedId ? "out" : "in";
-          const hasSources = Boolean(edge.sourceClaims && edge.sourceClaims.length > 0);
+          const hasSources = hasEdgeSourceEvidence(edge);
           const needsSource = edge.status === "needs_source" || !hasSources;
           const lowConfidence = (edge.confidence ?? 1) < 0.5;
           const confidence = edge.confidence ?? 1;
@@ -2744,7 +2747,7 @@ export default function App() {
     return degree <= 1 || !person.subfields || person.subfields.length === 0;
   });
   const sourceGapEdges = edges.filter((edge) =>
-    edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !edge.sourceClaims || edge.sourceClaims.length === 0
+    edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !hasEdgeSourceEvidence(edge)
   );
   const sourceGapThinkers = Array.from(new Set(sourceGapEdges.flatMap((edge) => [edge.source, edge.target])))
     .map((id) => people.find((person) => person.id === id))
@@ -2862,7 +2865,7 @@ export default function App() {
   const getReviewStatusForPerson = (person: Thinker) => {
     const personEdges = edges.filter((edge) => edge.source === person.id || edge.target === person.id);
     const hasSourceGap = personEdges.some((edge) =>
-      edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !edge.sourceClaims || edge.sourceClaims.length === 0
+      edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !hasEdgeSourceEvidence(edge)
     );
     const isImported = person.movement === "Imported" || person.notes?.includes("Imported from");
 
@@ -2927,7 +2930,7 @@ export default function App() {
     if (groupTitle === "Needs Source") {
       const gapCount = edges.filter((edge) =>
         (edge.source === person.id || edge.target === person.id) &&
-        (edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !edge.sourceClaims || edge.sourceClaims.length === 0)
+        (edge.status === "needs_source" || (edge.confidence ?? 1) < 0.5 || !hasEdgeSourceEvidence(edge))
       ).length;
       return `${gapCount} source gap${gapCount === 1 ? "" : "s"} · ${person.fields?.[0] || "Unclassified"}`;
     }
@@ -3807,7 +3810,7 @@ export default function App() {
                         <span className={`rounded border px-1.5 py-0.5 text-[8.5px] font-mono ${
                           needsSource ? "border-violet-400/30 bg-violet-400/10 text-violet-200" : "border-[#252a3d] bg-[#090b10] text-slate-500"
                         }`}>
-                          {hasSources ? `${edge.sourceClaims?.length || 0} sources` : "needs source"}
+                          {hasSources ? `${(edge.sourceClaims?.length || 0) + (edge.claimIds?.length || 0)} sources` : "needs source"}
                         </span>
                         {edge.status && (
                           <span className="truncate rounded border border-[#252a3d] bg-[#090b10] px-1.5 py-0.5 text-[8.5px] font-mono text-slate-500">
@@ -6183,7 +6186,7 @@ export default function App() {
                               const inPath = highlightPath && highlightPath.includes(p.id);
                               const contextText = getIndexContext(p, group.title);
                               const rowEdges = edges.filter((edge) => edge.source === p.id || edge.target === p.id);
-                              const sourcedEdgeCount = rowEdges.filter((edge) => edge.sourceClaims && edge.sourceClaims.length > 0).length;
+                              const sourcedEdgeCount = rowEdges.filter(hasEdgeSourceEvidence).length;
                               const reviewStatus = getReviewStatusForPerson(p);
                               const reviewTone =
                                 reviewStatus.includes("Needs") || reviewStatus === "Orphan"

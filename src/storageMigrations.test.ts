@@ -6,6 +6,7 @@ import {
   LEGACY_EDGES_STORAGE_KEY,
   LEGACY_PEOPLE_STORAGE_KEY,
   loadAtlasStateFromStorage,
+  mergeAtlasStateWithCanonicalSeed,
   PREVIOUS_ATLAS_STATE_STORAGE_KEY,
   persistAtlasStateToStorage,
   serializeAtlasState,
@@ -123,5 +124,51 @@ describe("atlas storage migrations", () => {
     expect(store.values.has(LEGACY_PEOPLE_STORAGE_KEY)).toBe(false);
     expect(store.values.has(LEGACY_EDGES_STORAGE_KEY)).toBe(false);
     expect(store.values.has("atlas_import_queue_v2")).toBe(true);
+  });
+
+  it("merges missing canonical people and accepted edges into stale stored state", () => {
+    const staleState = {
+      people: [person("source"), person("target")],
+      edges: [{ ...edge, confidence: 0.3, status: "suggested" as const }],
+    };
+    const canonicalPeople = [person("source"), person("target"), person("new-target")];
+    const canonicalEdges: InfluenceEdge[] = [
+      { ...edge, confidence: 0.85, sourceClaims: ["https://example.com/edge"] },
+      { source: "target", target: "new-target", type: "Influence", strength: 3, confidence: 0.85, sourceClaims: ["https://example.com/new"] },
+    ];
+
+    const merged = mergeAtlasStateWithCanonicalSeed(staleState, canonicalPeople, canonicalEdges);
+
+    expect(merged.people.map((item) => item.id)).toEqual(["source", "target", "new-target"]);
+    expect(merged.edges).toHaveLength(2);
+    expect(merged.edges[0]).toMatchObject({
+      source: "source",
+      target: "target",
+      confidence: 0.85,
+      sourceClaims: ["https://example.com/edge"],
+      status: "accepted",
+    });
+    expect(merged.edges[1]).toMatchObject({
+      source: "target",
+      target: "new-target",
+      status: "accepted",
+    });
+  });
+
+  it("does not revive locally rejected canonical edges", () => {
+    const staleState = {
+      people: [person("source"), person("target")],
+      edges: [{ ...edge, status: "rejected" as const }],
+    };
+    const canonicalEdges: InfluenceEdge[] = [
+      { ...edge, confidence: 0.85, sourceClaims: ["https://example.com/edge"] },
+    ];
+
+    const merged = mergeAtlasStateWithCanonicalSeed(staleState, staleState.people, canonicalEdges);
+
+    expect(merged.edges[0]).toMatchObject({
+      status: "rejected",
+      sourceClaims: ["https://example.com/edge"],
+    });
   });
 });

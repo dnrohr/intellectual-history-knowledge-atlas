@@ -17,6 +17,26 @@ const normalizeEndpointType = (value: unknown): RelationshipEndpointType =>
     ? value as RelationshipEndpointType
     : "Person";
 
+export const hasEdgeSourceEvidence = (edge: Pick<InfluenceEdge, "sourceClaims" | "claimIds">) =>
+  (edge.sourceClaims?.length || 0) > 0 || (edge.claimIds?.length || 0) > 0;
+
+export const normalizeEdgeStatus = (
+  status: unknown,
+  confidence: InfluenceEdge["confidence"],
+  sourceClaims: string[],
+  claimIds: string[]
+): InfluenceEdge["status"] => {
+  if (typeof status === "string" && EDGE_STATUSES.includes(status as NonNullable<InfluenceEdge["status"]>)) {
+    return status as InfluenceEdge["status"];
+  }
+
+  if (sourceClaims.length > 0 || claimIds.length > 0) {
+    return (confidence ?? 0) >= 0.75 ? "accepted" : "suggested";
+  }
+
+  return "needs_source";
+};
+
 const hasValidEndpoint = (
   id: unknown,
   type: RelationshipEndpointType,
@@ -80,9 +100,11 @@ export const normalizeStoredEdges = (value: unknown, people: Thinker[]): Influen
         return null;
       }
 
-      const status = typeof item.status === "string" && EDGE_STATUSES.includes(item.status as NonNullable<InfluenceEdge["status"]>)
-        ? item.status as InfluenceEdge["status"]
-        : undefined;
+      const confidence = isFiniteNumber(item.confidence) ? Math.max(0, Math.min(1, item.confidence)) : undefined;
+      const sourceClaims = isStringArray(item.sourceClaims) ? item.sourceClaims : [];
+      const claimIds = isStringArray(item.claimIds) ? item.claimIds : [];
+      const threadIds = isStringArray(item.threadIds) ? item.threadIds : [];
+      const status = normalizeEdgeStatus(item.status, confidence, sourceClaims, claimIds);
 
       return {
         id: typeof item.id === "string" ? item.id : `${item.source}:${item.type}:${item.target}`,
@@ -93,8 +115,10 @@ export const normalizeStoredEdges = (value: unknown, people: Thinker[]): Influen
         type: item.type,
         strength: item.strength,
         note: normalizeOptionalString(item.note),
-        confidence: isFiniteNumber(item.confidence) ? Math.max(0, Math.min(1, item.confidence)) : undefined,
-        sourceClaims: isStringArray(item.sourceClaims) ? item.sourceClaims : [],
+        confidence,
+        sourceClaims,
+        claimIds,
+        threadIds,
         status,
       } satisfies InfluenceEdge;
     })

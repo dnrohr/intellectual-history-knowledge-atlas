@@ -28,12 +28,14 @@ interface SimulatedLink extends d3.SimulationLinkDatum<SimulatedNode> {
   type: string;
   confidence?: number;
   sourceClaims?: string[];
+  claimIds?: string[];
   status?: InfluenceEdge["status"];
 }
 
-const getEdgeVisualState = (edge: Pick<InfluenceEdge, "confidence" | "sourceClaims" | "status">) => {
+const getEdgeVisualState = (edge: Pick<InfluenceEdge, "confidence" | "sourceClaims" | "claimIds" | "status">) => {
   const isSuggested = edge.status === "suggested";
-  const needsSource = edge.status === "needs_source" || !edge.sourceClaims || edge.sourceClaims.length === 0;
+  const hasSources = (edge.sourceClaims?.length || 0) > 0 || (edge.claimIds?.length || 0) > 0;
+  const needsSource = edge.status === "needs_source" || !hasSources;
   const lowConfidence = (edge.confidence ?? 1) < 0.5;
   return {
     isSuggested,
@@ -315,6 +317,7 @@ export default function NetworkGraph({
           type: e.type,
           confidence: e.confidence,
           sourceClaims: e.sourceClaims,
+          claimIds: e.claimIds,
           status: e.status,
         };
       });
