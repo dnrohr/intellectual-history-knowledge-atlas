@@ -420,6 +420,8 @@ Do not show:
 
 Source Studio should be an explicit workspace with its own information architecture.
 
+Implemented composition: Source Studio is the sole primary Sources surface and fills the space below global navigation. Its operational content scrolls internally beneath sticky mode tabs. A compact selected-scholar row provides `Open in Atlas` and `View in Focus`; no graph, path finder, radar, index, or dossier is mounted in this workspace.
+
 ### Source Studio Tabs
 
 | Tab | Purpose |

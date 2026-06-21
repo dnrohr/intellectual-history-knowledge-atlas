@@ -22,6 +22,10 @@ test("source studio modes stay reachable without viewport overflow", async ({ pa
     await page.reload();
 
     await page.getByTestId("workspace-sources").click();
+    await expect(page.getByTestId("source-studio-workspace")).toBeVisible();
+    await expect(page.locator('[data-testid="network-canvas"]:visible')).toHaveCount(0);
+    await expect(page.getByTestId("scholar-dossier")).toHaveCount(0);
+    await expect(page.getByTestId("source-selected-context")).toContainText("Plato");
 
     for (const tab of sourceStudioTabs) {
       const button = page.getByTestId(`source-studio-tab-${tab}`);

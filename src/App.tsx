@@ -2233,9 +2233,9 @@ export default function App() {
   const showSecondaryChrome = chromeDensity !== "demo";
   const showRelationshipToolbar = !isReducedChrome && activeWorkspace === "atlas";
   const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && activeWorkspace === "atlas";
-  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && activeWorkspace !== "focus";
+  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && activeWorkspace === "atlas";
   const showRadarCurationActions = chromeDensity === "curation" || activeWorkspace === "sources";
-  const showRelationshipInspector = !isReducedChrome && relationshipInspectorOpen && Boolean(selectedThinker);
+  const showRelationshipInspector = !isReducedChrome && activeWorkspace === "atlas" && relationshipInspectorOpen && Boolean(selectedThinker);
   const effectiveWorkbenchPanelMode: PanelMode = extensionWorkbenchOpen ? workbenchPanelMode : "closed";
   const workbenchPanelModes: Array<{ id: Exclude<PanelMode, "closed">; label: string }> = [
     { id: "floating", label: "Float" },
@@ -2244,13 +2244,17 @@ export default function App() {
     { id: "fullscreen", label: "Full" },
   ];
   const workbenchPanelFrameClass =
-    workbenchPanelMode === "fullscreen"
+    isSourceStudio
+      ? "flex-1 min-h-0 border-b border-[#22273b] bg-[#0d1018] overflow-hidden"
+      : workbenchPanelMode === "fullscreen"
       ? "fixed inset-4 rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
       : workbenchPanelMode === "floating"
       ? "fixed right-4 top-[7.5rem] w-[min(920px,calc(100vw-2rem))] max-h-[calc(100vh-9rem)] rounded-md border border-[#22273b] bg-[#0d1018] overflow-hidden z-50 shadow-2xl shadow-black/60"
       : "shrink-0 bg-[#0d1018] border-b border-[#22273b] overflow-hidden z-20";
   const workbenchPanelContentClass =
-    workbenchPanelMode === "fullscreen"
+    isSourceStudio
+      ? "h-full min-h-0 overflow-y-auto scrollbar-thin px-3 py-3 md:px-6 md:py-4 space-y-3"
+      : workbenchPanelMode === "fullscreen"
       ? "h-full overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
       : workbenchPanelMode === "floating"
       ? "max-h-[calc(100vh-9rem)] overflow-y-auto scrollbar-thin px-6 py-4 space-y-3"
@@ -4364,8 +4368,9 @@ export default function App() {
       <AnimatePresence>
         {isSourceStudio && extensionWorkbenchOpen && (
           <motion.div
+            data-testid="source-studio-workspace"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: "100%", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className={workbenchPanelFrameClass}
@@ -4378,7 +4383,7 @@ export default function App() {
                     {effectiveWorkbenchPanelMode} automation console for evidence coverage, conflicts, repair previews, and admin recovery.
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="hidden items-center gap-1.5">
                   <div className="flex items-center rounded border border-[#22273b] bg-[#080a0f] p-0.5">
                     {workbenchPanelModes.map((mode) => (
                       <button
@@ -4403,7 +4408,20 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#22273b] bg-[#080a0f] p-1">
+              {selectedThinker && (
+                <div data-testid="source-selected-context" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#252a3d] bg-[#090a0f] px-3 py-2">
+                  <div className="min-w-0">
+                    <span className="font-mono text-[8px] uppercase tracking-wider text-slate-600">Selected scholar</span>
+                    <div className="truncate text-[11px] font-semibold text-slate-200">{selectedThinker.name}</div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button onClick={() => applyWorkspace("atlas")} className="rounded border border-[#7b9cf5]/40 bg-[#7b9cf5]/10 px-2.5 py-1.5 text-[9px] font-mono text-[#9bdaff] hover:border-[#9bdaff] cursor-pointer">Open in Atlas</button>
+                    <button onClick={() => applyWorkspace("focus")} className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-[9px] font-mono text-emerald-200 hover:border-emerald-300 cursor-pointer">View in Focus</button>
+                  </div>
+                </div>
+              )}
+
+              <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1 rounded-md border border-[#22273b] bg-[#080a0f]/95 p-1 backdrop-blur">
                 {([
                   ["sourceHealth", `Source health ${sourceGapEdges.length}`],
                   ["claimConflicts", `Claim conflicts ${automationConflictCount}`],
@@ -6080,6 +6098,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {!isSourceStudio && (
       <div className="flex-1 flex overflow-hidden min-h-0 relative">
         
         {/* 1. COLLAPSIBLE SCHOLAR INDEX SIDEBAR (Left Panel) */}
@@ -6587,6 +6606,7 @@ export default function App() {
           )}
         </AnimatePresence>
       </div>
+      )}
 
       {/* ── MODALS ── */}
       <nav className="md:hidden shrink-0 h-14 grid grid-cols-4 border-t border-[#22273b] bg-[#0f111a] z-40">
