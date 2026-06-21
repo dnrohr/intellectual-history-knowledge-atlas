@@ -2,6 +2,9 @@ node_modules/
 build/
 dist/
 coverage/
+test-results/
+.expo/
+qa_report*.txt
 .DS_Store
 *.log
 .env*
