@@ -1,4 +1,6 @@
-# UI Redesign: Network-First Atlas Workspace
+# UI Redesign: Four Focused Workspaces
+
+> Implemented model: global navigation is `Atlas | Timeline | Sources | Focus`. Timeline is a full-height workspace, not an Atlas strip or split lens. Atlas owns spatial network exploration; Timeline owns chronological exploration; Sources owns evidence operations; Focus owns the selected scholar's network and dossier. Legacy saved timeline views open Timeline and legacy split views normalize to the Atlas network.
 
 This document describes a full interface rethink for the Intellectual History Knowledge Atlas. It responds to the current clutter problem by separating the primary exploration experience from source, import, export, and data-management work.
 
@@ -612,7 +614,7 @@ Rules:
 Recommended high-level state:
 
 ```ts
-type Workspace = "atlas" | "sources" | "focus";
+type Workspace = "atlas" | "timeline" | "sources" | "focus";
 type AtlasView = "network" | "timeline" | "thread";
 type SourceStudioTab = "import" | "review" | "sources" | "export";
 type PanelState = "closed" | "peek" | "open" | "pinned" | "fullscreen";
@@ -671,4 +673,3 @@ State ownership:
 - Should the dossier show source status badges in read-only form, or hide provenance entirely until Source Studio?
 - Should timeline be a secondary strip by default, or should users be able to set timeline as their preferred Atlas default?
 - Should saved views be Atlas-only, or should Source Studio also have saved audit queues?
-

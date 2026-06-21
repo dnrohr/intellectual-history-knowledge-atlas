@@ -283,7 +283,8 @@ For every workspace at 1440x900, 820x844, and 390x844:
 
 Update this section in the same commit as each feature.
 
-- [ ] Feature 1: Promote Timeline
+- [x] Feature 1: Promote Timeline
+  - Timeline is now a full-height top-level workspace. Atlas no longer exposes timeline or split lens controls, and legacy saved timeline views route to Timeline while split views render as Atlas network views.
 - [ ] Feature 2: Make Sources standalone
 - [ ] Feature 3: Simplify Atlas
 - [ ] Feature 4: Responsive workspace behavior

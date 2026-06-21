@@ -126,7 +126,7 @@ type ReviewUndoSnapshot = {
   workbenchTab: WorkbenchTab;
 };
 
-type Workspace = "atlas" | "sources" | "focus";
+type Workspace = "atlas" | "timeline" | "sources" | "focus";
 type WorkspaceActivity = "explore" | "inspect" | "trace" | "curate" | "import" | "sources";
 type ChromeDensity = "compact" | "comfortable" | "focus" | "curation" | "demo";
 type PanelMode = "closed" | "floating" | "docked" | "pinned" | "fullscreen";
@@ -444,6 +444,7 @@ export default function App() {
   // Panel Resizer states
   const [sidebarWidth, setSidebarWidth] = useState(220);
   const [detailWidth, setDetailWidth] = useState(380);
+  // Retained only while normalizing legacy saved split views.
   const [splitHeightRatio, setSplitHeightRatio] = useState(50);
   const [timelineStripExpanded, setTimelineStripExpanded] = useState(false);
 
@@ -2215,6 +2216,7 @@ export default function App() {
     icon: React.ComponentType<{ className?: string }>;
   }> = [
     { id: "atlas", label: "Influence Atlas", shortLabel: "Atlas", icon: List },
+    { id: "timeline", label: "Historical Timeline", shortLabel: "Timeline", icon: Clock },
     { id: "sources", label: "Source Studio", shortLabel: "Sources", icon: Filter },
     { id: "focus", label: "Focus / Presentation", shortLabel: "Focus", icon: Eye },
   ];
@@ -2334,9 +2336,9 @@ export default function App() {
   };
 
   const applySavedAtlasView = (view: SavedAtlasView) => {
-    setActiveWorkspace(getWorkspaceForActivity(view.activity));
+    setActiveWorkspace(view.viewMode === "timeline" ? "timeline" : getWorkspaceForActivity(view.activity));
     setActiveActivity(view.activity);
-    setViewMode(view.viewMode);
+    setViewMode("network");
     setChromeDensity(view.chromeDensity);
     const restoredSelectedId = view.selectedId && people.some((person) => person.id === view.selectedId) ? view.selectedId : null;
     setSelectedId(restoredSelectedId);
@@ -2374,6 +2376,15 @@ export default function App() {
       setActiveActivity("explore");
       setChromeDensity((current) => current === "focus" ? "comfortable" : current);
       setViewMode("network");
+      setSidebarOpen(false);
+      closeMajorOverlays();
+      return;
+    }
+
+    if (workspace === "timeline") {
+      setActiveActivity("explore");
+      setChromeDensity((current) => current === "focus" ? "comfortable" : current);
+      setViewMode("timeline");
       setSidebarOpen(false);
       closeMajorOverlays();
       return;
@@ -3613,30 +3624,6 @@ export default function App() {
       <div className="shrink-0 min-h-11 px-6 py-1.5 bg-[#0d1018] border-b border-[#22273b] z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
             <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">{activeWorkspaceLabel}</span>
-          <div className="hidden lg:flex items-center rounded-md border border-[#22273b] bg-[#080a0f] p-0.5">
-            {([
-              ["split", List, "Split"],
-              ["timeline", Clock, "Timeline"],
-              ["network", Globe, "Map"],
-            ] as const).map(([mode, Icon, label]) => (
-              <button
-                key={mode}
-                onClick={() => {
-                  setViewMode(mode);
-                  if (activeActivity === "inspect" && mode !== "network") setActiveActivity("explore");
-                }}
-                className={`rounded px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer flex items-center gap-1 ${
-                  viewMode === mode
-                    ? "bg-[#1f2438] text-[#9bdaff]"
-                    : "text-slate-500 hover:text-slate-200"
-                }`}
-                title={`${label} lens`}
-              >
-                <Icon className="w-3 h-3" />
-                <span className="hidden xl:inline">{label}</span>
-              </button>
-            ))}
-          </div>
           <button
             onClick={showNeighborhood}
             disabled={!selectedId || (selectedIncomingCount + selectedOutgoingCount) === 0}
@@ -3674,20 +3661,6 @@ export default function App() {
             className="px-2.5 py-1 text-[10px] font-mono rounded-md border border-[#252a3d] bg-[#141724] text-slate-300 hover:border-slate-500 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer transition-colors"
           >
             Contemporaries
-          </button>
-          <button
-            onClick={() => {
-              setCoordinatedLenses((prev) => !prev);
-              setViewMode("split");
-            }}
-            className={`px-2.5 py-1 text-[10px] font-mono rounded-md border transition-colors cursor-pointer ${
-              coordinatedLenses
-                ? "border-[#7b9cf5] bg-[#7b9cf5]/15 text-[#9bdaff]"
-                : "border-[#252a3d] bg-[#141724] text-slate-400 hover:border-slate-500"
-            }`}
-            title="Coordinate graph and timeline lenses"
-          >
-            Sync Lenses
           </button>
           <button
             onClick={() => setRelationshipInspectorOpen((prev) => !prev)}
@@ -6303,7 +6276,7 @@ export default function App() {
           
           <div className="flex-1 relative flex flex-col min-h-0">
             {/* TIMELINE MODE */}
-            <div className={`flex-1 min-h-0 relative ${viewMode === "timeline" ? "block h-full" : "hidden"}`}>
+            <div data-testid="timeline-workspace" className={`flex-1 min-h-0 relative ${activeWorkspace === "timeline" ? "block h-full" : "hidden"}`}>
               <Timeline
                 people={processedPeople}
                 edges={filteredEdges}
@@ -6329,7 +6302,7 @@ export default function App() {
             </div>
  
             {/* COSMOS NETWORK FORCE MAP MODE */}
-            <div className={`flex-1 min-h-0 relative bg-[#090b10] ${viewMode === "network" ? "flex h-full flex-col" : "hidden"}`}>
+            <div className={`flex-1 min-h-0 relative bg-[#090b10] ${activeWorkspace === "atlas" || activeWorkspace === "focus" ? "flex h-full flex-col" : "hidden"}`}>
               <div className="min-h-0 flex-1 p-4">
                 <NetworkGraph
                   people={processedPeople}
@@ -6340,7 +6313,7 @@ export default function App() {
                   coordinatedFocusDepth={coordinatedLenses ? 2 : undefined}
                 />
               </div>
-              {activeWorkspace === "atlas" && (
+              {false && activeWorkspace === "atlas" && (
                 <div className={`shrink-0 border-t border-[#22273b] bg-[#080a0f] transition-[height] duration-200 ${timelineStripExpanded ? "h-[320px]" : "h-[132px]"}`}>
                   <div className="flex h-8 items-center justify-between border-b border-[#1b2030] px-4">
                     <div className="flex min-w-0 items-center gap-2">
@@ -6398,7 +6371,7 @@ export default function App() {
             </div>
  
             {/* SPLIT COMBINED VIEW MODE */}
-            <div className={`flex-1 min-h-0 divide-y divide-[#22273b] bg-[#090b10] flex flex-col ${viewMode === "split" ? "block h-full" : "hidden"}`}>
+            <div aria-hidden="true" className="hidden">
               <div style={{ height: `${splitHeightRatio}%` }} className="min-h-[100px] overflow-hidden relative max-md:!h-full">
                 <Timeline
                   people={processedPeople}
@@ -6616,7 +6589,7 @@ export default function App() {
       </div>
 
       {/* ── MODALS ── */}
-      <nav className="md:hidden shrink-0 h-14 grid grid-cols-3 border-t border-[#22273b] bg-[#0f111a] z-40">
+      <nav className="md:hidden shrink-0 h-14 grid grid-cols-4 border-t border-[#22273b] bg-[#0f111a] z-40">
         {workspaceOptions.map((workspace) => {
           const Icon = workspace.icon;
           const isActive = activeWorkspace === workspace.id;

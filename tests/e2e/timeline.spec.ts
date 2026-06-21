@@ -4,8 +4,7 @@ test("pans the timeline by dragging the canvas surface", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByTestId("workspace-atlas").click();
-  await page.locator('button[title="Timeline lens"]').click();
+  await page.getByTestId("workspace-timeline").click();
 
   const range = page.locator('[data-testid="timeline-window-range"]:visible').first();
   await expect(range).toBeVisible();
@@ -24,4 +23,18 @@ test("pans the timeline by dragging the canvas surface", async ({ page }) => {
   await page.mouse.up();
 
   await expect(range).not.toHaveText(before || "");
+});
+
+test("timeline is a top-level workspace and preserves coordinated selection", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+
+  await page.getByTestId("workspace-atlas").click();
+  await expect(page.getByTestId("scholar-dossier")).toContainText("Plato");
+  await page.getByTestId("workspace-timeline").click();
+  await expect(page.getByTestId("timeline-workspace")).toBeVisible();
+  await expect(page.getByTestId("scholar-dossier")).toContainText("Plato");
+  await page.getByTestId("workspace-focus").click();
+  await expect(page.getByTestId("scholar-dossier")).toContainText("Plato");
 });
