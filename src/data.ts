@@ -1,5 +1,10 @@
 import { Thinker, InfluenceEdge, Movement, Institution } from "./types";
 import { normalizeEdgeStatus } from "./storageSchemas";
+import { WIKIDATA_IMPORTED_EDGES, WIKIDATA_IMPORTED_PEOPLE } from "./generatedWikidataBatch";
+import {
+  WIKIDATA_IMPORTED_EDGES as WIKIDATA_20TH_CENTURY_EDGES,
+  WIKIDATA_IMPORTED_PEOPLE as WIKIDATA_20TH_CENTURY_PEOPLE,
+} from "./generatedWikidata20thCenturyBatch";
 
 export const FIELD_COLOR: Record<string, string> = {
   "Mathematics":     "#4a9eff",
@@ -3243,6 +3248,10 @@ export const INITIAL_PEOPLE_DATA: Thinker[] = [
   { id: "milnor", name: "John Milnor", birth: 1931, death: null, fields: ["Mathematics"], subfields: ["Differential Topology / Exotic Spheres"], region: "USA", era: "Contemporary", movement: "Contemporary", bridge_score: 4, works: ["On Manifolds Homeomorphic to the 7-Sphere"], influenced: ["thurston", "perelman"], notes: "Discovered exotic spheres — 7-dimensional spheres with different differentiable structures — revolutionizing differential topology." },
   { id: "singer_im", name: "Isadore Singer", birth: 1924, death: 2021, fields: ["Mathematics", "Physics"], subfields: ["Index Theorem / Mathematical Physics"], region: "USA", era: "Contemporary", movement: "Contemporary", bridge_score: 4, works: ["The Index of Elliptic Operators (with Atiyah)"], influenced: ["witten", "atiyah"], notes: "Co-proved the Atiyah-Singer Index Theorem, bridging analysis and topology; stimulated deep connections between math and quantum field theory." },
   { id: "connes", name: "Alain Connes", birth: 1947, death: null, fields: ["Mathematics", "Physics"], subfields: ["Non-commutative Geometry"], region: "France", era: "Contemporary", movement: "Contemporary", bridge_score: 4, works: ["Noncommutative Geometry"], influenced: ["witten"], notes: "Created non-commutative geometry, applying operator algebra methods to spacetime geometry, quantum gravity, and the Standard Model." },
+  { id: "david_marr", name: "David Marr", birth: 1945, death: 1980, fields: ["Computing", "Psychology", "Biology"], subfields: ["Computational Neuroscience", "Computer Vision", "Visual Perception"], region: "England/USA", era: "Postwar", movement: "Cognitive Science", bridge_score: 5, works: ["Vision: A Computational Investigation into the Human Representation and Processing of Visual Information", "A Theory of Cerebellar Cortex"], influenced: [], notes: "Established a computational theory of vision and distinguished computational, algorithmic, and implementational levels of explanation. His account of visual processing introduced the primal sketch, 2.5-D sketch, and 3-D model representation, while his earlier work developed influential computational models of the cerebellum and memory." },
+
+  ...WIKIDATA_IMPORTED_PEOPLE,
+  ...WIKIDATA_20TH_CENTURY_PEOPLE,
 
 ];
 
@@ -3941,6 +3950,9 @@ const EXPLICIT_EDGES_DATA: InfluenceEdge[] = [
   { source: "wiles", target: "langlands", type: "Parallel", strength: 4, note: "Modularity theorem proved within Langlands framework; parallel development", confidence: 0.85, sourceClaims: ["https://en.wikipedia.org/wiki/Robert_Langlands"] },
   { source: "watson_crick", target: "doudna", type: "Indirect influence", strength: 5, note: "DNA double helix structure enabled CRISPR base editing; indirect influence", confidence: 0.85, sourceClaims: ["https://en.wikipedia.org/wiki/Jennifer_Doudna"] },
 
+  ...WIKIDATA_IMPORTED_EDGES,
+  ...WIKIDATA_20TH_CENTURY_EDGES,
+
 
 ];
 
@@ -3948,6 +3960,48 @@ export const INITIAL_EDGES_DATA: InfluenceEdge[] = dedupeEdges([
   ...EXPLICIT_EDGES_DATA,
   ...deriveMetadataInfluenceEdges(INITIAL_PEOPLE_DATA, EXPLICIT_EDGES_DATA),
 ]);
+
+export const RETIRED_CANONICAL_PERSON_IDS = [
+  "mu_ayyad_al_din_al_urdi",
+  "qutb_al_din_al_shirazi",
+  "najm_al_din_al_qazwini_al_katibi",
+  "abd_al_karim_ibn_tawus",
+  "ibn_al_fuwati",
+  "shams_al_din_al_bukhari",
+  "hasan_ibn_muhammad_astarabadi",
+  "al_bahrani",
+  "abu_bakr_ibn_al_arabi",
+  "bill_roscoe",
+  "leslie_fox",
+  "cliff_jones",
+  "augusto_sampaio",
+  "david_andrew_naumann",
+  "james_h_clark",
+  "danny_cohen",
+  "alfred_korzybski",
+  "john_robert_woodyard",
+  "john_b_thomas",
+  "bede_liu",
+  "charles_coulson",
+  "h_christopher_longuet_higgins",
+  "lewis_ryder",
+  "david_wallace",
+  "christopher_m_bishop",
+  "nicholas_kemmer",
+  "paul_taunton_matthews",
+  "walter_gilbert",
+  "michael_duff",
+  "ray_streater",
+  "fayyazuddin",
+  "ghulam_murtaza",
+  "muneer_ahmad_rashid",
+  "riazuddin",
+  "robert_delbourgo",
+  "masud_ahmad",
+  "ali_chamseddine",
+  "eugene_paul_wigner",
+  "nick_holonyak",
+] as const;
 
 export const INITIAL_MOVEMENTS_DATA: Movement[] = [
   { name: "Ancient Greek Philosophy", start: -550, end: -30, core: "Logos, reason, forms", fields: ["Philosophy", "Mathematics", "Cosmology"] },

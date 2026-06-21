@@ -171,4 +171,62 @@ describe("atlas storage migrations", () => {
       sourceClaims: ["https://example.com/edge"],
     });
   });
+
+  it("prunes retired canonical people and their stored edges", () => {
+    const staleState = {
+      people: [person("source"), person("retired"), person("local-person")],
+      edges: [
+        { ...edge, target: "retired" },
+        { ...edge, target: "local-person" },
+      ],
+    };
+
+    const merged = mergeAtlasStateWithCanonicalSeed(
+      staleState,
+      [person("source")],
+      [],
+      ["retired"]
+    );
+
+    expect(merged.people.map((item) => item.id)).toEqual(["source", "local-person"]);
+    expect(merged.edges).toHaveLength(1);
+    expect(merged.edges[0]).toMatchObject({ source: "source", target: "local-person" });
+    expect(merged.edges.some((item) => item.source === "retired" || item.target === "retired")).toBe(false);
+  });
+
+  it("removes Wikidata import annotations from persisted card biographies", () => {
+    const davidMarr = {
+      ...person("david_marr"),
+      name: "David Marr",
+      notes: "Computational neuroscientist. Imported from Wikidata: https://www.wikidata.org/wiki/Q312640",
+    };
+
+    const merged = mergeAtlasStateWithCanonicalSeed({ people: [davidMarr], edges: [] }, [], []);
+
+    expect(merged.people[0].notes).toBe("Computational neuroscientist.");
+  });
+
+  it("upgrades a persisted imported person with richer canonical card data", () => {
+    const storedMarr = {
+      ...person("david_marr"),
+      name: "David Marr",
+      movement: "Imported",
+      works: [],
+      notes: "British scientist. Imported from Wikidata: https://www.wikidata.org/wiki/Q92844",
+    };
+    const canonicalMarr = {
+      ...storedMarr,
+      movement: "Cognitive Science",
+      works: ["Vision"],
+      notes: "Established a computational theory of vision.",
+    };
+
+    const merged = mergeAtlasStateWithCanonicalSeed({ people: [storedMarr], edges: [] }, [canonicalMarr], []);
+
+    expect(merged.people[0]).toMatchObject({
+      movement: "Cognitive Science",
+      works: ["Vision"],
+      notes: "Established a computational theory of vision.",
+    });
+  });
 });

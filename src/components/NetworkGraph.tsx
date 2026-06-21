@@ -637,9 +637,9 @@ export default function NetworkGraph({
     }
     const getDepthContextAlpha = (depth: number) => {
       if (depth <= 1) return 1;
-      if (depth === 2) return 0.58;
-      if (depth === 3) return 0.34;
-      return 0.16;
+      if (depth === 2) return 0.72;
+      if (depth === 3) return 0.5;
+      return effectiveFocusDepth === "all" ? 0.42 : 0.32;
     };
 
     // Helper to calculate coordinates along quadratic bezier curves
@@ -678,7 +678,7 @@ export default function NetworkGraph({
       ctx.save();
       // Faint out inactive lines if there's a selection
       if (isAnySelected && !isEdgeActive && !inHighlightPath) {
-        ctx.globalAlpha = isFocusedContextEdge ? getDepthContextAlpha(focusEdgeDepth) : selectedId ? 0.12 : 0.28;
+        ctx.globalAlpha = isFocusedContextEdge ? getDepthContextAlpha(focusEdgeDepth) : selectedId ? 0.18 : 0.32;
       }
       if (edgeVisual.isSuggested && !isEdgeActive && !inHighlightPath) {
         ctx.globalAlpha *= 0.78;
@@ -780,7 +780,9 @@ export default function NetworkGraph({
       ctx.save();
       // Faint out inactive nodes if there's a selection
       if (isAnySelected && !activeSet.has(n.id)) {
-        ctx.globalAlpha = nodeFocusDepth !== undefined ? getDepthContextAlpha(nodeFocusDepth) : 0.12;
+        ctx.globalAlpha = nodeFocusDepth !== undefined
+          ? getDepthContextAlpha(nodeFocusDepth)
+          : effectiveFocusDepth === "all" ? 0.42 : 0.26;
       }
 
       // Outer rings representation (Premium glowing halo aura!)
@@ -800,11 +802,11 @@ export default function NetworkGraph({
 
       ctx.beginPath();
       ctx.arc(n.x!, n.y!, n.r, 0, Math.PI * 2);
-      ctx.fillStyle = isSelected || inHighlightPath || isHover ? col : col + "af";
+      ctx.fillStyle = isSelected || inHighlightPath || isHover ? col : col + "e0";
       ctx.fill();
 
       // Outline
-      ctx.strokeStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.15)";
+      ctx.strokeStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.28)";
       ctx.lineWidth = isSelected ? 1.8 : 1;
       ctx.stroke();
 
@@ -822,7 +824,7 @@ export default function NetworkGraph({
         (labelDensity === "key" && (isImportantBridge || (isSmallGraph && isNearbyFocusNode)));
 
       if (shouldShowLabel) {
-        ctx.fillStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.75)";
+        ctx.fillStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.86)";
         ctx.font = `${isSelected ? "600" : "500"} 8px 'IBM Plex Mono', monospace`;
         ctx.textAlign = "left";
         const shortName = n.name.split(" ").slice(-1)[0];

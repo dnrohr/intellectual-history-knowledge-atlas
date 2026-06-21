@@ -38,6 +38,30 @@ const getEdgeMergeKey = (edge: InfluenceEdge) =>
 const mergeUniqueStrings = (...values: Array<string[] | undefined>) =>
   Array.from(new Set(values.flatMap((items) => items || [])));
 
+const stripSourceAnnotationsFromNotes = (notes: string | null | undefined) => {
+  if (!notes) return notes ?? null;
+  const cleaned = notes
+    .replace(/\s*Merged duplicate import from Wikidata:\s*https?:\/\/\S+/gi, "")
+    .replace(/\s*Imported from Wikidata(?:\s*:\s*https?:\/\/\S+)?/gi, "")
+    .trim();
+  return cleaned || null;
+};
+
+const mergeImportedPersonWithCanonical = (stored: Thinker, canonical: Thinker): Thinker => ({
+  ...stored,
+  name: canonical.name,
+  birth: canonical.birth,
+  death: canonical.death,
+  fields: mergeUniqueStrings(canonical.fields, stored.fields),
+  subfields: mergeUniqueStrings(canonical.subfields, stored.subfields),
+  region: canonical.region || stored.region,
+  era: canonical.era || stored.era,
+  movement: canonical.movement || stored.movement,
+  bridge_score: Math.max(canonical.bridge_score || 0, stored.bridge_score || 0),
+  works: mergeUniqueStrings(canonical.works, stored.works),
+  notes: canonical.notes || stripSourceAnnotationsFromNotes(stored.notes),
+});
+
 const mergeCanonicalEdgeEvidence = (storedEdge: InfluenceEdge, seedEdge: InfluenceEdge): InfluenceEdge => {
   const sourceClaims = mergeUniqueStrings(storedEdge.sourceClaims, seedEdge.sourceClaims);
   const claimIds = mergeUniqueStrings(storedEdge.claimIds, seedEdge.claimIds);
@@ -65,9 +89,20 @@ const mergeCanonicalEdgeEvidence = (storedEdge: InfluenceEdge, seedEdge: Influen
 export const mergeAtlasStateWithCanonicalSeed = (
   atlasState: { people: Thinker[]; edges: InfluenceEdge[] },
   canonicalPeople: Thinker[],
-  canonicalEdges: InfluenceEdge[]
+  canonicalEdges: InfluenceEdge[],
+  retiredCanonicalPersonIds: readonly string[] = []
 ) => {
-  const mergedPeople = [...atlasState.people];
+  const retiredIds = new Set(retiredCanonicalPersonIds);
+  const canonicalPeopleById = new Map(canonicalPeople.map((person) => [person.id, person]));
+  const mergedPeople = atlasState.people
+    .filter((person) => !retiredIds.has(person.id))
+    .map((person) => {
+      const canonical = canonicalPeopleById.get(person.id);
+      const wasImported = person.movement === "Imported" || /Imported from Wikidata/i.test(person.notes || "");
+      return canonical && wasImported
+        ? mergeImportedPersonWithCanonical(person, canonical)
+        : { ...person, notes: stripSourceAnnotationsFromNotes(person.notes) };
+    });
   const peopleIds = new Set(mergedPeople.map((person) => person.id));
   canonicalPeople.forEach((person) => {
     if (!peopleIds.has(person.id)) {
@@ -78,9 +113,11 @@ export const mergeAtlasStateWithCanonicalSeed = (
 
   const normalizedSeedEdges = normalizeStoredEdges(canonicalEdges, mergedPeople);
   const edgeByKey = new Map<string, InfluenceEdge>();
-  normalizeStoredEdges(atlasState.edges, mergedPeople).forEach((edge) => {
-    edgeByKey.set(getEdgeMergeKey(edge), edge);
-  });
+  normalizeStoredEdges(atlasState.edges, mergedPeople)
+    .filter((edge) => !retiredIds.has(edge.source) && !retiredIds.has(edge.target))
+    .forEach((edge) => {
+      edgeByKey.set(getEdgeMergeKey(edge), edge);
+    });
 
   normalizedSeedEdges.forEach((seedEdge) => {
     const key = getEdgeMergeKey(seedEdge);
