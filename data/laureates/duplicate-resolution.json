@@ -1,0 +1,726 @@
+{
+  "inputAwardOccurrences": 726,
+  "uniquePeople": 722,
+  "existingMatches": [
+    {
+      "name": "Luis Alvarez",
+      "wikidataId": "Q178344",
+      "atlasId": "alvarez_luis"
+    },
+    {
+      "name": "Werner Arber",
+      "wikidataId": "Q115495",
+      "atlasId": "arber_werner"
+    },
+    {
+      "name": "Svante Arrhenius",
+      "wikidataId": "Q80956",
+      "atlasId": "arrhenius"
+    },
+    {
+      "name": "Michael Francis Atiyah",
+      "wikidataId": "Q208356",
+      "atlasId": "atiyah"
+    },
+    {
+      "name": "Barbara McClintock",
+      "wikidataId": "Q199654",
+      "atlasId": "barbara_mcclintock"
+    },
+    {
+      "name": "John Bardeen",
+      "wikidataId": "Q949",
+      "atlasId": "bardeen_john"
+    },
+    {
+      "name": "Barry C. Barish",
+      "wikidataId": "Q15900993",
+      "atlasId": "barish_barry"
+    },
+    {
+      "name": "Paul Berg",
+      "wikidataId": "Q102379",
+      "atlasId": "berg_paul"
+    },
+    {
+      "name": "Carolyn Bertozzi",
+      "wikidataId": "Q7442",
+      "atlasId": "bertozzi_carolyn"
+    },
+    {
+      "name": "Hans Bethe",
+      "wikidataId": "Q155794",
+      "atlasId": "bethe_hans"
+    },
+    {
+      "name": "Niels Bohr",
+      "wikidataId": "Q7085",
+      "atlasId": "bohr"
+    },
+    {
+      "name": "Walter H. Brattain",
+      "wikidataId": "Q184577",
+      "atlasId": "brattain_walter"
+    },
+    {
+      "name": "Sydney Brenner",
+      "wikidataId": "Q234463",
+      "atlasId": "brenner_sydney"
+    },
+    {
+      "name": "Herbert C. Brown",
+      "wikidataId": "Q102406",
+      "atlasId": "brown_herbert"
+    },
+    {
+      "name": "Melvin Calvin",
+      "wikidataId": "Q49347",
+      "atlasId": "calvin_melvin"
+    },
+    {
+      "name": "James Chadwick",
+      "wikidataId": "Q80884",
+      "atlasId": "chadwick"
+    },
+    {
+      "name": "Subrahmanyan Chandrasekhar",
+      "wikidataId": "Q148109",
+      "atlasId": "chandrasekhar"
+    },
+    {
+      "name": "Alain Connes",
+      "wikidataId": "Q313590",
+      "atlasId": "connes"
+    },
+    {
+      "name": "Leon N. Cooper",
+      "wikidataId": "Q82563",
+      "atlasId": "cooper_leon"
+    },
+    {
+      "name": "Francis Crick",
+      "wikidataId": "Q123280",
+      "atlasId": "crick_francis"
+    },
+    {
+      "name": "Paul J. Crutzen",
+      "wikidataId": "Q135139",
+      "atlasId": "crutzen_paul"
+    },
+    {
+      "name": "Robert F. Curl Jr.",
+      "wikidataId": "Q110930",
+      "atlasId": "curl_robert"
+    },
+    {
+      "name": "Louis de Broglie",
+      "wikidataId": "Q83331",
+      "atlasId": "de_broglie"
+    },
+    {
+      "name": "Pierre René Deligne",
+      "wikidataId": "Q334045",
+      "atlasId": "deligne"
+    },
+    {
+      "name": "Paul A.M. Dirac",
+      "wikidataId": "Q47480",
+      "atlasId": "dirac"
+    },
+    {
+      "name": "Jennifer A. Doudna",
+      "wikidataId": "Q56068",
+      "atlasId": "doudna"
+    },
+    {
+      "name": "Robert G. Edwards",
+      "wikidataId": "Q104913",
+      "atlasId": "edwards_robert"
+    },
+    {
+      "name": "Paul Ehrlich",
+      "wikidataId": "Q57089",
+      "atlasId": "ehrlich"
+    },
+    {
+      "name": "Manfred Eigen",
+      "wikidataId": "Q76600",
+      "atlasId": "eigen"
+    },
+    {
+      "name": "Albert Einstein",
+      "wikidataId": "Q937",
+      "atlasId": "einstein"
+    },
+    {
+      "name": "François Englert",
+      "wikidataId": "Q151746",
+      "atlasId": "englert"
+    },
+    {
+      "name": "Enrico Fermi",
+      "wikidataId": "Q8753",
+      "atlasId": "fermi_enrico"
+    },
+    {
+      "name": "Richard P. Feynman",
+      "wikidataId": "Q39246",
+      "atlasId": "feynman"
+    },
+    {
+      "name": "Paul J. Flory",
+      "wikidataId": "Q176351",
+      "atlasId": "flory_paul"
+    },
+    {
+      "name": "Kenichi Fukui",
+      "wikidataId": "Q217734",
+      "atlasId": "fukui_kenichi"
+    },
+    {
+      "name": "Murray Gell-Mann",
+      "wikidataId": "Q172840",
+      "atlasId": "gell_mann"
+    },
+    {
+      "name": "Sheldon Glashow",
+      "wikidataId": "Q107420",
+      "atlasId": "glashow"
+    },
+    {
+      "name": "John B. Goodenough",
+      "wikidataId": "Q906529",
+      "atlasId": "goodenough_john"
+    },
+    {
+      "name": "Alexander Grothendieck",
+      "wikidataId": "Q77141",
+      "atlasId": "grothendieck"
+    },
+    {
+      "name": "Sir John B. Gurdon",
+      "wikidataId": "Q81218",
+      "atlasId": "gurdon_john"
+    },
+    {
+      "name": "Fritz Haber",
+      "wikidataId": "Q57075",
+      "atlasId": "haber"
+    },
+    {
+      "name": "Otto Hahn",
+      "wikidataId": "Q57065",
+      "atlasId": "hahn"
+    },
+    {
+      "name": "Werner Heisenberg",
+      "wikidataId": "Q40904",
+      "atlasId": "heisenberg"
+    },
+    {
+      "name": "Antony Hewish",
+      "wikidataId": "Q189990",
+      "atlasId": "hewish"
+    },
+    {
+      "name": "Peter Higgs",
+      "wikidataId": "Q192112",
+      "atlasId": "higgs"
+    },
+    {
+      "name": "Geoffrey Hinton",
+      "wikidataId": "Q92894",
+      "atlasId": "hinton"
+    },
+    {
+      "name": "Dorothy Crowfoot Hodgkin",
+      "wikidataId": "Q7487",
+      "atlasId": "hodgkin"
+    },
+    {
+      "name": "Roald Hoffmann",
+      "wikidataId": "Q273279",
+      "atlasId": "hoffmann_roald"
+    },
+    {
+      "name": "Robert W. Holley",
+      "wikidataId": "Q108891",
+      "atlasId": "holley_robert"
+    },
+    {
+      "name": "Brian D. Josephson",
+      "wikidataId": "Q181363",
+      "atlasId": "josephson_brian"
+    },
+    {
+      "name": "Takaaki Kajita",
+      "wikidataId": "Q11538917",
+      "atlasId": "kajita_takaaki"
+    },
+    {
+      "name": "Charles K. Kao",
+      "wikidataId": "Q16389",
+      "atlasId": "kao_charles"
+    },
+    {
+      "name": "Pyotr Kapitsa",
+      "wikidataId": "Q172844",
+      "atlasId": "kapitsa_pyotr"
+    },
+    {
+      "name": "John C. Kendrew",
+      "wikidataId": "Q232295",
+      "atlasId": "kendrew_john"
+    },
+    {
+      "name": "H. Gobind Khorana",
+      "wikidataId": "Q107462",
+      "atlasId": "khorana_har"
+    },
+    {
+      "name": "Jack Kilby",
+      "wikidataId": "Q182031",
+      "atlasId": "kilby_jack"
+    },
+    {
+      "name": "Aaron Klug",
+      "wikidataId": "Q190626",
+      "atlasId": "klug_aaron"
+    },
+    {
+      "name": "Brian Kobilka",
+      "wikidataId": "Q80907",
+      "atlasId": "kobilka_brian"
+    },
+    {
+      "name": "Robert Koch",
+      "wikidataId": "Q37193",
+      "atlasId": "koch"
+    },
+    {
+      "name": "Sir Harold Kroto",
+      "wikidataId": "Q157250",
+      "atlasId": "kroto_harry"
+    },
+    {
+      "name": "Lev Landau",
+      "wikidataId": "Q133267",
+      "atlasId": "landau_lev"
+    },
+    {
+      "name": "Robert J. Lefkowitz",
+      "wikidataId": "Q80910",
+      "atlasId": "lefkowitz_robert"
+    },
+    {
+      "name": "Edward B. Lewis",
+      "wikidataId": "Q274123",
+      "atlasId": "lewis_edward"
+    },
+    {
+      "name": "Marie Curie",
+      "wikidataId": "Q7186",
+      "atlasId": "marie_curie"
+    },
+    {
+      "name": "Maria Goeppert Mayer",
+      "wikidataId": "Q57100",
+      "atlasId": "mayer_maria"
+    },
+    {
+      "name": "Arthur B. McDonald",
+      "wikidataId": "Q710597",
+      "atlasId": "mcdonald_arthur"
+    },
+    {
+      "name": "Morten Meldal",
+      "wikidataId": "Q6914509",
+      "atlasId": "meldal_morten"
+    },
+    {
+      "name": "John Willard Milnor",
+      "wikidataId": "Q215765",
+      "atlasId": "milnor"
+    },
+    {
+      "name": "Peter Mitchell",
+      "wikidataId": "Q207992",
+      "atlasId": "mitchell_peter"
+    },
+    {
+      "name": "Mario J. Molina",
+      "wikidataId": "Q19045",
+      "atlasId": "molina_mario"
+    },
+    {
+      "name": "Jacques Monod",
+      "wikidataId": "Q231402",
+      "atlasId": "monod"
+    },
+    {
+      "name": "Thomas H. Morgan",
+      "wikidataId": "Q177681",
+      "atlasId": "morgan_th"
+    },
+    {
+      "name": "Kary B. Mullis",
+      "wikidataId": "Q157224",
+      "atlasId": "mullis_kary"
+    },
+    {
+      "name": "Yoichiro Nambu",
+      "wikidataId": "Q188120",
+      "atlasId": "nambu_yoichiro"
+    },
+    {
+      "name": "Daniel Nathans",
+      "wikidataId": "Q295706",
+      "atlasId": "nathans_daniel"
+    },
+    {
+      "name": "Marshall W. Nirenberg",
+      "wikidataId": "Q110060",
+      "atlasId": "nirenberg_marshall"
+    },
+    {
+      "name": "Ryoji Noyori",
+      "wikidataId": "Q157210",
+      "atlasId": "noyori_ryoji"
+    },
+    {
+      "name": "Christiane Nüsslein-Volhard",
+      "wikidataId": "Q77174",
+      "atlasId": "nusslein_volhard"
+    },
+    {
+      "name": "Linus Pauling",
+      "wikidataId": "Q48983",
+      "atlasId": "pauling"
+    },
+    {
+      "name": "Ivan Pavlov",
+      "wikidataId": "Q42985",
+      "atlasId": "pavlov"
+    },
+    {
+      "name": "James Peebles",
+      "wikidataId": "Q728331",
+      "atlasId": "peebles"
+    },
+    {
+      "name": "Roger Penrose",
+      "wikidataId": "Q193803",
+      "atlasId": "penrose"
+    },
+    {
+      "name": "Arno Penzias",
+      "wikidataId": "Q172877",
+      "atlasId": "penzias_arno"
+    },
+    {
+      "name": "Grigori Perelman",
+      "wikidataId": "Q117346",
+      "atlasId": "perelman"
+    },
+    {
+      "name": "Max F. Perutz",
+      "wikidataId": "Q78480",
+      "atlasId": "perutz_max"
+    },
+    {
+      "name": "Max Planck",
+      "wikidataId": "Q9021",
+      "atlasId": "planck"
+    },
+    {
+      "name": "Ilya Prigogine",
+      "wikidataId": "Q183509",
+      "atlasId": "prigogine_ilya"
+    },
+    {
+      "name": "Wilhelm Conrad Röntgen",
+      "wikidataId": "Q35149",
+      "atlasId": "rontgen"
+    },
+    {
+      "name": "F. Sherwood Rowland",
+      "wikidataId": "Q111190",
+      "atlasId": "rowland_sherwood"
+    },
+    {
+      "name": "Ernest Rutherford",
+      "wikidataId": "Q9123",
+      "atlasId": "rutherford"
+    },
+    {
+      "name": "Abdus Salam",
+      "wikidataId": "Q28189",
+      "atlasId": "salam"
+    },
+    {
+      "name": "Frederick Sanger",
+      "wikidataId": "Q151564",
+      "atlasId": "sanger_fred"
+    },
+    {
+      "name": "Arthur L. Schawlow",
+      "wikidataId": "Q190503",
+      "atlasId": "schawlow_arthur"
+    },
+    {
+      "name": "Robert Schrieffer",
+      "wikidataId": "Q153201",
+      "atlasId": "schrieffer_john"
+    },
+    {
+      "name": "Erwin Schrödinger",
+      "wikidataId": "Q9130",
+      "atlasId": "schrodinger"
+    },
+    {
+      "name": "Julian Schwinger",
+      "wikidataId": "Q186465",
+      "atlasId": "schwinger"
+    },
+    {
+      "name": "Glenn T. Seaborg",
+      "wikidataId": "Q48973",
+      "atlasId": "seaborg_glenn"
+    },
+    {
+      "name": "K. Barry Sharpless",
+      "wikidataId": "Q110925",
+      "atlasId": "sharpless_barry"
+    },
+    {
+      "name": "William B. Shockley",
+      "wikidataId": "Q163415",
+      "atlasId": "shockley_william"
+    },
+    {
+      "name": "Richard E. Smalley",
+      "wikidataId": "Q106746",
+      "atlasId": "smalley_richard"
+    },
+    {
+      "name": "Hamilton O. Smith",
+      "wikidataId": "Q108896",
+      "atlasId": "smith_hamilton"
+    },
+    {
+      "name": "Michael Smith",
+      "wikidataId": "Q232289",
+      "atlasId": "smith_michael"
+    },
+    {
+      "name": "Terence Tao",
+      "wikidataId": "Q295981",
+      "atlasId": "tao"
+    },
+    {
+      "name": "J.J. Thomson",
+      "wikidataId": "Q47285",
+      "atlasId": "thomson_jj"
+    },
+    {
+      "name": "Kip S. Thorne",
+      "wikidataId": "Q323320",
+      "atlasId": "thorne_kip"
+    },
+    {
+      "name": "William P. Thurston",
+      "wikidataId": "Q333927",
+      "atlasId": "thurston"
+    },
+    {
+      "name": "Sin-Itiro Tomonaga",
+      "wikidataId": "Q184563",
+      "atlasId": "tomonaga"
+    },
+    {
+      "name": "Charles H. Townes",
+      "wikidataId": "Q184566",
+      "atlasId": "townes_charles"
+    },
+    {
+      "name": "Tu Youyou",
+      "wikidataId": "Q462843",
+      "atlasId": "tu_youyou"
+    },
+    {
+      "name": "Karl von Frisch",
+      "wikidataId": "Q60060",
+      "atlasId": "von_frisch"
+    },
+    {
+      "name": "Steven Weinberg",
+      "wikidataId": "Q179282",
+      "atlasId": "weinberg"
+    },
+    {
+      "name": "Rainer Weiss",
+      "wikidataId": "Q2128461",
+      "atlasId": "weiss_rainer"
+    },
+    {
+      "name": "M. Stanley Whittingham",
+      "wikidataId": "Q285062",
+      "atlasId": "whittingham_stanley"
+    },
+    {
+      "name": "Eric F. Wieschaus",
+      "wikidataId": "Q301438",
+      "atlasId": "wieschaus_eric"
+    },
+    {
+      "name": "Eugene Wigner",
+      "wikidataId": "Q155790",
+      "atlasId": "wigner_eugene"
+    },
+    {
+      "name": "Maurice Wilkins",
+      "wikidataId": "Q184659",
+      "atlasId": "wilkins_maurice"
+    },
+    {
+      "name": "Robert Woodrow Wilson",
+      "wikidataId": "Q171034",
+      "atlasId": "wilson_robert"
+    },
+    {
+      "name": "Edward Witten",
+      "wikidataId": "Q201513",
+      "atlasId": "witten"
+    },
+    {
+      "name": "Georg Wittig",
+      "wikidataId": "Q77171",
+      "atlasId": "wittig_georg"
+    },
+    {
+      "name": "Robert B. Woodward",
+      "wikidataId": "Q232316",
+      "atlasId": "woodward_robert"
+    },
+    {
+      "name": "Shinya Yamanaka",
+      "wikidataId": "Q80917",
+      "atlasId": "yamanaka_shinya"
+    },
+    {
+      "name": "Akira Yoshino",
+      "wikidataId": "Q4701206",
+      "atlasId": "yoshino_akira"
+    },
+    {
+      "name": "Ahmed Zewail",
+      "wikidataId": "Q106624",
+      "atlasId": "zewail_ahmed"
+    }
+  ],
+  "newPeople": 599,
+  "repeatLaureates": [
+    {
+      "name": "John Bardeen",
+      "wikidataId": "Q949",
+      "atlasId": "bardeen_john",
+      "awards": [
+        {
+          "award": "Nobel Prize",
+          "category": "Physics",
+          "year": 1956,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/physics/1956/bardeen/facts/",
+          "status": "received",
+          "motivation": "for their researches on semiconductors and their discovery of the transistor effect"
+        },
+        {
+          "award": "Nobel Prize",
+          "category": "Physics",
+          "year": 1972,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/physics/1972/bardeen/facts/",
+          "status": "received",
+          "motivation": "for their jointly developed theory of superconductivity, usually called the BCS-theory"
+        }
+      ]
+    },
+    {
+      "name": "Marie Curie",
+      "wikidataId": "Q7186",
+      "atlasId": "marie_curie",
+      "awards": [
+        {
+          "award": "Nobel Prize",
+          "category": "Physics",
+          "year": 1903,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/physics/1903/marie-curie/facts/",
+          "status": "received",
+          "motivation": "in recognition of the extraordinary services they have rendered by their joint researches on the radiation phenomena discovered by Professor Henri Becquerel"
+        },
+        {
+          "award": "Nobel Prize",
+          "category": "Chemistry",
+          "year": 1911,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/chemistry/1911/marie-curie/facts/",
+          "status": "received",
+          "motivation": "in recognition of her services to the advancement of chemistry by the discovery of the elements radium and polonium, by the isolation of radium and the study of the nature and compounds of this remarkable element"
+        }
+      ]
+    },
+    {
+      "name": "Frederick Sanger",
+      "wikidataId": "Q151564",
+      "atlasId": "sanger_fred",
+      "awards": [
+        {
+          "award": "Nobel Prize",
+          "category": "Chemistry",
+          "year": 1958,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/chemistry/1958/sanger/facts/",
+          "status": "received",
+          "motivation": "for his work on the structure of proteins, especially that of insulin"
+        },
+        {
+          "award": "Nobel Prize",
+          "category": "Chemistry",
+          "year": 1980,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/chemistry/1980/sanger/facts/",
+          "status": "received",
+          "motivation": "for their contributions concerning the determination of base sequences in nucleic acids"
+        }
+      ]
+    },
+    {
+      "name": "K. Barry Sharpless",
+      "wikidataId": "Q110925",
+      "atlasId": "sharpless_barry",
+      "awards": [
+        {
+          "award": "Nobel Prize",
+          "category": "Chemistry",
+          "year": 2001,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/chemistry/2001/sharpless/facts/",
+          "status": "received",
+          "motivation": "for his work on chirally catalysed oxidation reactions"
+        },
+        {
+          "award": "Nobel Prize",
+          "category": "Chemistry",
+          "year": 2022,
+          "officialSourceUrl": "https://www.nobelprize.org/prizes/chemistry/2022/sharpless/facts/",
+          "status": "received",
+          "motivation": "for the development of click chemistry and bioorthogonal chemistry"
+        }
+      ]
+    }
+  ],
+  "nearMatchRejections": [
+    {
+      "laureateName": "Kenneth G. Wilson",
+      "wikidataId": "Q193503",
+      "existingAtlasId": "wilson_robert",
+      "existingName": "Robert Woodrow Wilson",
+      "reason": "Rejected: birth year and surname match, but no additional given-name token matches."
+    }
+  ],
+  "identifierCollisions": []
+}

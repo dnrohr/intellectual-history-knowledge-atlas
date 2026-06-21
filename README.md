@@ -17,6 +17,7 @@ The app is designed for iterative curation. It starts from the bundled dataset i
 - Import people from Wikidata through the local Express backend.
 - Review source coverage, claim conflicts, import candidates, suggested links, graph repairs, and recovery data in Source Studio.
 - Run a dataset QA report for field/era coverage, isolated people, sparse high-bridge thinkers, and conflicting explicit edges.
+- Explore the canonical roster of Nobel science laureates and Fields Medal recipients, with checked-in provenance and duplicate-resolution artifacts.
 
 ## Requirements
 
@@ -84,6 +85,7 @@ npm run lint      # TypeScript check
 npm run build     # Build frontend and server
 npm run start     # Serve the production build
 npm run qa:data   # Print dataset QA report
+npm run import:laureates # Regenerate Nobel/Fields data from official sources
 npm run clean     # Remove generated build outputs
 ```
 
@@ -335,6 +337,12 @@ Suggested import workflow:
 4. Merge duplicates rather than creating parallel records.
 5. Review suggested links after accepting candidates.
 6. Promote durable, reviewed additions into `src/data.ts` when they belong in the seed dataset.
+
+## Nobel and Fields Medal Roster
+
+The checked-in canonical seed includes a generated, source-backed roster of Nobel laureates in Physics, Chemistry, and Physiology or Medicine plus Fields Medal recipients. Peace, Literature, and Economic Sciences are intentionally excluded. Award occurrences are retained in the provenance dataset while people are deduplicated by Wikidata identity and matched to existing atlas nodes before new IDs are created.
+
+Regenerate it with `npm run import:laureates`. See [Nobel and Fields Medal Import](docs/laureate-import.md) for authoritative sources, output files, matching rules, stable identifiers, and the candidate-edge review policy.
 
 ## Manual Imports
 

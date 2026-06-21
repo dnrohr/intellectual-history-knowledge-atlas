@@ -5,6 +5,7 @@ import {
   WIKIDATA_IMPORTED_EDGES as WIKIDATA_20TH_CENTURY_EDGES,
   WIKIDATA_IMPORTED_PEOPLE as WIKIDATA_20TH_CENTURY_PEOPLE,
 } from "./generatedWikidata20thCenturyBatch";
+import { LAUREATE_IMPORTED_PEOPLE } from "./generatedLaureates";
 
 export const FIELD_COLOR: Record<string, string> = {
   "Mathematics":     "#4a9eff",
@@ -3252,6 +3253,7 @@ export const INITIAL_PEOPLE_DATA: Thinker[] = [
 
   ...WIKIDATA_IMPORTED_PEOPLE,
   ...WIKIDATA_20TH_CENTURY_PEOPLE,
+  ...LAUREATE_IMPORTED_PEOPLE,
 
 ];
 

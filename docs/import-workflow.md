@@ -77,3 +77,9 @@ Local accepted imports live in browser storage. To make a durable repository cha
 2. Add important explicit edges with notes and source claims.
 3. Update canonical threads when the person belongs in a curated path.
 4. Run `npm run qa:data`, `npm test`, `npm run lint`, and `npm run build`.
+
+## Nobel and Fields Medal Batch
+
+The Nobel/Fields pipeline is a reproducible repository import, not a browser queue operation. Run `npm run import:laureates` to rebuild the checked-in roster, duplicate report, relationship candidates, and canonical person projection from the official Nobel Prize and IMU sources.
+
+Review `data/laureates/duplicate-resolution.json` before accepting identity changes. Relationship candidates remain outside canonical edges until a curator verifies the explicit adviser, student, or influence claim. Shared award status and co-laureate status are never sufficient evidence. Full details are in [Nobel and Fields Medal Import](laureate-import.md).

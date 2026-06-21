@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a reproducible, provenance-rich import of Nobel Physics, Chemistry, and Physiology or Medicine laureates and Fields Medal recipients, with existing-person resolution, stable Wikidata-based IDs, repeat-winner deduplication, review-only sourced relationship candidates, canonical seed integration, and validation coverage.
 - Added UI and navigation improvements for reduced screen clutter, timeline controls, import review, and relationship curation.
 - Added unit coverage for duplicate detection, import confidence, relationship scoring, metadata edge derivation, taxonomy grouping, storage validation, and migrations.
 - Added Playwright coverage for import queueing, accepting/editing imports, suggested-link acceptance, filter drawer taxonomy expansion, and timeline dragging.

@@ -12,6 +12,7 @@
     "seed:reset": "tsx scripts/atlasSeedTools.ts reset",
     "seed:import": "tsx scripts/atlasSeedTools.ts import",
     "seed:check": "tsx scripts/atlasSeedTools.ts check",
+    "import:laureates": "tsx scripts/importLaureates.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "start": "node dist/server.cjs",

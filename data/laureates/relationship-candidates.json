@@ -1,0 +1,4357 @@
+{
+  "policy": "Only explicit Wikidata P184/P185/P737/P802 claims; shared-award and co-laureate links are prohibited.",
+  "candidates": [
+    {
+      "id": "candidate:atiyah:laureate_q334039:mentorship",
+      "source": "atiyah",
+      "target": "laureate_q334039",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q208356"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q208356",
+      "evidenceClaim": "Q208356 P185 Q334039"
+    },
+    {
+      "id": "candidate:bardeen_john:schrieffer_john:mentorship",
+      "source": "bardeen_john",
+      "target": "schrieffer_john",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q949"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q949",
+      "evidenceClaim": "Q949 P185 Q153201"
+    },
+    {
+      "id": "candidate:bethe_hans:laureate_q726394:mentorship",
+      "source": "bethe_hans",
+      "target": "laureate_q726394",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q155794"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q155794",
+      "evidenceClaim": "Q155794 P185 Q726394"
+    },
+    {
+      "id": "candidate:bohr:landau_lev:mentorship",
+      "source": "bohr",
+      "target": "landau_lev",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q7085"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q7085",
+      "evidenceClaim": "Q7085 P802 Q133267"
+    },
+    {
+      "id": "candidate:bohr:laureate_q103854:mentorship",
+      "source": "bohr",
+      "target": "laureate_q103854",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q7085"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q7085",
+      "evidenceClaim": "Q7085 P185 Q103854"
+    },
+    {
+      "id": "candidate:bohr:wheeler:mentorship",
+      "source": "bohr",
+      "target": "wheeler",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q7085"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q7085",
+      "evidenceClaim": "Q7085 P802 Q202631"
+    },
+    {
+      "id": "candidate:boltzmann:laureate_q57125:mentorship",
+      "source": "boltzmann",
+      "target": "laureate_q57125",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57125"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57125",
+      "evidenceClaim": "Q57125 P184 Q84296"
+    },
+    {
+      "id": "candidate:boltzmann:prigogine_ilya:influence",
+      "source": "boltzmann",
+      "target": "prigogine_ilya",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q183509"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q183509",
+      "evidenceClaim": "Q183509 P737 Q84296"
+    },
+    {
+      "id": "candidate:brenner_sydney:laureate_q295659:mentorship",
+      "source": "brenner_sydney",
+      "target": "laureate_q295659",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295659"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295659",
+      "evidenceClaim": "Q295659 P184 Q234463"
+    },
+    {
+      "id": "candidate:brown_herbert:laureate_q105927:influence",
+      "source": "brown_herbert",
+      "target": "laureate_q105927",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q105927"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q105927",
+      "evidenceClaim": "Q105927 P737 Q102406"
+    },
+    {
+      "id": "candidate:brown_herbert:laureate_q105927:mentorship",
+      "source": "brown_herbert",
+      "target": "laureate_q105927",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q102406"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q102406",
+      "evidenceClaim": "Q102406 P802 Q105927"
+    },
+    {
+      "id": "candidate:brown_herbert:laureate_q105949:influence",
+      "source": "brown_herbert",
+      "target": "laureate_q105949",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q105949"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q105949",
+      "evidenceClaim": "Q105949 P737 Q102406"
+    },
+    {
+      "id": "candidate:brown_herbert:laureate_q105949:mentorship",
+      "source": "brown_herbert",
+      "target": "laureate_q105949",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q102406"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q102406",
+      "evidenceClaim": "Q102406 P802 Q105949"
+    },
+    {
+      "id": "candidate:bunsen:haber:mentorship",
+      "source": "bunsen",
+      "target": "haber",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57075"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57075",
+      "evidenceClaim": "Q57075 P184 Q71031"
+    },
+    {
+      "id": "candidate:bunsen:laureate_q57063:mentorship",
+      "source": "bunsen",
+      "target": "laureate_q57063",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57063"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57063",
+      "evidenceClaim": "Q57063 P184 Q71031"
+    },
+    {
+      "id": "candidate:bunsen:laureate_q57078:mentorship",
+      "source": "bunsen",
+      "target": "laureate_q57078",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57078"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57078",
+      "evidenceClaim": "Q57078 P184 Q71031"
+    },
+    {
+      "id": "candidate:cantor:laureate_q216809:influence",
+      "source": "cantor",
+      "target": "laureate_q216809",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q216809"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q216809",
+      "evidenceClaim": "Q216809 P737 Q76420"
+    },
+    {
+      "id": "candidate:clausius:laureate_q131721:influence",
+      "source": "clausius",
+      "target": "laureate_q131721",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q131721"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q131721",
+      "evidenceClaim": "Q131721 P737 Q30693"
+    },
+    {
+      "id": "candidate:conway:laureate_q334010:mentorship",
+      "source": "conway",
+      "target": "laureate_q334010",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q334010"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q334010",
+      "evidenceClaim": "Q334010 P184 Q268961"
+    },
+    {
+      "id": "candidate:dirac:feynman:influence",
+      "source": "dirac",
+      "target": "feynman",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q39246"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q39246",
+      "evidenceClaim": "Q39246 P737 Q47480"
+    },
+    {
+      "id": "candidate:dirac:john_polkinghorne:mentorship",
+      "source": "dirac",
+      "target": "john_polkinghorne",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q47480"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q47480",
+      "evidenceClaim": "Q47480 P185 Q726724"
+    },
+    {
+      "id": "candidate:dirac:salam:influence",
+      "source": "dirac",
+      "target": "salam",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q28189"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q28189",
+      "evidenceClaim": "Q28189 P737 Q47480"
+    },
+    {
+      "id": "candidate:eddington:chandrasekhar:mentorship",
+      "source": "eddington",
+      "target": "chandrasekhar",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q148109"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q148109",
+      "evidenceClaim": "Q148109 P184 Q215022"
+    },
+    {
+      "id": "candidate:einstein:szilard_leo:mentorship",
+      "source": "einstein",
+      "target": "szilard_leo",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P185 Q153238"
+    },
+    {
+      "id": "candidate:fermi_enrico:gell_mann:mentorship",
+      "source": "fermi_enrico",
+      "target": "gell_mann",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P802 Q172840"
+    },
+    {
+      "id": "candidate:fermi_enrico:laureate_q155777:influence",
+      "source": "fermi_enrico",
+      "target": "laureate_q155777",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q155777"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q155777",
+      "evidenceClaim": "Q155777 P737 Q8753"
+    },
+    {
+      "id": "candidate:fermi_enrico:laureate_q173028:mentorship",
+      "source": "fermi_enrico",
+      "target": "laureate_q173028",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P185 Q173028"
+    },
+    {
+      "id": "candidate:fermi_enrico:laureate_q181369:mentorship",
+      "source": "fermi_enrico",
+      "target": "laureate_q181369",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P802 Q181369"
+    },
+    {
+      "id": "candidate:fermi_enrico:laureate_q183655:mentorship",
+      "source": "fermi_enrico",
+      "target": "laureate_q183655",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P185 Q183655"
+    },
+    {
+      "id": "candidate:fermi_enrico:laureate_q183679:mentorship",
+      "source": "fermi_enrico",
+      "target": "laureate_q183679",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P185 Q183679"
+    },
+    {
+      "id": "candidate:fermi_enrico:laureate_q187822:mentorship",
+      "source": "fermi_enrico",
+      "target": "laureate_q187822",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q187822"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q187822",
+      "evidenceClaim": "Q187822 P184 Q8753"
+    },
+    {
+      "id": "candidate:feynman:laureate_q206405:influence",
+      "source": "feynman",
+      "target": "laureate_q206405",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q206405"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q206405",
+      "evidenceClaim": "Q206405 P737 Q39246"
+    },
+    {
+      "id": "candidate:forrester_jay:goodenough_john:influence",
+      "source": "forrester_jay",
+      "target": "goodenough_john",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q906529"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q906529",
+      "evidenceClaim": "Q906529 P737 Q92763"
+    },
+    {
+      "id": "candidate:fourier:fermi_enrico:influence",
+      "source": "fourier",
+      "target": "fermi_enrico",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P737 Q8772"
+    },
+    {
+      "id": "candidate:fukui_kenichi:yoshino_akira:influence",
+      "source": "fukui_kenichi",
+      "target": "yoshino_akira",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q4701206"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q4701206",
+      "evidenceClaim": "Q4701206 P737 Q217734"
+    },
+    {
+      "id": "candidate:gandhi:einstein:influence",
+      "source": "gandhi",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q1001"
+    },
+    {
+      "id": "candidate:gell_mann:laureate_q193503:mentorship",
+      "source": "gell_mann",
+      "target": "laureate_q193503",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q172840"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q172840",
+      "evidenceClaim": "Q172840 P185 Q193503"
+    },
+    {
+      "id": "candidate:grothendieck:deligne:mentorship",
+      "source": "grothendieck",
+      "target": "deligne",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q334045"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q334045",
+      "evidenceClaim": "Q334045 P184 Q77141"
+    },
+    {
+      "id": "candidate:grothendieck:laureate_q369658:influence",
+      "source": "grothendieck",
+      "target": "laureate_q369658",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q369658"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q369658",
+      "evidenceClaim": "Q369658 P737 Q77141"
+    },
+    {
+      "id": "candidate:hahn:fermi_enrico:influence",
+      "source": "hahn",
+      "target": "fermi_enrico",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q8753"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q8753",
+      "evidenceClaim": "Q8753 P737 Q57065"
+    },
+    {
+      "id": "candidate:heisenberg:eigen:influence",
+      "source": "heisenberg",
+      "target": "eigen",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q76600"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q76600",
+      "evidenceClaim": "Q76600 P737 Q40904"
+    },
+    {
+      "id": "candidate:heisenberg:laureate_q123022:mentorship",
+      "source": "heisenberg",
+      "target": "laureate_q123022",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q40904"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q40904",
+      "evidenceClaim": "Q40904 P185 Q123022"
+    },
+    {
+      "id": "candidate:heisenberg:teller_edward:mentorship",
+      "source": "heisenberg",
+      "target": "teller_edward",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q40904"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q40904",
+      "evidenceClaim": "Q40904 P185 Q6733"
+    },
+    {
+      "id": "candidate:helmholtz:laureate_q127234:mentorship",
+      "source": "helmholtz",
+      "target": "laureate_q127234",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q127234"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q127234",
+      "evidenceClaim": "Q127234 P184 Q60024"
+    },
+    {
+      "id": "candidate:helmholtz:laureate_q133232:mentorship",
+      "source": "helmholtz",
+      "target": "laureate_q133232",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133232"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133232",
+      "evidenceClaim": "Q133232 P184 Q60024"
+    },
+    {
+      "id": "candidate:helmholtz:laureate_q57068:mentorship",
+      "source": "helmholtz",
+      "target": "laureate_q57068",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57068"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57068",
+      "evidenceClaim": "Q57068 P184 Q60024"
+    },
+    {
+      "id": "candidate:hewish:bell_burnell:mentorship",
+      "source": "hewish",
+      "target": "bell_burnell",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q189990"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q189990",
+      "evidenceClaim": "Q189990 P185 Q233974"
+    },
+    {
+      "id": "candidate:hume:einstein:influence",
+      "source": "hume",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q37160"
+    },
+    {
+      "id": "candidate:kekule:laureate_q57078:mentorship",
+      "source": "kekule",
+      "target": "laureate_q57078",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57078"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57078",
+      "evidenceClaim": "Q57078 P184 Q76784"
+    },
+    {
+      "id": "candidate:kirchhoff:laureate_q133232:mentorship",
+      "source": "kirchhoff",
+      "target": "laureate_q133232",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133232"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133232",
+      "evidenceClaim": "Q133232 P184 Q60052"
+    },
+    {
+      "id": "candidate:koch:ehrlich:mentorship",
+      "source": "koch",
+      "target": "ehrlich",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57089"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57089",
+      "evidenceClaim": "Q57089 P184 Q37193"
+    },
+    {
+      "id": "candidate:koch:laureate_q216324:mentorship",
+      "source": "koch",
+      "target": "laureate_q216324",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q37193"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q37193",
+      "evidenceClaim": "Q37193 P802 Q216324"
+    },
+    {
+      "id": "candidate:koch:laureate_q76425:mentorship",
+      "source": "koch",
+      "target": "laureate_q76425",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q37193"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q37193",
+      "evidenceClaim": "Q37193 P185 Q76425"
+    },
+    {
+      "id": "candidate:landau_lev:laureate_q104668:mentorship",
+      "source": "landau_lev",
+      "target": "laureate_q104668",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q104668"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q104668",
+      "evidenceClaim": "Q104668 P184 Q133267"
+    },
+    {
+      "id": "candidate:landau_lev:laureate_q188128:mentorship",
+      "source": "landau_lev",
+      "target": "laureate_q188128",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133267"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133267",
+      "evidenceClaim": "Q133267 P185 Q188128"
+    },
+    {
+      "id": "candidate:laureate_q103835:laureate_q107405:mentorship",
+      "source": "laureate_q103835",
+      "target": "laureate_q107405",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q103835"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q103835",
+      "evidenceClaim": "Q103835 P185 Q107405"
+    },
+    {
+      "id": "candidate:laureate_q103835:laureate_q123022:mentorship",
+      "source": "laureate_q103835",
+      "target": "laureate_q123022",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q103835"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q103835",
+      "evidenceClaim": "Q103835 P185 Q123022"
+    },
+    {
+      "id": "candidate:laureate_q104104:laureate_q106494:mentorship",
+      "source": "laureate_q104104",
+      "target": "laureate_q106494",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q104104"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q104104",
+      "evidenceClaim": "Q104104 P185 Q106494"
+    },
+    {
+      "id": "candidate:laureate_q104600:doudna:influence",
+      "source": "laureate_q104600",
+      "target": "doudna",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q56068"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q56068",
+      "evidenceClaim": "Q56068 P737 Q104600"
+    },
+    {
+      "id": "candidate:laureate_q104600:doudna:mentorship",
+      "source": "laureate_q104600",
+      "target": "doudna",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q56068"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q56068",
+      "evidenceClaim": "Q56068 P184 Q104600"
+    },
+    {
+      "id": "candidate:laureate_q106733:laureate_q107422:mentorship",
+      "source": "laureate_q106733",
+      "target": "laureate_q107422",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q106733"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q106733",
+      "evidenceClaim": "Q106733 P185 Q107422"
+    },
+    {
+      "id": "candidate:laureate_q107416:laureate_q192715:mentorship",
+      "source": "laureate_q107416",
+      "target": "laureate_q192715",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107416"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107416",
+      "evidenceClaim": "Q107416 P185 Q192715"
+    },
+    {
+      "id": "candidate:laureate_q107419:laureate_q61045:mentorship",
+      "source": "laureate_q107419",
+      "target": "laureate_q61045",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107419"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107419",
+      "evidenceClaim": "Q107419 P185 Q61045"
+    },
+    {
+      "id": "candidate:laureate_q107690:laureate_q3169751:mentorship",
+      "source": "laureate_q107690",
+      "target": "laureate_q3169751",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107690"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107690",
+      "evidenceClaim": "Q107690 P185 Q3169751"
+    },
+    {
+      "id": "candidate:laureate_q109553:laureate_q108602:mentorship",
+      "source": "laureate_q109553",
+      "target": "laureate_q108602",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q108602"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q108602",
+      "evidenceClaim": "Q108602 P184 Q109553"
+    },
+    {
+      "id": "candidate:laureate_q109553:laureate_q243536:mentorship",
+      "source": "laureate_q109553",
+      "target": "laureate_q243536",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q109553"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q109553",
+      "evidenceClaim": "Q109553 P802 Q243536"
+    },
+    {
+      "id": "candidate:laureate_q110935:hoffmann_roald:influence",
+      "source": "laureate_q110935",
+      "target": "hoffmann_roald",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q273279"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q273279",
+      "evidenceClaim": "Q273279 P737 Q110935"
+    },
+    {
+      "id": "candidate:laureate_q110935:hoffmann_roald:mentorship",
+      "source": "laureate_q110935",
+      "target": "hoffmann_roald",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q273279"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q273279",
+      "evidenceClaim": "Q273279 P184 Q110935"
+    },
+    {
+      "id": "candidate:laureate_q110935:laureate_q109559:mentorship",
+      "source": "laureate_q110935",
+      "target": "laureate_q109559",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q109559"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q109559",
+      "evidenceClaim": "Q109559 P184 Q110935"
+    },
+    {
+      "id": "candidate:laureate_q110935:laureate_q7426:influence",
+      "source": "laureate_q110935",
+      "target": "laureate_q7426",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q7426"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q7426",
+      "evidenceClaim": "Q7426 P737 Q110935"
+    },
+    {
+      "id": "candidate:laureate_q110942:laureate_q110916:influence",
+      "source": "laureate_q110942",
+      "target": "laureate_q110916",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q110916"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q110916",
+      "evidenceClaim": "Q110916 P737 Q110942"
+    },
+    {
+      "id": "candidate:laureate_q122298:laureate_q76687:mentorship",
+      "source": "laureate_q122298",
+      "target": "laureate_q76687",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q122298"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q122298",
+      "evidenceClaim": "Q122298 P185 Q76687"
+    },
+    {
+      "id": "candidate:laureate_q123975:laureate_q124013:mentorship",
+      "source": "laureate_q123975",
+      "target": "laureate_q124013",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q123975"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q123975",
+      "evidenceClaim": "Q123975 P185 Q124013"
+    },
+    {
+      "id": "candidate:laureate_q12658:laureate_q78482:mentorship",
+      "source": "laureate_q12658",
+      "target": "laureate_q78482",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q78482"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q78482",
+      "evidenceClaim": "Q78482 P184 Q12658"
+    },
+    {
+      "id": "candidate:laureate_q127234:laureate_q130975:mentorship",
+      "source": "laureate_q127234",
+      "target": "laureate_q130975",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q127234"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q127234",
+      "evidenceClaim": "Q127234 P185 Q130975"
+    },
+    {
+      "id": "candidate:laureate_q127944:alvarez_luis:mentorship",
+      "source": "laureate_q127944",
+      "target": "alvarez_luis",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q178344"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q178344",
+      "evidenceClaim": "Q178344 P184 Q127944"
+    },
+    {
+      "id": "candidate:laureate_q130975:laureate_q169366:mentorship",
+      "source": "laureate_q130975",
+      "target": "laureate_q169366",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q130975"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q130975",
+      "evidenceClaim": "Q130975 P185 Q169366"
+    },
+    {
+      "id": "candidate:laureate_q131721:laureate_q62891:influence",
+      "source": "laureate_q131721",
+      "target": "laureate_q62891",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q62891"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q62891",
+      "evidenceClaim": "Q62891 P737 Q131721"
+    },
+    {
+      "id": "candidate:laureate_q131729:perutz_max:mentorship",
+      "source": "laureate_q131729",
+      "target": "perutz_max",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q131729"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q131729",
+      "evidenceClaim": "Q131729 P185 Q78480"
+    },
+    {
+      "id": "candidate:laureate_q133232:laureate_q37463:mentorship",
+      "source": "laureate_q133232",
+      "target": "laureate_q37463",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133232"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133232",
+      "evidenceClaim": "Q133232 P185 Q37463"
+    },
+    {
+      "id": "candidate:laureate_q133232:marie_curie:mentorship",
+      "source": "laureate_q133232",
+      "target": "marie_curie",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133232"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133232",
+      "evidenceClaim": "Q133232 P185 Q7186"
+    },
+    {
+      "id": "candidate:laureate_q133747:laureate_q131729:mentorship",
+      "source": "laureate_q133747",
+      "target": "laureate_q131729",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q131729"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q131729",
+      "evidenceClaim": "Q131729 P184 Q133747"
+    },
+    {
+      "id": "candidate:laureate_q135171:noyori_ryoji:influence",
+      "source": "laureate_q135171",
+      "target": "noyori_ryoji",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q157210"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q157210",
+      "evidenceClaim": "Q157210 P737 Q135171"
+    },
+    {
+      "id": "candidate:laureate_q135180:doudna:influence",
+      "source": "laureate_q135180",
+      "target": "doudna",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q56068"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q56068",
+      "evidenceClaim": "Q56068 P737 Q135180"
+    },
+    {
+      "id": "candidate:laureate_q1387059:laureate_q1351105:influence",
+      "source": "laureate_q1387059",
+      "target": "laureate_q1351105",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1351105"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1351105",
+      "evidenceClaim": "Q1351105 P737 Q1387059"
+    },
+    {
+      "id": "candidate:laureate_q153210:laureate_q189741:mentorship",
+      "source": "laureate_q153210",
+      "target": "laureate_q189741",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q153210"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q153210",
+      "evidenceClaim": "Q153210 P185 Q189741"
+    },
+    {
+      "id": "candidate:laureate_q153890:dawkins:mentorship",
+      "source": "laureate_q153890",
+      "target": "dawkins",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q153890"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q153890",
+      "evidenceClaim": "Q153890 P185 Q44461"
+    },
+    {
+      "id": "candidate:laureate_q155375:laureate_q4517:mentorship",
+      "source": "laureate_q155375",
+      "target": "laureate_q4517",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q155375"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q155375",
+      "evidenceClaim": "Q155375 P185 Q4517"
+    },
+    {
+      "id": "candidate:laureate_q155525:laureate_q77160:mentorship",
+      "source": "laureate_q155525",
+      "target": "laureate_q77160",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q155525"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q155525",
+      "evidenceClaim": "Q155525 P185 Q77160"
+    },
+    {
+      "id": "candidate:laureate_q155759:laureate_q104668:mentorship",
+      "source": "laureate_q155759",
+      "target": "laureate_q104668",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q104668"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q104668",
+      "evidenceClaim": "Q104668 P184 Q155759"
+    },
+    {
+      "id": "candidate:laureate_q155773:kajita_takaaki:mentorship",
+      "source": "laureate_q155773",
+      "target": "kajita_takaaki",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q11538917"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q11538917",
+      "evidenceClaim": "Q11538917 P184 Q155773"
+    },
+    {
+      "id": "candidate:laureate_q156480:laureate_q234590:mentorship",
+      "source": "laureate_q156480",
+      "target": "laureate_q234590",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q234590"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q234590",
+      "evidenceClaim": "Q234590 P184 Q156480"
+    },
+    {
+      "id": "candidate:laureate_q162900:laureate_q178103:mentorship",
+      "source": "laureate_q162900",
+      "target": "laureate_q178103",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q162900"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q162900",
+      "evidenceClaim": "Q162900 P185 Q178103"
+    },
+    {
+      "id": "candidate:laureate_q165969:laureate_q107416:mentorship",
+      "source": "laureate_q165969",
+      "target": "laureate_q107416",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107416"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107416",
+      "evidenceClaim": "Q107416 P184 Q165969"
+    },
+    {
+      "id": "candidate:laureate_q165969:laureate_q107419:mentorship",
+      "source": "laureate_q165969",
+      "target": "laureate_q107419",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107419"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107419",
+      "evidenceClaim": "Q107419 P184 Q165969"
+    },
+    {
+      "id": "candidate:laureate_q165969:schwinger:mentorship",
+      "source": "laureate_q165969",
+      "target": "schwinger",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q165969"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q165969",
+      "evidenceClaim": "Q165969 P185 Q186465"
+    },
+    {
+      "id": "candidate:laureate_q1673706:laureate_q11443689:mentorship",
+      "source": "laureate_q1673706",
+      "target": "laureate_q11443689",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q11443689"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q11443689",
+      "evidenceClaim": "Q11443689 P184 Q1673706"
+    },
+    {
+      "id": "candidate:laureate_q169330:laureate_q127944:mentorship",
+      "source": "laureate_q169330",
+      "target": "laureate_q127944",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q127944"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q127944",
+      "evidenceClaim": "Q127944 P184 Q169330"
+    },
+    {
+      "id": "candidate:laureate_q169330:laureate_q133222:mentorship",
+      "source": "laureate_q169330",
+      "target": "laureate_q133222",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133222"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133222",
+      "evidenceClaim": "Q133222 P184 Q169330"
+    },
+    {
+      "id": "candidate:laureate_q169366:laureate_q80905:mentorship",
+      "source": "laureate_q169366",
+      "target": "laureate_q80905",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q169366"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q169366",
+      "evidenceClaim": "Q169366 P185 Q80905"
+    },
+    {
+      "id": "candidate:laureate_q169577:wu_chienshiung:mentorship",
+      "source": "laureate_q169577",
+      "target": "wu_chienshiung",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q169577"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q169577",
+      "evidenceClaim": "Q169577 P185 Q450317"
+    },
+    {
+      "id": "candidate:laureate_q1701279:laureate_q5341373:mentorship",
+      "source": "laureate_q1701279",
+      "target": "laureate_q5341373",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1701279"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1701279",
+      "evidenceClaim": "Q1701279 P802 Q5341373"
+    },
+    {
+      "id": "candidate:laureate_q1701279:laureate_q6796222:mentorship",
+      "source": "laureate_q1701279",
+      "target": "laureate_q6796222",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1701279"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1701279",
+      "evidenceClaim": "Q1701279 P802 Q6796222"
+    },
+    {
+      "id": "candidate:laureate_q170741:laureate_q54945:mentorship",
+      "source": "laureate_q170741",
+      "target": "laureate_q54945",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q170741"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q170741",
+      "evidenceClaim": "Q170741 P185 Q54945"
+    },
+    {
+      "id": "candidate:laureate_q172254:laureate_q211787:mentorship",
+      "source": "laureate_q172254",
+      "target": "laureate_q211787",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q172254"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q172254",
+      "evidenceClaim": "Q172254 P185 Q211787"
+    },
+    {
+      "id": "candidate:laureate_q183270:laureate_q189987:mentorship",
+      "source": "laureate_q183270",
+      "target": "laureate_q189987",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q183270"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q183270",
+      "evidenceClaim": "Q183270 P185 Q189987"
+    },
+    {
+      "id": "candidate:laureate_q183373:laureate_q32538394:mentorship",
+      "source": "laureate_q183373",
+      "target": "laureate_q32538394",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q183373"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q183373",
+      "evidenceClaim": "Q183373 P802 Q32538394"
+    },
+    {
+      "id": "candidate:laureate_q186391:laureate_q233026:mentorship",
+      "source": "laureate_q186391",
+      "target": "laureate_q233026",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q186391"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q186391",
+      "evidenceClaim": "Q186391 P185 Q233026"
+    },
+    {
+      "id": "candidate:laureate_q186497:maiman_theodore:mentorship",
+      "source": "laureate_q186497",
+      "target": "maiman_theodore",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q186497"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q186497",
+      "evidenceClaim": "Q186497 P802 Q315399"
+    },
+    {
+      "id": "candidate:laureate_q189465:lewis_gn:mentorship",
+      "source": "laureate_q189465",
+      "target": "lewis_gn",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q189465"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q189465",
+      "evidenceClaim": "Q189465 P185 Q208858"
+    },
+    {
+      "id": "candidate:laureate_q189485:goodenough_john:influence",
+      "source": "laureate_q189485",
+      "target": "goodenough_john",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q906529"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q906529",
+      "evidenceClaim": "Q906529 P737 Q189485"
+    },
+    {
+      "id": "candidate:laureate_q190486:rowland_sherwood:mentorship",
+      "source": "laureate_q190486",
+      "target": "rowland_sherwood",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q190486"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q190486",
+      "evidenceClaim": "Q190486 P185 Q111190"
+    },
+    {
+      "id": "candidate:laureate_q190697:laureate_q109588:mentorship",
+      "source": "laureate_q190697",
+      "target": "laureate_q109588",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q109588"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q109588",
+      "evidenceClaim": "Q109588 P184 Q190697"
+    },
+    {
+      "id": "candidate:laureate_q190745:laureate_q206499:mentorship",
+      "source": "laureate_q190745",
+      "target": "laureate_q206499",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q190745"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q190745",
+      "evidenceClaim": "Q190745 P185 Q206499"
+    },
+    {
+      "id": "candidate:laureate_q190770:goodenough_john:influence",
+      "source": "laureate_q190770",
+      "target": "goodenough_john",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q906529"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q906529",
+      "evidenceClaim": "Q906529 P737 Q190770"
+    },
+    {
+      "id": "candidate:laureate_q190770:laureate_q1002250:mentorship",
+      "source": "laureate_q190770",
+      "target": "laureate_q1002250",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1002250"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1002250",
+      "evidenceClaim": "Q1002250 P184 Q190770"
+    },
+    {
+      "id": "candidate:laureate_q192685:laureate_q156286:mentorship",
+      "source": "laureate_q192685",
+      "target": "laureate_q156286",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q156286"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q156286",
+      "evidenceClaim": "Q156286 P184 Q192685"
+    },
+    {
+      "id": "candidate:laureate_q193655:kuhn:mentorship",
+      "source": "laureate_q193655",
+      "target": "kuhn",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q193655"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q193655",
+      "evidenceClaim": "Q193655 P185 Q184980"
+    },
+    {
+      "id": "candidate:laureate_q193655:laureate_q190770:mentorship",
+      "source": "laureate_q193655",
+      "target": "laureate_q190770",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q190770"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q190770",
+      "evidenceClaim": "Q190770 P184 Q193655"
+    },
+    {
+      "id": "candidate:laureate_q201853:laureate_q206405:mentorship",
+      "source": "laureate_q201853",
+      "target": "laureate_q206405",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q201853"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q201853",
+      "evidenceClaim": "Q201853 P185 Q206405"
+    },
+    {
+      "id": "candidate:laureate_q202149:laureate_q184592:mentorship",
+      "source": "laureate_q202149",
+      "target": "laureate_q184592",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q184592"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q184592",
+      "evidenceClaim": "Q184592 P184 Q202149"
+    },
+    {
+      "id": "candidate:laureate_q205667:laureate_q83333:mentorship",
+      "source": "laureate_q205667",
+      "target": "laureate_q83333",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q205667"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q205667",
+      "evidenceClaim": "Q205667 P185 Q83333"
+    },
+    {
+      "id": "candidate:laureate_q212081:grothendieck:mentorship",
+      "source": "laureate_q212081",
+      "target": "grothendieck",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q77141"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q77141",
+      "evidenceClaim": "Q77141 P184 Q212081"
+    },
+    {
+      "id": "candidate:laureate_q212081:laureate_q260802:influence",
+      "source": "laureate_q212081",
+      "target": "laureate_q260802",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q260802"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q260802",
+      "evidenceClaim": "Q260802 P737 Q212081"
+    },
+    {
+      "id": "candidate:laureate_q213504:laureate_q137106:influence",
+      "source": "laureate_q213504",
+      "target": "laureate_q137106",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q137106"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q137106",
+      "evidenceClaim": "Q137106 P737 Q213504"
+    },
+    {
+      "id": "candidate:laureate_q213504:laureate_q273223:influence",
+      "source": "laureate_q213504",
+      "target": "laureate_q273223",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q273223"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q273223",
+      "evidenceClaim": "Q273223 P737 Q213504"
+    },
+    {
+      "id": "candidate:laureate_q213504:laureate_q273223:mentorship",
+      "source": "laureate_q213504",
+      "target": "laureate_q273223",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q213504"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q213504",
+      "evidenceClaim": "Q213504 P185 Q273223"
+    },
+    {
+      "id": "candidate:laureate_q217486:laureate_q295659:mentorship",
+      "source": "laureate_q217486",
+      "target": "laureate_q295659",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295659"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295659",
+      "evidenceClaim": "Q295659 P184 Q217486"
+    },
+    {
+      "id": "candidate:laureate_q219718:laureate_q60108:mentorship",
+      "source": "laureate_q219718",
+      "target": "laureate_q60108",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q219718"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q219718",
+      "evidenceClaim": "Q219718 P185 Q60108"
+    },
+    {
+      "id": "candidate:laureate_q233943:laureate_q234590:mentorship",
+      "source": "laureate_q233943",
+      "target": "laureate_q234590",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q234590"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q234590",
+      "evidenceClaim": "Q234590 P184 Q233943"
+    },
+    {
+      "id": "candidate:laureate_q233957:laureate_q295678:mentorship",
+      "source": "laureate_q233957",
+      "target": "laureate_q295678",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q233957"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q233957",
+      "evidenceClaim": "Q233957 P185 Q295678"
+    },
+    {
+      "id": "candidate:laureate_q233976:haldane:mentorship",
+      "source": "laureate_q233976",
+      "target": "haldane",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q233976"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q233976",
+      "evidenceClaim": "Q233976 P185 Q156333"
+    },
+    {
+      "id": "candidate:laureate_q233976:laureate_q233985:mentorship",
+      "source": "laureate_q233976",
+      "target": "laureate_q233985",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q233976"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q233976",
+      "evidenceClaim": "Q233976 P802 Q233985"
+    },
+    {
+      "id": "candidate:laureate_q233976:laureate_q58054:mentorship",
+      "source": "laureate_q233976",
+      "target": "laureate_q58054",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q233976"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q233976",
+      "evidenceClaim": "Q233976 P802 Q58054"
+    },
+    {
+      "id": "candidate:laureate_q234949:laureate_q504021:mentorship",
+      "source": "laureate_q234949",
+      "target": "laureate_q504021",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q234949"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q234949",
+      "evidenceClaim": "Q234949 P185 Q504021"
+    },
+    {
+      "id": "candidate:laureate_q234949:laureate_q983858:mentorship",
+      "source": "laureate_q234949",
+      "target": "laureate_q983858",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q234949"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q234949",
+      "evidenceClaim": "Q234949 P185 Q983858"
+    },
+    {
+      "id": "candidate:laureate_q235834:laureate_q106762:mentorship",
+      "source": "laureate_q235834",
+      "target": "laureate_q106762",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q106762"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q106762",
+      "evidenceClaim": "Q106762 P184 Q235834"
+    },
+    {
+      "id": "candidate:laureate_q237160:laureate_q233985:mentorship",
+      "source": "laureate_q237160",
+      "target": "laureate_q233985",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q233985"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q233985",
+      "evidenceClaim": "Q233985 P184 Q237160"
+    },
+    {
+      "id": "candidate:laureate_q243532:laureate_q273201:mentorship",
+      "source": "laureate_q243532",
+      "target": "laureate_q273201",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q243532"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q243532",
+      "evidenceClaim": "Q243532 P802 Q273201"
+    },
+    {
+      "id": "candidate:laureate_q26321:laureate_q26322:mentorship",
+      "source": "laureate_q26321",
+      "target": "laureate_q26322",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q26321"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q26321",
+      "evidenceClaim": "Q26321 P185 Q26322"
+    },
+    {
+      "id": "candidate:laureate_q295659:laureate_q504021:mentorship",
+      "source": "laureate_q295659",
+      "target": "laureate_q504021",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295659"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295659",
+      "evidenceClaim": "Q295659 P185 Q504021"
+    },
+    {
+      "id": "candidate:laureate_q295659:laureate_q983858:mentorship",
+      "source": "laureate_q295659",
+      "target": "laureate_q983858",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295659"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295659",
+      "evidenceClaim": "Q295659 P185 Q983858"
+    },
+    {
+      "id": "candidate:laureate_q295678:laureate_q740638:mentorship",
+      "source": "laureate_q295678",
+      "target": "laureate_q740638",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295678"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295678",
+      "evidenceClaim": "Q295678 P185 Q740638"
+    },
+    {
+      "id": "candidate:laureate_q295696:laureate_q295768:mentorship",
+      "source": "laureate_q295696",
+      "target": "laureate_q295768",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295696"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295696",
+      "evidenceClaim": "Q295696 P185 Q295768"
+    },
+    {
+      "id": "candidate:laureate_q310487:laureate_q35703:mentorship",
+      "source": "laureate_q310487",
+      "target": "laureate_q35703",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q310487"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q310487",
+      "evidenceClaim": "Q310487 P185 Q35703"
+    },
+    {
+      "id": "candidate:laureate_q311358:laureate_q295691:mentorship",
+      "source": "laureate_q311358",
+      "target": "laureate_q295691",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295691"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295691",
+      "evidenceClaim": "Q295691 P184 Q311358"
+    },
+    {
+      "id": "candidate:laureate_q312977:laureate_q202152:mentorship",
+      "source": "laureate_q312977",
+      "target": "laureate_q202152",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q202152"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q202152",
+      "evidenceClaim": "Q202152 P184 Q312977"
+    },
+    {
+      "id": "candidate:laureate_q333948:laureate_q15461028:mentorship",
+      "source": "laureate_q333948",
+      "target": "laureate_q15461028",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q15461028"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q15461028",
+      "evidenceClaim": "Q15461028 P184 Q333948"
+    },
+    {
+      "id": "candidate:laureate_q333959:laureate_q1771279:mentorship",
+      "source": "laureate_q333959",
+      "target": "laureate_q1771279",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1771279"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1771279",
+      "evidenceClaim": "Q1771279 P184 Q333959"
+    },
+    {
+      "id": "candidate:laureate_q334030:laureate_q334065:mentorship",
+      "source": "laureate_q334030",
+      "target": "laureate_q334065",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q334030"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q334030",
+      "evidenceClaim": "Q334030 P185 Q334065"
+    },
+    {
+      "id": "candidate:laureate_q334065:laureate_q2641168:mentorship",
+      "source": "laureate_q334065",
+      "target": "laureate_q2641168",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q2641168"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q2641168",
+      "evidenceClaim": "Q2641168 P184 Q334065"
+    },
+    {
+      "id": "candidate:laureate_q35698:sharpless_barry:influence",
+      "source": "laureate_q35698",
+      "target": "sharpless_barry",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q110925"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q110925",
+      "evidenceClaim": "Q110925 P737 Q35698"
+    },
+    {
+      "id": "candidate:laureate_q40262:laureate_q107450:mentorship",
+      "source": "laureate_q40262",
+      "target": "laureate_q107450",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107450"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107450",
+      "evidenceClaim": "Q107450 P184 Q40262"
+    },
+    {
+      "id": "candidate:laureate_q40262:witten:mentorship",
+      "source": "laureate_q40262",
+      "target": "witten",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q40262"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q40262",
+      "evidenceClaim": "Q40262 P185 Q201513"
+    },
+    {
+      "id": "candidate:laureate_q41269:marie_curie:mentorship",
+      "source": "laureate_q41269",
+      "target": "marie_curie",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q41269"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q41269",
+      "evidenceClaim": "Q41269 P802 Q7186"
+    },
+    {
+      "id": "candidate:laureate_q41688:einstein:influence",
+      "source": "laureate_q41688",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q41688"
+    },
+    {
+      "id": "candidate:laureate_q46120:mcdonald_arthur:mentorship",
+      "source": "laureate_q46120",
+      "target": "mcdonald_arthur",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q46120"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q46120",
+      "evidenceClaim": "Q46120 P185 Q710597"
+    },
+    {
+      "id": "candidate:laureate_q48956:laureate_q115490:mentorship",
+      "source": "laureate_q48956",
+      "target": "laureate_q115490",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q115490"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q115490",
+      "evidenceClaim": "Q115490 P184 Q48956"
+    },
+    {
+      "id": "candidate:laureate_q48956:laureate_q122996:mentorship",
+      "source": "laureate_q48956",
+      "target": "laureate_q122996",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q122996"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q122996",
+      "evidenceClaim": "Q122996 P184 Q48956"
+    },
+    {
+      "id": "candidate:laureate_q48986:brenner_sydney:mentorship",
+      "source": "laureate_q48986",
+      "target": "brenner_sydney",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q234463"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q234463",
+      "evidenceClaim": "Q234463 P184 Q48986"
+    },
+    {
+      "id": "candidate:laureate_q49351:laureate_q135154:mentorship",
+      "source": "laureate_q49351",
+      "target": "laureate_q135154",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q135154"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q135154",
+      "evidenceClaim": "Q135154 P184 Q49351"
+    },
+    {
+      "id": "candidate:laureate_q49351:laureate_q157242:mentorship",
+      "source": "laureate_q49351",
+      "target": "laureate_q157242",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q157242"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q157242",
+      "evidenceClaim": "Q157242 P184 Q49351"
+    },
+    {
+      "id": "candidate:laureate_q555849:laureate_q28976188:mentorship",
+      "source": "laureate_q555849",
+      "target": "laureate_q28976188",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q28976188"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q28976188",
+      "evidenceClaim": "Q28976188 P184 Q555849"
+    },
+    {
+      "id": "candidate:laureate_q556543:laureate_q56855591:mentorship",
+      "source": "laureate_q556543",
+      "target": "laureate_q56855591",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q556543"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q556543",
+      "evidenceClaim": "Q556543 P185 Q56855591"
+    },
+    {
+      "id": "candidate:laureate_q57066:mayer_maria:influence",
+      "source": "laureate_q57066",
+      "target": "mayer_maria",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57100"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57100",
+      "evidenceClaim": "Q57100 P737 Q57066"
+    },
+    {
+      "id": "candidate:laureate_q57067:szilard_leo:mentorship",
+      "source": "laureate_q57067",
+      "target": "szilard_leo",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57067"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57067",
+      "evidenceClaim": "Q57067 P185 Q153238"
+    },
+    {
+      "id": "candidate:laureate_q57078:laureate_q43917:mentorship",
+      "source": "laureate_q57078",
+      "target": "laureate_q43917",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q43917"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q43917",
+      "evidenceClaim": "Q43917 P184 Q57078"
+    },
+    {
+      "id": "candidate:laureate_q57078:laureate_q70554:mentorship",
+      "source": "laureate_q57078",
+      "target": "laureate_q70554",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57078"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57078",
+      "evidenceClaim": "Q57078 P185 Q70554"
+    },
+    {
+      "id": "candidate:laureate_q57078:laureate_q76610:mentorship",
+      "source": "laureate_q57078",
+      "target": "laureate_q76610",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57078"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57078",
+      "evidenceClaim": "Q57078 P802 Q76610"
+    },
+    {
+      "id": "candidate:laureate_q57078:laureate_q77072:mentorship",
+      "source": "laureate_q57078",
+      "target": "laureate_q77072",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57078"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57078",
+      "evidenceClaim": "Q57078 P185 Q77072"
+    },
+    {
+      "id": "candidate:laureate_q57125:laureate_q184286:mentorship",
+      "source": "laureate_q57125",
+      "target": "laureate_q184286",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q184286"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q184286",
+      "evidenceClaim": "Q184286 P184 Q57125"
+    },
+    {
+      "id": "candidate:laureate_q57127:laureate_q204600:mentorship",
+      "source": "laureate_q57127",
+      "target": "laureate_q204600",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q204600"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q204600",
+      "evidenceClaim": "Q204600 P184 Q57127"
+    },
+    {
+      "id": "candidate:laureate_q57132:laureate_q233957:mentorship",
+      "source": "laureate_q57132",
+      "target": "laureate_q233957",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q233957"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q233957",
+      "evidenceClaim": "Q233957 P184 Q57132"
+    },
+    {
+      "id": "candidate:laureate_q58978:laureate_q65989:mentorship",
+      "source": "laureate_q58978",
+      "target": "laureate_q65989",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q58978"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q58978",
+      "evidenceClaim": "Q58978 P802 Q65989"
+    },
+    {
+      "id": "candidate:laureate_q58978:laureate_q76807:mentorship",
+      "source": "laureate_q58978",
+      "target": "laureate_q76807",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q76807"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q76807",
+      "evidenceClaim": "Q76807 P184 Q58978"
+    },
+    {
+      "id": "candidate:laureate_q58978:mayer_maria:influence",
+      "source": "laureate_q58978",
+      "target": "mayer_maria",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57100"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57100",
+      "evidenceClaim": "Q57100 P737 Q58978"
+    },
+    {
+      "id": "candidate:laureate_q58978:mayer_maria:mentorship",
+      "source": "laureate_q58978",
+      "target": "mayer_maria",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q58978"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q58978",
+      "evidenceClaim": "Q58978 P185 Q57100"
+    },
+    {
+      "id": "candidate:laureate_q62891:laureate_q79000:mentorship",
+      "source": "laureate_q62891",
+      "target": "laureate_q79000",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q62891"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q62891",
+      "evidenceClaim": "Q62891 P185 Q79000"
+    },
+    {
+      "id": "candidate:laureate_q65989:laureate_q123029:mentorship",
+      "source": "laureate_q65989",
+      "target": "laureate_q123029",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q123029"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q123029",
+      "evidenceClaim": "Q123029 P184 Q65989"
+    },
+    {
+      "id": "candidate:laureate_q68118:laureate_q295999:mentorship",
+      "source": "laureate_q68118",
+      "target": "laureate_q295999",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295999"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295999",
+      "evidenceClaim": "Q295999 P184 Q68118"
+    },
+    {
+      "id": "candidate:laureate_q70554:laureate_q76464:mentorship",
+      "source": "laureate_q70554",
+      "target": "laureate_q76464",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q70554"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q70554",
+      "evidenceClaim": "Q70554 P185 Q76464"
+    },
+    {
+      "id": "candidate:laureate_q70554:laureate_q76604:mentorship",
+      "source": "laureate_q70554",
+      "target": "laureate_q76604",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q70554"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q70554",
+      "evidenceClaim": "Q70554 P185 Q76604"
+    },
+    {
+      "id": "candidate:laureate_q70554:laureate_q76613:mentorship",
+      "source": "laureate_q70554",
+      "target": "laureate_q76613",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q70554"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q70554",
+      "evidenceClaim": "Q70554 P185 Q76613"
+    },
+    {
+      "id": "candidate:laureate_q70554:laureate_q76616:mentorship",
+      "source": "laureate_q70554",
+      "target": "laureate_q76616",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q70554"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q70554",
+      "evidenceClaim": "Q70554 P185 Q76616"
+    },
+    {
+      "id": "candidate:laureate_q70554:laureate_q77142:mentorship",
+      "source": "laureate_q70554",
+      "target": "laureate_q77142",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q70554"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q70554",
+      "evidenceClaim": "Q70554 P802 Q77142"
+    },
+    {
+      "id": "candidate:laureate_q70554:laureate_q78482:mentorship",
+      "source": "laureate_q70554",
+      "target": "laureate_q78482",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q70554"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q70554",
+      "evidenceClaim": "Q70554 P802 Q78482"
+    },
+    {
+      "id": "candidate:laureate_q71013:laureate_q206379:mentorship",
+      "source": "laureate_q71013",
+      "target": "laureate_q206379",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q206379"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q206379",
+      "evidenceClaim": "Q206379 P184 Q71013"
+    },
+    {
+      "id": "candidate:laureate_q71023:laureate_q190697:mentorship",
+      "source": "laureate_q71023",
+      "target": "laureate_q190697",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q190697"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q190697",
+      "evidenceClaim": "Q190697 P184 Q71023"
+    },
+    {
+      "id": "candidate:laureate_q726394:laureate_q1700920:mentorship",
+      "source": "laureate_q726394",
+      "target": "laureate_q1700920",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1700920"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1700920",
+      "evidenceClaim": "Q1700920 P184 Q726394"
+    },
+    {
+      "id": "candidate:laureate_q740638:laureate_q1174906:mentorship",
+      "source": "laureate_q740638",
+      "target": "laureate_q1174906",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1174906"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1174906",
+      "evidenceClaim": "Q1174906 P184 Q740638"
+    },
+    {
+      "id": "candidate:laureate_q740638:laureate_q3814528:mentorship",
+      "source": "laureate_q740638",
+      "target": "laureate_q3814528",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q3814528"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q3814528",
+      "evidenceClaim": "Q3814528 P184 Q740638"
+    },
+    {
+      "id": "candidate:laureate_q76425:laureate_q216324:mentorship",
+      "source": "laureate_q76425",
+      "target": "laureate_q216324",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q216324"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q216324",
+      "evidenceClaim": "Q216324 P184 Q76425"
+    },
+    {
+      "id": "candidate:laureate_q76464:laureate_q57132:mentorship",
+      "source": "laureate_q76464",
+      "target": "laureate_q57132",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57132"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57132",
+      "evidenceClaim": "Q57132 P184 Q76464"
+    },
+    {
+      "id": "candidate:laureate_q76616:laureate_q76595:mentorship",
+      "source": "laureate_q76616",
+      "target": "laureate_q76595",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q76595"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q76595",
+      "evidenceClaim": "Q76595 P184 Q76616"
+    },
+    {
+      "id": "candidate:laureate_q76623:laureate_q76612:mentorship",
+      "source": "laureate_q76623",
+      "target": "laureate_q76612",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q76612"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q76612",
+      "evidenceClaim": "Q76612 P184 Q76623"
+    },
+    {
+      "id": "candidate:laureate_q77072:laureate_q78483:mentorship",
+      "source": "laureate_q77072",
+      "target": "laureate_q78483",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q77072"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q77072",
+      "evidenceClaim": "Q77072 P185 Q78483"
+    },
+    {
+      "id": "candidate:laureate_q77142:laureate_q5327:mentorship",
+      "source": "laureate_q77142",
+      "target": "laureate_q5327",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q5327"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q5327",
+      "evidenceClaim": "Q5327 P184 Q77142"
+    },
+    {
+      "id": "candidate:laureate_q77173:laureate_q78501:mentorship",
+      "source": "laureate_q77173",
+      "target": "laureate_q78501",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q77173"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q77173",
+      "evidenceClaim": "Q77173 P185 Q78501"
+    },
+    {
+      "id": "candidate:laureate_q78501:laureate_q295678:mentorship",
+      "source": "laureate_q78501",
+      "target": "laureate_q295678",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295678"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295678",
+      "evidenceClaim": "Q295678 P184 Q78501"
+    },
+    {
+      "id": "candidate:laureate_q78501:laureate_q68118:influence",
+      "source": "laureate_q78501",
+      "target": "laureate_q68118",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q68118"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q68118",
+      "evidenceClaim": "Q68118 P737 Q78501"
+    },
+    {
+      "id": "candidate:laureate_q83297:laureate_q133846:mentorship",
+      "source": "laureate_q83297",
+      "target": "laureate_q133846",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133846"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133846",
+      "evidenceClaim": "Q133846 P184 Q83297"
+    },
+    {
+      "id": "candidate:laureate_q83297:thomson_jj:mentorship",
+      "source": "laureate_q83297",
+      "target": "thomson_jj",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q83297"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q83297",
+      "evidenceClaim": "Q83297 P185 Q47285"
+    },
+    {
+      "id": "candidate:laureate_q83333:laureate_q215574:mentorship",
+      "source": "laureate_q83333",
+      "target": "laureate_q215574",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q215574"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q215574",
+      "evidenceClaim": "Q215574 P184 Q83333"
+    },
+    {
+      "id": "candidate:laureate_q83333:laureate_q295659:mentorship",
+      "source": "laureate_q83333",
+      "target": "laureate_q295659",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295659"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295659",
+      "evidenceClaim": "Q295659 P184 Q83333"
+    },
+    {
+      "id": "candidate:laureate_q83333:laureate_q309816:mentorship",
+      "source": "laureate_q83333",
+      "target": "laureate_q309816",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q83333"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q83333",
+      "evidenceClaim": "Q83333 P802 Q309816"
+    },
+    {
+      "id": "candidate:laureate_q83333:laureate_q312977:mentorship",
+      "source": "laureate_q83333",
+      "target": "laureate_q312977",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q83333"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q83333",
+      "evidenceClaim": "Q83333 P802 Q312977"
+    },
+    {
+      "id": "candidate:laureate_q83501:khorana_har:mentorship",
+      "source": "laureate_q83501",
+      "target": "khorana_har",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107462"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107462",
+      "evidenceClaim": "Q107462 P184 Q83501"
+    },
+    {
+      "id": "candidate:laureate_q83552:laureate_q83557:mentorship",
+      "source": "laureate_q83552",
+      "target": "laureate_q83557",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q83552"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q83552",
+      "evidenceClaim": "Q83552 P185 Q83557"
+    },
+    {
+      "id": "candidate:laureate_q903471:laureate_q4790366:mentorship",
+      "source": "laureate_q903471",
+      "target": "laureate_q4790366",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q4790366"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q4790366",
+      "evidenceClaim": "Q4790366 P184 Q903471"
+    },
+    {
+      "id": "candidate:lefkowitz_robert:kobilka_brian:mentorship",
+      "source": "lefkowitz_robert",
+      "target": "kobilka_brian",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q80907"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q80907",
+      "evidenceClaim": "Q80907 P184 Q80910"
+    },
+    {
+      "id": "candidate:lewis_gn:laureate_q179777:mentorship",
+      "source": "lewis_gn",
+      "target": "laureate_q179777",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q179777"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q179777",
+      "evidenceClaim": "Q179777 P184 Q208858"
+    },
+    {
+      "id": "candidate:mach:einstein:influence",
+      "source": "mach",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q93996"
+    },
+    {
+      "id": "candidate:marie_curie:laureate_q7504:mentorship",
+      "source": "marie_curie",
+      "target": "laureate_q7504",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q7186"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q7186",
+      "evidenceClaim": "Q7186 P802 Q7504"
+    },
+    {
+      "id": "candidate:maxwell:einstein:influence",
+      "source": "maxwell",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q9095"
+    },
+    {
+      "id": "candidate:maxwell:laureate_q83297:mentorship",
+      "source": "maxwell",
+      "target": "laureate_q83297",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q83297"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q83297",
+      "evidenceClaim": "Q83297 P184 Q9095"
+    },
+    {
+      "id": "candidate:mill:dirac:influence",
+      "source": "mill",
+      "target": "dirac",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q47480"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q47480",
+      "evidenceClaim": "Q47480 P737 Q50020"
+    },
+    {
+      "id": "candidate:monod:laureate_q207719:mentorship",
+      "source": "monod",
+      "target": "laureate_q207719",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q207719"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q207719",
+      "evidenceClaim": "Q207719 P184 Q231402"
+    },
+    {
+      "id": "candidate:morgan_th:laureate_q106399:mentorship",
+      "source": "morgan_th",
+      "target": "laureate_q106399",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q106399"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q106399",
+      "evidenceClaim": "Q106399 P184 Q177681"
+    },
+    {
+      "id": "candidate:morgan_th:laureate_q83598:mentorship",
+      "source": "morgan_th",
+      "target": "laureate_q83598",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q83598"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q83598",
+      "evidenceClaim": "Q83598 P184 Q177681"
+    },
+    {
+      "id": "candidate:newton:einstein:influence",
+      "source": "newton",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q935"
+    },
+    {
+      "id": "candidate:pasteur:laureate_q172254:mentorship",
+      "source": "pasteur",
+      "target": "laureate_q172254",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q172254"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q172254",
+      "evidenceClaim": "Q172254 P184 Q529"
+    },
+    {
+      "id": "candidate:pauling:laureate_q110935:mentorship",
+      "source": "pauling",
+      "target": "laureate_q110935",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q110935"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q110935",
+      "evidenceClaim": "Q110935 P184 Q48983"
+    },
+    {
+      "id": "candidate:pauling:laureate_q903471:mentorship",
+      "source": "pauling",
+      "target": "laureate_q903471",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q903471"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q903471",
+      "evidenceClaim": "Q903471 P184 Q48983"
+    },
+    {
+      "id": "candidate:perutz_max:crick_francis:mentorship",
+      "source": "perutz_max",
+      "target": "crick_francis",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q123280"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q123280",
+      "evidenceClaim": "Q123280 P184 Q78480"
+    },
+    {
+      "id": "candidate:perutz_max:kendrew_john:mentorship",
+      "source": "perutz_max",
+      "target": "kendrew_john",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q232295"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q232295",
+      "evidenceClaim": "Q232295 P184 Q78480"
+    },
+    {
+      "id": "candidate:planck:laureate_q57067:mentorship",
+      "source": "planck",
+      "target": "laureate_q57067",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57067"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57067",
+      "evidenceClaim": "Q57067 P184 Q9021"
+    },
+    {
+      "id": "candidate:planck:laureate_q57070:mentorship",
+      "source": "planck",
+      "target": "laureate_q57070",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q57070"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q57070",
+      "evidenceClaim": "Q57070 P184 Q9021"
+    },
+    {
+      "id": "candidate:planck:laureate_q76474:mentorship",
+      "source": "planck",
+      "target": "laureate_q76474",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q76474"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q76474",
+      "evidenceClaim": "Q76474 P184 Q9021"
+    },
+    {
+      "id": "candidate:ramanujan:laureate_q211041:influence",
+      "source": "ramanujan",
+      "target": "laureate_q211041",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q211041"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q211041",
+      "evidenceClaim": "Q211041 P737 Q83163"
+    },
+    {
+      "id": "candidate:riemann:einstein:influence",
+      "source": "riemann",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q42299"
+    },
+    {
+      "id": "candidate:rutherford:bohr:mentorship",
+      "source": "rutherford",
+      "target": "bohr",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q9123"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q9123",
+      "evidenceClaim": "Q9123 P802 Q7085"
+    },
+    {
+      "id": "candidate:rutherford:chadwick:mentorship",
+      "source": "rutherford",
+      "target": "chadwick",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q80884"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q80884",
+      "evidenceClaim": "Q80884 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:hahn:mentorship",
+      "source": "rutherford",
+      "target": "hahn",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q9123"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q9123",
+      "evidenceClaim": "Q9123 P802 Q57065"
+    },
+    {
+      "id": "candidate:rutherford:kapitsa_pyotr:mentorship",
+      "source": "rutherford",
+      "target": "kapitsa_pyotr",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q172844"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q172844",
+      "evidenceClaim": "Q172844 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:laureate_q102830:mentorship",
+      "source": "rutherford",
+      "target": "laureate_q102830",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q102830"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q102830",
+      "evidenceClaim": "Q102830 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:laureate_q153194:mentorship",
+      "source": "rutherford",
+      "target": "laureate_q153194",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q153194"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q153194",
+      "evidenceClaim": "Q153194 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:laureate_q178103:mentorship",
+      "source": "rutherford",
+      "target": "laureate_q178103",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q178103"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q178103",
+      "evidenceClaim": "Q178103 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:laureate_q183631:mentorship",
+      "source": "rutherford",
+      "target": "laureate_q183631",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q183631"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q183631",
+      "evidenceClaim": "Q183631 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:laureate_q184499:mentorship",
+      "source": "rutherford",
+      "target": "laureate_q184499",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q184499"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q184499",
+      "evidenceClaim": "Q184499 P184 Q9123"
+    },
+    {
+      "id": "candidate:rutherford:laureate_q62897:mentorship",
+      "source": "rutherford",
+      "target": "laureate_q62897",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q62897"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q62897",
+      "evidenceClaim": "Q62897 P184 Q9123"
+    },
+    {
+      "id": "candidate:salam:john_polkinghorne:mentorship",
+      "source": "salam",
+      "target": "john_polkinghorne",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P185 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q28189"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P185",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q28189",
+      "evidenceClaim": "Q28189 P185 Q726724"
+    },
+    {
+      "id": "candidate:salam:laureate_q217486:mentorship",
+      "source": "salam",
+      "target": "laureate_q217486",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q217486"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q217486",
+      "evidenceClaim": "Q217486 P184 Q28189"
+    },
+    {
+      "id": "candidate:sanger_fred:brenner_sydney:influence",
+      "source": "sanger_fred",
+      "target": "brenner_sydney",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q234463"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q234463",
+      "evidenceClaim": "Q234463 P737 Q151564"
+    },
+    {
+      "id": "candidate:sanger_fred:laureate_q235184:influence",
+      "source": "sanger_fred",
+      "target": "laureate_q235184",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q235184"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q235184",
+      "evidenceClaim": "Q235184 P737 Q151564"
+    },
+    {
+      "id": "candidate:sanger_fred:laureate_q26321:mentorship",
+      "source": "sanger_fred",
+      "target": "laureate_q26321",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q26321"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q26321",
+      "evidenceClaim": "Q26321 P184 Q151564"
+    },
+    {
+      "id": "candidate:sanger_fred:laureate_q271766:mentorship",
+      "source": "sanger_fred",
+      "target": "laureate_q271766",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q271766"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q271766",
+      "evidenceClaim": "Q271766 P184 Q151564"
+    },
+    {
+      "id": "candidate:sanger_fred:laureate_q295700:mentorship",
+      "source": "sanger_fred",
+      "target": "laureate_q295700",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q295700"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q295700",
+      "evidenceClaim": "Q295700 P184 Q151564"
+    },
+    {
+      "id": "candidate:schopenhauer:einstein:influence",
+      "source": "schopenhauer",
+      "target": "einstein",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q937"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q937",
+      "evidenceClaim": "Q937 P737 Q38193"
+    },
+    {
+      "id": "candidate:schwinger:glashow:mentorship",
+      "source": "schwinger",
+      "target": "glashow",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107420"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107420",
+      "evidenceClaim": "Q107420 P184 Q186465"
+    },
+    {
+      "id": "candidate:schwinger:laureate_q107423:mentorship",
+      "source": "schwinger",
+      "target": "laureate_q107423",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q107423"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q107423",
+      "evidenceClaim": "Q107423 P184 Q186465"
+    },
+    {
+      "id": "candidate:schwinger:laureate_q64188:mentorship",
+      "source": "schwinger",
+      "target": "laureate_q64188",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q64188"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q64188",
+      "evidenceClaim": "Q64188 P184 Q186465"
+    },
+    {
+      "id": "candidate:schwinger:laureate_q78510:mentorship",
+      "source": "schwinger",
+      "target": "laureate_q78510",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q78510"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q78510",
+      "evidenceClaim": "Q78510 P184 Q186465"
+    },
+    {
+      "id": "candidate:teller_edward:laureate_q153210:mentorship",
+      "source": "teller_edward",
+      "target": "laureate_q153210",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q153210"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q153210",
+      "evidenceClaim": "Q153210 P184 Q6733"
+    },
+    {
+      "id": "candidate:teller_edward:laureate_q181369:mentorship",
+      "source": "teller_edward",
+      "target": "laureate_q181369",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q181369"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q181369",
+      "evidenceClaim": "Q181369 P184 Q6733"
+    },
+    {
+      "id": "candidate:thomson_jj:bohr:mentorship",
+      "source": "thomson_jj",
+      "target": "bohr",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q7085"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q7085",
+      "evidenceClaim": "Q7085 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q102291:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q102291",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q102291"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q102291",
+      "evidenceClaim": "Q102291 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q131729:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q131729",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q131729"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q131729",
+      "evidenceClaim": "Q131729 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q133747:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q133747",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q47285"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q47285",
+      "evidenceClaim": "Q47285 P802 Q133747"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q133846:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q133846",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q133846"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q133846",
+      "evidenceClaim": "Q133846 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q153194:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q153194",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q153194"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q153194",
+      "evidenceClaim": "Q153194 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q160522:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q160522",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q47285"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q47285",
+      "evidenceClaim": "Q47285 P802 Q160522"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q162900:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q162900",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q162900"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q162900",
+      "evidenceClaim": "Q162900 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q169330:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q169330",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q169330"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q169330",
+      "evidenceClaim": "Q169330 P184 Q47285"
+    },
+    {
+      "id": "candidate:thomson_jj:laureate_q58978:mentorship",
+      "source": "thomson_jj",
+      "target": "laureate_q58978",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P802 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q47285"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P802",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q47285",
+      "evidenceClaim": "Q47285 P802 Q58978"
+    },
+    {
+      "id": "candidate:thomson_jj:rutherford:mentorship",
+      "source": "thomson_jj",
+      "target": "rutherford",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q9123"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q9123",
+      "evidenceClaim": "Q9123 P184 Q47285"
+    },
+    {
+      "id": "candidate:tomonaga:laureate_q155773:mentorship",
+      "source": "tomonaga",
+      "target": "laureate_q155773",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q155773"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q155773",
+      "evidenceClaim": "Q155773 P184 Q184563"
+    },
+    {
+      "id": "candidate:townes_charles:penzias_arno:mentorship",
+      "source": "townes_charles",
+      "target": "penzias_arno",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q172877"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q172877",
+      "evidenceClaim": "Q172877 P184 Q184566"
+    },
+    {
+      "id": "candidate:wheeler:feynman:mentorship",
+      "source": "wheeler",
+      "target": "feynman",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q39246"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q39246",
+      "evidenceClaim": "Q39246 P184 Q202631"
+    },
+    {
+      "id": "candidate:wheeler:thorne_kip:mentorship",
+      "source": "wheeler",
+      "target": "thorne_kip",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q323320"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q323320",
+      "evidenceClaim": "Q323320 P184 Q202631"
+    },
+    {
+      "id": "candidate:wigner_eugene:bardeen_john:mentorship",
+      "source": "wigner_eugene",
+      "target": "bardeen_john",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q949"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q949",
+      "evidenceClaim": "Q949 P184 Q155790"
+    },
+    {
+      "id": "candidate:wiles:laureate_q1398727:mentorship",
+      "source": "wiles",
+      "target": "laureate_q1398727",
+      "type": "Mentorship",
+      "strength": 5,
+      "confidence": 0.95,
+      "note": "Wikidata P184 explicitly records this adviser/student relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q1398727"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P184",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q1398727",
+      "evidenceClaim": "Q1398727 P184 Q184433"
+    },
+    {
+      "id": "candidate:woodward_robert:laureate_q135151:influence",
+      "source": "woodward_robert",
+      "target": "laureate_q135151",
+      "type": "Influence",
+      "strength": 4,
+      "confidence": 0.9,
+      "note": "Wikidata P737 explicitly records this influenced-by relationship; requires curator review before canonical promotion.",
+      "sourceClaims": [
+        "https://www.wikidata.org/wiki/Q135151"
+      ],
+      "status": "suggested",
+      "evidenceProperty": "P737",
+      "evidenceSourceUrl": "https://www.wikidata.org/wiki/Q135151",
+      "evidenceClaim": "Q135151 P737 Q232316"
+    }
+  ]
+}
