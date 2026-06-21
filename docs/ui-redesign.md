@@ -2,6 +2,8 @@
 
 > Implemented model: global navigation is `Atlas | Timeline | Sources | Focus`. Timeline is a full-height workspace, not an Atlas strip or split lens. Atlas owns spatial network exploration; Timeline owns chronological exploration; Sources owns evidence operations; Focus owns the selected scholar's network and dossier. Legacy saved timeline views open Timeline and legacy split views normalize to the Atlas network.
 
+Responsive implementation: Atlas and Timeline remain viewport-bound, Sources owns internal scrolling, and Focus retains its desktop two-column composition. At tablet and mobile widths the dossier is a dismissible bottom sheet, filters become a temporary overlay, and the four-item mobile workspace bar remains stable below the primary surface.
+
 This document describes a full interface rethink for the Intellectual History Knowledge Atlas. It responds to the current clutter problem by separating the primary exploration experience from source, import, export, and data-management work.
 
 The core product should feel like two connected experiences:

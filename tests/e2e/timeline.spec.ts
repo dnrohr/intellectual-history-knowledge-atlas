@@ -34,6 +34,8 @@ test("timeline is a top-level workspace and preserves coordinated selection", as
   await expect(page.getByTestId("scholar-dossier")).toContainText("Plato");
   await page.getByTestId("workspace-timeline").click();
   await expect(page.getByTestId("timeline-workspace")).toBeVisible();
+  await expect(page.getByTestId("dossier-reopen")).toBeVisible();
+  await page.getByTestId("dossier-reopen").click();
   await expect(page.getByTestId("scholar-dossier")).toContainText("Plato");
   await page.getByTestId("workspace-focus").click();
   await expect(page.getByTestId("scholar-dossier")).toContainText("Plato");

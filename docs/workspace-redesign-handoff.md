@@ -289,7 +289,8 @@ Update this section in the same commit as each feature.
   - Source Studio now owns the full workspace height with internal scrolling and sticky tabs. Exploration canvases, the index, Path Finder, radar, and dossier are excluded; compact selected-scholar context routes back to Atlas or Focus.
 - [x] Feature 3: Simplify Atlas
   - The network now owns the Atlas workspace beneath one compact contextual toolbar. Selected-person details and Connection Radar are collapsed behind `Context`, Path Finder stays closed until `Find Bridge`, and the dossier remains optional.
-- [ ] Feature 4: Responsive workspace behavior
+- [x] Feature 4: Responsive workspace behavior
+  - Atlas and Timeline stay viewport-bound, Sources scrolls internally, and Focus preserves its desktop split. At 820px and below dossiers are dismissible bottom sheets, filters are temporary overlays, mobile navigation exposes all four workspaces, and workspace switching preserves selected-scholar recovery.
 
 Record material deviations beneath the relevant item, including the reason and any follow-up work.
 

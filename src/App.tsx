@@ -2381,6 +2381,7 @@ export default function App() {
       setChromeDensity((current) => current === "focus" ? "comfortable" : current);
       setViewMode("network");
       setSidebarOpen(false);
+      setDossierOpen(false);
       closeMajorOverlays();
       return;
     }
@@ -2390,6 +2391,7 @@ export default function App() {
       setChromeDensity((current) => current === "focus" ? "comfortable" : current);
       setViewMode("timeline");
       setSidebarOpen(false);
+      setDossierOpen(false);
       closeMajorOverlays();
       return;
     }
@@ -2399,6 +2401,7 @@ export default function App() {
       setChromeDensity("focus");
       setViewMode("network");
       setSidebarOpen(false);
+      setDossierOpen(Boolean(selectedId));
       closeMajorOverlays();
       return;
     }
@@ -3442,10 +3445,10 @@ export default function App() {
 
       {/* ── MINIMAL CONTROLS & SEARCH BAR sub-header ── */}
       {showSecondaryChrome && (
-      <div className={`flex shrink-0 ${isCompactChrome ? "h-10" : "h-12"} items-center justify-between px-6 bg-[#131622] border-b border-[#22273b] z-30`}>
+      <div className={`flex shrink-0 ${isCompactChrome ? "h-10" : "h-12"} items-center justify-between gap-2 px-2 md:px-6 bg-[#131622] border-b border-[#22273b] z-30`}>
         
         {/* Toggle Sidebar and Live Search group */}
-        <div className="flex items-center gap-4 w-full max-w-md">
+        <div className="flex min-w-0 items-center gap-2 md:gap-4 w-full max-w-md">
           {/* Sidebar trigger */}
           <button
             onClick={() => setSidebarOpen(prev => !prev)}
@@ -3496,7 +3499,7 @@ export default function App() {
         )}
 
         {/* Filter and Curate action activator */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 md:gap-2">
           {activeSavedView && (
             <button
               onClick={() => setActiveSavedViewId(null)}
@@ -3549,7 +3552,7 @@ export default function App() {
           <button
             onClick={() => setOnlyConnectedToFocus((prev) => !prev)}
             disabled={!selectedId}
-            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
+            className={`hidden sm:inline-flex rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
               onlyConnectedToFocus ? "border-emerald-400 bg-emerald-400/15 text-emerald-200" : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
             }`}
             title="Only show connected to current focus"
@@ -3560,7 +3563,7 @@ export default function App() {
           <button
             onClick={() => setOnlyCurrentThread((prev) => !prev)}
             disabled={!activeCanonicalThread}
-            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
+            className={`hidden sm:inline-flex rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 ${
               onlyCurrentThread ? "border-cyan-400 bg-cyan-400/15 text-cyan-200" : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
             }`}
             title="Only show current canonical thread"
@@ -3570,7 +3573,7 @@ export default function App() {
 
           <button
             onClick={() => setOnlyReviewGaps((prev) => !prev)}
-            className={`rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
+            className={`hidden sm:inline-flex rounded border px-2 py-1 text-[9px] font-mono transition-colors cursor-pointer ${
               onlyReviewGaps ? "border-amber-400 bg-amber-400/15 text-amber-200" : "border-[#252a3d] bg-[#090b10] text-slate-500 hover:text-slate-200"
             }`}
             title="Only show review gaps"
@@ -3609,7 +3612,7 @@ export default function App() {
           <button
             data-testid="filter-drawer-toggle"
             onClick={toggleFilterDrawer}
-            className={`px-4 py-1.5 rounded-md text-[11px] font-semibold font-mono border transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-2.5 md:px-4 py-1.5 rounded-md text-[11px] font-semibold font-mono border transition-all cursor-pointer flex items-center gap-1 md:gap-2 ${
               filterDrawerOpen
                 ? "bg-[#7b9cf5]/15 border-[#7b9cf5] text-[#9bdaff] shadow-[0_0_12px_rgba(123,156,245,0.15)]"
                 : "border-[#22273b] text-slate-300 hover:text-white bg-[#0e1017]"
@@ -3912,9 +3915,9 @@ export default function App() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="shrink-0 glass-panel border-b border-[#22273b] overflow-hidden z-20 shadow-xl shadow-black/40"
+            className="shrink-0 glass-panel border-b border-[#22273b] overflow-hidden z-20 shadow-xl shadow-black/40 max-lg:fixed max-lg:inset-x-0 max-lg:top-14 max-lg:bottom-14 max-lg:z-50"
           >
-            <div className="max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin p-6 space-y-5 select-none text-xs">
+            <div className="max-h-[min(420px,40vh)] overflow-y-auto scrollbar-thin p-3 md:p-6 space-y-5 select-none text-xs max-lg:h-full max-lg:max-h-none">
               
               {/* Row 1: Epoch Limits & Timeline Sliders */}
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pb-4 border-b border-[#22273b]/60">
@@ -6451,7 +6454,7 @@ export default function App() {
             type="button"
             data-testid="dossier-reopen"
             onClick={() => setDossierOpen(true)}
-            className="absolute right-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md border border-[#38415f] bg-[#171b29] text-[#a9baf0] shadow-lg transition-colors hover:border-[#7b9cf5] hover:bg-[#20263a] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7b9cf5] max-md:bottom-3 max-md:top-auto max-md:translate-y-0"
+            className="absolute right-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md border border-[#38415f] bg-[#171b29] text-[#a9baf0] shadow-lg transition-colors hover:border-[#7b9cf5] hover:bg-[#20263a] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7b9cf5] max-lg:bottom-3 max-lg:top-auto max-lg:translate-y-0"
             title="Open scholar dossier"
             aria-label="Open scholar dossier"
           >
@@ -6469,12 +6472,12 @@ export default function App() {
               exit={{ x: "100%", opacity: 0.95 }}
               transition={{ type: "spring", damping: 24, stiffness: 240 }}
               style={{ width: detailWidth }}
-              className="absolute md:relative top-0 right-0 h-full shrink-0 border-l border-[#22273b] glass-panel-heavy flex flex-col z-30 shadow-2xl overflow-hidden max-md:top-auto max-md:bottom-0 max-md:!h-[72%] max-md:!w-full max-md:border-l-0 max-md:border-t"
+              className="absolute lg:relative top-0 right-0 h-full shrink-0 border-l border-[#22273b] glass-panel-heavy flex flex-col z-30 shadow-2xl overflow-hidden max-lg:top-auto max-lg:bottom-0 max-lg:!h-[62%] max-lg:!w-full max-lg:border-l-0 max-lg:border-t"
             >
               {/* Drag resizing handle visual anchor bar */}
               <div
                 onMouseDown={handleRightResizeStart}
-                className="hidden md:block absolute top-0 left-0 w-1.5 h-full cursor-col-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-colors z-50 select-none"
+                className="hidden lg:block absolute top-0 left-0 w-1.5 h-full cursor-col-resize hover:bg-[#7b9cf5]/30 active:bg-[#7b9cf5]/80 transition-colors z-50 select-none"
                 title="Drag sideways to resize Scholar Dossier drawer"
               />
 
@@ -6614,6 +6617,7 @@ export default function App() {
           return (
             <button
               key={`mobile-${workspace.id}`}
+              data-testid={`workspace-mobile-${workspace.id}`}
               onClick={() => applyWorkspace(workspace.id)}
               className={`flex flex-col items-center justify-center gap-0.5 text-[9px] font-mono transition-colors cursor-pointer ${
                 isActive ? "text-[#9bdaff] bg-[#1f2438]" : "text-slate-500 hover:text-slate-200"
