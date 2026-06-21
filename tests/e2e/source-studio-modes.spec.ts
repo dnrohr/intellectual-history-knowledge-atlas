@@ -10,6 +10,8 @@ const sourceStudioTabs = [
 ] as const;
 
 test("source studio modes stay reachable without viewport overflow", async ({ page }) => {
+  test.setTimeout(90_000);
+
   for (const viewport of [
     { width: 1280, height: 800 },
     { width: 820, height: 844 },

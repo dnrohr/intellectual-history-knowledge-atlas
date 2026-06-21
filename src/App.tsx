@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { CanonicalThread, Thinker, InfluenceEdge } from "./types";
 import {
   INITIAL_PEOPLE_DATA,
+  RETIRED_CANONICAL_PERSON_IDS,
   INITIAL_EDGES_DATA,
   FIELD_COLOR,
   ERA_BANDS,
@@ -63,7 +64,8 @@ import {
   Info,
   MoreHorizontal,
   Bookmark,
-  Trash2
+  Trash2,
+  PanelRightOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -447,6 +449,7 @@ export default function App() {
 
   // Selection & Advanced Year range filters
   const [selectedId, setSelectedId] = useState<string | null>("plato");
+  const [dossierOpen, setDossierOpen] = useState(true);
   const [minYear, setMinYear] = useState<number>(-650);
   const [maxYear, setMaxYear] = useState<number>(2030);
 
@@ -649,7 +652,12 @@ export default function App() {
     try {
       const savedAtlasState = loadAtlasStateFromStorage();
       if (savedAtlasState) {
-        const mergedAtlasState = mergeAtlasStateWithCanonicalSeed(savedAtlasState, INITIAL_PEOPLE_DATA, INITIAL_EDGES_DATA);
+        const mergedAtlasState = mergeAtlasStateWithCanonicalSeed(
+          savedAtlasState,
+          INITIAL_PEOPLE_DATA,
+          INITIAL_EDGES_DATA,
+          RETIRED_CANONICAL_PERSON_IDS
+        );
         setPeople(mergedAtlasState.people);
         setEdges(mergedAtlasState.edges);
         persistAtlasStateToStorage(mergedAtlasState.people, mergedAtlasState.edges);
@@ -710,6 +718,7 @@ export default function App() {
     setBfsMapNodes([]);
     persistAtlasState(updated, edges);
     setSelectedId(newThinker.id);
+    setDossierOpen(true);
     setHighlightPath(null);
   };
 
@@ -736,6 +745,7 @@ export default function App() {
     setImportAuditLog(reviewUndoSnapshot.importAuditLog);
     setLinkReviewQueue(reviewUndoSnapshot.linkReviewQueue);
     setSelectedId(reviewUndoSnapshot.selectedId);
+    setDossierOpen(Boolean(reviewUndoSnapshot.selectedId));
     setHighlightPath(reviewUndoSnapshot.highlightPath);
     setWorkbenchTab(reviewUndoSnapshot.workbenchTab);
     setReviewUndoSnapshot(null);
@@ -750,6 +760,7 @@ export default function App() {
       setPeople(INITIAL_PEOPLE_DATA);
       setEdges(INITIAL_EDGES_DATA);
       setSelectedId("plato");
+      setDossierOpen(true);
       setMinYear(-650);
       setMaxYear(2030);
       setSelectedFields([]);
@@ -775,6 +786,7 @@ export default function App() {
 
   const selectPerson = (id: string, options: { preserveHighlight?: boolean } = {}) => {
     setSelectedId(id);
+    setDossierOpen(true);
     if (!options.preserveHighlight) {
       setHighlightPath(null);
     }
@@ -1311,8 +1323,6 @@ export default function App() {
       .split(",")
       .map((topic) => topic.trim())
       .filter(Boolean);
-    const sourceName = EXTERNAL_SOURCES.find((source) => source.id === importDraft.source)?.name || "External source";
-
     const newThinker: Thinker = {
       id: uniqueId,
       name,
@@ -1326,10 +1336,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForImportDraft(topics),
       works: [],
       influenced: [],
-      notes: [
-        importDraft.notes.trim(),
-        `Imported from ${sourceName}${importDraft.sourceUrl.trim() ? `: ${importDraft.sourceUrl.trim()}` : ""}`,
-      ].filter(Boolean).join(" "),
+      notes: importDraft.notes.trim() || null,
     };
 
     captureReviewUndoSnapshot(`Accepted import: ${newThinker.name}`);
@@ -1483,7 +1490,7 @@ export default function App() {
     const duplicateId = getDuplicateIdForCandidate(candidate);
     setImportReviewQueue((prev) => {
       if (prev.some((item) => item.candidate.id === candidate.id)) return prev;
-      const next = [...prev, {
+      const next: ImportReviewItem[] = [...prev, {
         id: `${candidate.id}-${Date.now().toString(36)}`,
         candidate,
         confidence,
@@ -1597,7 +1604,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
-      notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
+      notes: candidate.description || null,
     });
   };
 
@@ -1630,7 +1637,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
-      notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
+      notes: candidate.description || null,
     };
 
     captureReviewUndoSnapshot(`Accepted import: ${newThinker.name}`);
@@ -1680,7 +1687,7 @@ export default function App() {
       bridge_score: inferBridgeScoreForCandidate(candidate),
       works: candidate.works || [],
       influenced: [],
-      notes: `${candidate.description || "Imported candidate."} Imported from ${getCandidateSourceName(candidate)}${getCandidateSourceUrl(candidate) ? `: ${getCandidateSourceUrl(candidate)}` : ""}`,
+      notes: candidate.description || null,
     };
   };
 
@@ -1720,11 +1727,9 @@ export default function App() {
 
   const mergeImportReviewItemIntoDuplicate = (item: ImportReviewItem, duplicateId: string) => {
     const candidate = item.candidate;
-    const sourceUrl = getCandidateSourceUrl(candidate);
     captureReviewUndoSnapshot(`Merged import metadata: ${candidate.name}`);
     const updatedPeople = people.map((person) => {
       if (person.id !== duplicateId) return person;
-      const sourceNote = `Merged duplicate import from Wikidata: ${sourceUrl}`;
       return {
         ...person,
         fields: mergeUniqueValues(person.fields, candidate.fields && candidate.fields.length > 0 ? candidate.fields : [inferFieldFromExternalText(candidate.description)]),
@@ -1733,7 +1738,7 @@ export default function App() {
         region: person.region || candidate.region || null,
         era: person.era || candidate.era || inferEraFromYear(candidate.birth),
         movement: person.movement || candidate.movement || "Imported",
-        notes: [person.notes, candidate.description, sourceNote].filter(Boolean).join(" "),
+        notes: Array.from(new Set([person.notes, candidate.description].filter(Boolean))).join(" ") || null,
       };
     });
     setPeople(updatedPeople);
@@ -2333,7 +2338,9 @@ export default function App() {
     setActiveActivity(view.activity);
     setViewMode(view.viewMode);
     setChromeDensity(view.chromeDensity);
-    setSelectedId(view.selectedId && people.some((person) => person.id === view.selectedId) ? view.selectedId : null);
+    const restoredSelectedId = view.selectedId && people.some((person) => person.id === view.selectedId) ? view.selectedId : null;
+    setSelectedId(restoredSelectedId);
+    setDossierOpen(Boolean(restoredSelectedId));
     setSelectedFields(view.selectedFields);
     setSelectedSubfields(view.selectedSubfields);
     setSelectedLensTags(view.selectedLensTags);
@@ -6449,15 +6456,29 @@ export default function App() {
             highlightPath={highlightPath}
           />
         </main>
- 
+
+        {selectedId && !dossierOpen && (
+          <button
+            type="button"
+            data-testid="dossier-reopen"
+            onClick={() => setDossierOpen(true)}
+            className="absolute right-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md border border-[#38415f] bg-[#171b29] text-[#a9baf0] shadow-lg transition-colors hover:border-[#7b9cf5] hover:bg-[#20263a] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7b9cf5] max-md:bottom-3 max-md:top-auto max-md:translate-y-0"
+            title="Open scholar dossier"
+            aria-label="Open scholar dossier"
+          >
+            <PanelRightOpen className="h-4 w-4" />
+          </button>
+        )}
+
         {/* 3. SLIDING RIGHT DRAWER FOR CHOSEN THINKER DETAIL INSPECTION */}
         <AnimatePresence>
-          {selectedId && (
+          {selectedId && dossierOpen && (
             <motion.div
+              data-testid="scholar-dossier"
               initial={{ x: "100%", opacity: 0.95 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0.95 }}
-              transition={{ type: "spring", damping: 24, stPercentage: 0.4 }}
+              transition={{ type: "spring", damping: 24, stiffness: 240 }}
               style={{ width: detailWidth }}
               className="absolute md:relative top-0 right-0 h-full shrink-0 border-l border-[#22273b] glass-panel-heavy flex flex-col z-30 shadow-2xl overflow-hidden max-md:top-auto max-md:bottom-0 max-md:!h-[72%] max-md:!w-full max-md:border-l-0 max-md:border-t"
             >
@@ -6472,12 +6493,9 @@ export default function App() {
               <div className="shrink-0 px-5 py-3 border-b border-[#22273b] bg-[#141722] flex justify-between items-center pl-6">
                 <span className="font-mono text-[9px] text-[#8c9bbb] uppercase tracking-widest font-bold">SCHOLAR DOSSIER</span>
                 <button
-                  onClick={() => {
-                    setSelectedId(null);
-                    setHighlightPath(null);
-                    setOverlapContemps([]);
-                    setBfsMapNodes([]);
-                  }}
+                  type="button"
+                  data-testid="dossier-close"
+                  onClick={() => setDossierOpen(false)}
                   className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                   title="Close dossier"
                 >

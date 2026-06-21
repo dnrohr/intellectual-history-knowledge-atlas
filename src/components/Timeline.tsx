@@ -779,7 +779,7 @@ export default function Timeline({
       const isSearchMatch = normalizedSearch.length > 0 && (
         p.name.toLowerCase().includes(normalizedSearch) ||
         (p.works || []).some((work) => work.toLowerCase().includes(normalizedSearch)) ||
-        (p.topics || []).some((topic) => topic.toLowerCase().includes(normalizedSearch))
+        (p.subfields || []).some((topic) => topic.toLowerCase().includes(normalizedSearch))
       );
       const isHighBridge = (relationCounts.get(p.id) || 0) >= 5;
 
