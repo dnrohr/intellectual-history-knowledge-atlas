@@ -2,6 +2,8 @@
 
 An interactive atlas for exploring thinkers, timelines, influence relationships, topics, curated intellectual threads, and externally sourced import candidates.
 
+![Intellectual History Knowledge Atlas demo](docs/atlas-demo.gif)
+
 The app is designed for iterative curation. It starts from the bundled dataset in `src/data.ts`, lets you add or review local changes in the browser, and stores those browser-side changes in `localStorage`.
 
 ## What You Can Do
