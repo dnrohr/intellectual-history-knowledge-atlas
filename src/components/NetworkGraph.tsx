@@ -6,7 +6,6 @@ import { getDomainForField } from "../taxonomy";
 
 type GraphClusterMode = "none" | "domain" | "movement" | "era" | "institution";
 type GraphLayoutMode = "force" | "timeline" | "ego" | "lineage" | "concept";
-type GraphLabelDensity = "focus" | "key" | "more" | "all";
 
 interface NetworkGraphProps {
   people: Thinker[];
@@ -71,7 +70,6 @@ export default function NetworkGraph({
   const [focusDepth, setFocusDepth] = useState<"all" | 1 | 2 | 3>(1);
   const [clusterMode, setClusterMode] = useState<GraphClusterMode>("none");
   const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>("force");
-  const [labelDensity, setLabelDensity] = useState<GraphLabelDensity>("key");
   const effectiveFocusDepth = focusDepth;
 
   useEffect(() => {
@@ -380,8 +378,14 @@ export default function NetworkGraph({
       }
     };
 
+    handleResize();
+    const resizeObserver = new ResizeObserver(handleResize);
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
   }, [clusterMode, layoutMode]);
 
   const getGraphBounds = () => {
@@ -811,25 +815,11 @@ export default function NetworkGraph({
       ctx.stroke();
 
       // Context labels rendering
-      const isImportantBridge = (n.bridge_score ?? 1) >= 4;
-      const isNearbyFocusNode = selectedId ? activeSet.has(n.id) : false;
-      const isSmallGraph = nodesRef.current.length <= 35;
-      const isMediumGraph = nodesRef.current.length <= 120;
-      const shouldShowLabel =
-        isSelected ||
-        inHighlightPath ||
-        isHover ||
-        labelDensity === "all" ||
-        (labelDensity === "more" && (isNearbyFocusNode || isImportantBridge || isMediumGraph)) ||
-        (labelDensity === "key" && (isImportantBridge || (isSmallGraph && isNearbyFocusNode)));
-
-      if (shouldShowLabel) {
-        ctx.fillStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.86)";
-        ctx.font = `${isSelected ? "600" : "500"} 8px 'IBM Plex Mono', monospace`;
-        ctx.textAlign = "left";
-        const shortName = n.name.split(" ").slice(-1)[0];
-        ctx.fillText(shortName, n.x! + n.r + 4, n.y! + 3);
-      }
+      ctx.fillStyle = isSelected ? "#ffffff" : inHighlightPath ? "#e8b84b" : "rgba(255, 255, 255, 0.86)";
+      ctx.font = `${isSelected ? "600" : "500"} 8px 'IBM Plex Mono', monospace`;
+      ctx.textAlign = "left";
+      const shortName = n.name.split(" ").slice(-1)[0];
+      ctx.fillText(shortName, n.x! + n.r + 4, n.y! + 3);
       ctx.restore();
     });
 
@@ -861,7 +851,7 @@ export default function NetworkGraph({
         requestRef.current = null;
       }
     };
-  }, [selectedId, highlightPath, effectiveFocusDepth, clusterMode, layoutMode, labelDensity]);
+  }, [selectedId, highlightPath, effectiveFocusDepth, clusterMode, layoutMode]);
 
   useEffect(() => {
     if (effectiveFocusDepth === "all") {
@@ -1078,7 +1068,7 @@ export default function NetworkGraph({
         ))}
       </div>
 
-      <div className="absolute top-8 right-2.5 z-10 flex max-w-[calc(100%-11rem)] items-center gap-1 overflow-x-auto scrollbar-thin bg-[#141721]/90 border border-[#252a3d] rounded-md p-1">
+      <div className="absolute top-[3.9rem] left-3.5 z-10 flex max-w-[calc(100%-2rem)] items-center gap-1 overflow-x-auto scrollbar-thin bg-[#141721]/90 border border-[#252a3d] rounded-md p-1">
         {([
           ["none", "Free"],
           ["domain", "Domain"],
@@ -1106,7 +1096,7 @@ export default function NetworkGraph({
 
       <div
         data-testid="network-layout-toolbar"
-        className="absolute top-[3.9rem] left-3.5 z-10 flex max-w-[min(32rem,calc(100%-2rem))] items-center gap-1 overflow-x-auto scrollbar-thin bg-[#10131d]/90 border border-[#252a3d] rounded-md p-1"
+        className="absolute top-[6.05rem] left-3.5 z-10 flex max-w-[min(32rem,calc(100%-2rem))] items-center gap-1 overflow-x-auto scrollbar-thin bg-[#10131d]/90 border border-[#252a3d] rounded-md p-1"
       >
         {([
           ["force", "Force"],
@@ -1129,33 +1119,6 @@ export default function NetworkGraph({
                 : "text-slate-500 hover:text-slate-200"
             }`}
             title={`${label} graph layout`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="absolute top-[6.05rem] left-3.5 z-10 flex max-w-[calc(100%-2rem)] items-center gap-1 overflow-x-auto scrollbar-thin rounded-md border border-[#252a3d] bg-[#10131d]/90 p-1">
-        <span className="shrink-0 px-1.5 font-mono text-[8.5px] uppercase tracking-wider text-slate-600">Labels</span>
-        {([
-          ["focus", "Focus"],
-          ["key", "Key"],
-          ["more", "More"],
-          ["all", "All"],
-        ] as const).map(([density, label]) => (
-          <button
-            key={density}
-            data-testid={`network-label-${density}`}
-            onClick={() => {
-              setLabelDensity(density);
-              requestAnimationFrame(draw);
-            }}
-            className={`shrink-0 rounded px-2 py-0.5 text-[9px] font-mono transition-colors cursor-pointer ${
-              labelDensity === density
-                ? "bg-cyan-400/15 text-cyan-200"
-                : "text-slate-500 hover:text-slate-200"
-            }`}
-            title={`${label} label density`}
           >
             {label}
           </button>

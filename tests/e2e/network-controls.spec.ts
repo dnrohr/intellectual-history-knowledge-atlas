@@ -7,7 +7,7 @@ const visibleNetworkCount = async (page: import("@playwright/test").Page) => {
   return Number(text?.match(/\((\d+)\)/)?.[1] || 0);
 };
 
-test("network controls update hop depth, layout, and labels without full-width overlays", async ({ page }) => {
+test("network controls update hop depth and layout without full-width overlays", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
@@ -38,9 +38,5 @@ test("network controls update hop depth, layout, and labels without full-width o
     await expect(button).toHaveClass(/text-\[#9bdaff\]/);
   }
 
-  for (const density of ["focus", "key", "more", "all"]) {
-    const button = page.locator(`[data-testid="network-label-${density}"]:visible`).first();
-    await button.click();
-    await expect(button).toHaveClass(/text-cyan-200/);
-  }
+  await expect(page.locator('[data-testid^="network-label-"]')).toHaveCount(0);
 });
