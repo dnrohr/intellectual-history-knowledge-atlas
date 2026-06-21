@@ -140,6 +140,8 @@ Always visible on mobile:
 
 ## Influence Atlas Layout
 
+Implemented composition: the network is the dominant surface. A single compact context toolbar exposes neighborhood, inbound/outbound lineage, bridge/path, filters, and an on-demand `Context` panel. The selected-scholar band and permanently expanded Connection Radar have been removed; the dossier remains optional and recovers without losing selection.
+
 The Atlas should treat the network canvas as the primary surface.
 
 ### Desktop Layout

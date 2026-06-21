@@ -11,8 +11,23 @@ test("network controls update hop depth and layout without full-width overlays",
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  await page.getByTestId("workspace-atlas").click();
 
   await expect(page.locator('[data-testid="network-canvas"]:visible').first()).toBeVisible();
+  const atlasSurface = page.getByTestId("atlas-network-surface");
+  const surfaceBox = await atlasSurface.boundingBox();
+  expect(surfaceBox?.height || 0).toBeGreaterThan((page.viewportSize()?.height || 0) * 0.55);
+
+  const contextToolbar = page.getByTestId("atlas-context-toolbar");
+  expect((await contextToolbar.boundingBox())?.height || 0).toBeLessThan(56);
+  await expect(page.getByText("Connection Radar")).toHaveCount(0);
+  await contextToolbar.getByRole("button", { name: "Context" }).click();
+  await expect(page.getByText("Connection Radar")).toBeVisible();
+
+  await contextToolbar.getByRole("button", { name: "Find Bridge" }).click();
+  await expect(page.getByTestId("path-finder")).toHaveClass(/opacity-100/);
+  await page.getByRole("button", { name: "Close path finder" }).click();
+  await expect(page.getByTestId("path-finder")).toHaveClass(/opacity-0/);
 
   const toolbarBox = await page.locator('[data-testid="network-layout-toolbar"]:visible').first().boundingBox();
   const viewport = page.viewportSize();

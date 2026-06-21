@@ -2232,8 +2232,8 @@ export default function App() {
   const isSourceStudio = activeWorkspace === "sources";
   const showSecondaryChrome = chromeDensity !== "demo";
   const showRelationshipToolbar = !isReducedChrome && activeWorkspace === "atlas";
-  const showFocusContextBand = !isReducedChrome && Boolean(selectedThinker) && activeWorkspace === "atlas";
-  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && activeWorkspace === "atlas";
+  const showFocusContextBand = false;
+  const showConnectionRadar = chromeDensity !== "demo" && Boolean(selectedThinker) && activeWorkspace === "atlas" && relationshipInspectorOpen;
   const showRadarCurationActions = chromeDensity === "curation" || activeWorkspace === "sources";
   const showRelationshipInspector = !isReducedChrome && activeWorkspace === "atlas" && relationshipInspectorOpen && Boolean(selectedThinker);
   const effectiveWorkbenchPanelMode: PanelMode = extensionWorkbenchOpen ? workbenchPanelMode : "closed";
@@ -3625,9 +3625,13 @@ export default function App() {
 
       {/* Activity relationship toolbar */}
       {showRelationshipToolbar && (
-      <div className="shrink-0 min-h-11 px-6 py-1.5 bg-[#0d1018] border-b border-[#22273b] z-20 flex items-center justify-between gap-4">
+      <div data-testid="atlas-context-toolbar" className="shrink-0 min-h-10 px-3 md:px-6 py-1.5 bg-[#0d1018] border-b border-[#22273b] z-20 flex items-center justify-between gap-2 overflow-x-auto scrollbar-thin">
         <div className="flex items-center gap-2 min-w-0">
-            <span className="hidden md:inline font-mono text-[9px] uppercase tracking-wider text-[#5a6480] shrink-0">{activeWorkspaceLabel}</span>
+          {selectedThinker && (
+            <span className="hidden md:inline max-w-40 truncate font-mono text-[9px] text-slate-400 shrink-0" title={selectedThinker.name}>
+              {selectedThinker.name} · {selectedIncomingCount} in / {selectedOutgoingCount} out
+            </span>
+          )}
           <button
             onClick={showNeighborhood}
             disabled={!selectedId || (selectedIncomingCount + selectedOutgoingCount) === 0}
@@ -3660,13 +3664,6 @@ export default function App() {
             Find Bridge
           </button>
           <button
-            onClick={() => selectedId && handleFindContemporaries(selectedId)}
-            disabled={!selectedId}
-            className="px-2.5 py-1 text-[10px] font-mono rounded-md border border-[#252a3d] bg-[#141724] text-slate-300 hover:border-slate-500 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer transition-colors"
-          >
-            Contemporaries
-          </button>
-          <button
             onClick={() => setRelationshipInspectorOpen((prev) => !prev)}
             disabled={!selectedId}
             className={`px-2.5 py-1 text-[10px] font-mono rounded-md border transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed ${
@@ -3676,7 +3673,7 @@ export default function App() {
             }`}
             title="Toggle compact relationship inspector"
           >
-            Relations
+            Context
           </button>
         </div>
 
@@ -6322,7 +6319,7 @@ export default function App() {
  
             {/* COSMOS NETWORK FORCE MAP MODE */}
             <div className={`flex-1 min-h-0 relative bg-[#090b10] ${activeWorkspace === "atlas" || activeWorkspace === "focus" ? "flex h-full flex-col" : "hidden"}`}>
-              <div className="min-h-0 flex-1 p-4">
+              <div data-testid="atlas-network-surface" className="min-h-0 flex-1 p-2 md:p-3">
                 <NetworkGraph
                   people={processedPeople}
                   edges={filteredEdges}

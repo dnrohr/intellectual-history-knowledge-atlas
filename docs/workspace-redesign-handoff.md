@@ -287,7 +287,8 @@ Update this section in the same commit as each feature.
   - Timeline is now a full-height top-level workspace. Atlas no longer exposes timeline or split lens controls, and legacy saved timeline views route to Timeline while split views render as Atlas network views.
 - [x] Feature 2: Make Sources standalone
   - Source Studio now owns the full workspace height with internal scrolling and sticky tabs. Exploration canvases, the index, Path Finder, radar, and dossier are excluded; compact selected-scholar context routes back to Atlas or Focus.
-- [ ] Feature 3: Simplify Atlas
+- [x] Feature 3: Simplify Atlas
+  - The network now owns the Atlas workspace beneath one compact contextual toolbar. Selected-person details and Connection Radar are collapsed behind `Context`, Path Finder stays closed until `Find Bridge`, and the dossier remains optional.
 - [ ] Feature 4: Responsive workspace behavior
 
 Record material deviations beneath the relevant item, including the reason and any follow-up work.
