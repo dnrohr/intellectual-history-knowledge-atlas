@@ -1,20 +1,21 @@
 # Intellectual History Knowledge Atlas
 
-An interactive atlas for exploring thinkers, timelines, influence relationships, topics, curated intellectual threads, and externally sourced import candidates.
+An interactive atlas for exploring thinkers, timelines, influence relationships, topics, curated intellectual threads, and the evidence behind the graph.
 
-![Intellectual History Knowledge Atlas demo](docs/atlas-demo.gif)
+![Influence Atlas workspace](docs/screenshots/atlas-workspace.png)
 
 The app is designed for iterative curation. It starts from the bundled dataset in `src/data.ts`, lets you add or review local changes in the browser, and stores those browser-side changes in `localStorage`.
 
 ## What You Can Do
 
-- Explore thinkers by timeline, graph neighborhood, field, era, region, topic, and search.
+- Explore thinkers in four purpose-built workspaces: **Atlas**, **Timeline**, **Sources**, and **Focus**.
+- Navigate the influence graph by neighborhood depth, cluster, layout, field, era, region, topic, and search.
 - Select a thinker to inspect works, notes, tags, relationships, and related people.
 - Follow curated intellectual threads one step at a time.
 - Find directed relationship paths between two thinkers.
 - Add thinkers and relationships manually.
 - Import people from Wikidata through the local Express backend.
-- Review import candidates, duplicates, suggested links, and sparse graph neighborhoods.
+- Review source coverage, claim conflicts, import candidates, suggested links, graph repairs, and recovery data in Source Studio.
 - Run a dataset QA report for field/era coverage, isolated people, sparse high-bridge thinkers, and conflicting explicit edges.
 
 ## Requirements
@@ -42,11 +43,11 @@ The dev server runs the Express backend and Vite frontend from `server.ts`.
 2. Open [http://localhost:3000](http://localhost:3000).
 3. Use the search box to select a familiar thinker such as Plato, Aristotle, Kant, Darwin, or Turing.
 4. Open **Filters** and narrow by field, topic, era, region, or year range.
-5. Switch between **Explore**, **Timeline**, and **Map** in the header to inspect the same filtered dataset in different views.
-6. Open **Workbench** when you want to review suggested links, tags, imports, or duplicates.
+5. Switch among **Atlas**, **Timeline**, **Sources**, and **Focus** in the header. The current selection and filters follow you between workspaces.
+6. Use **Find Bridge** in Atlas to trace a directed relationship path, or open **Sources** to review evidence and graph changes.
 7. Run `npm run qa:data` after source-data or thread edits to inspect graph coverage and TODO-oriented cleanup targets.
 
-The app is a fixed-height workspace. The browser page itself does not scroll much; instead, the index, filters, workbench, timeline, dossier, path finder, and modal surfaces each have their own internal scroll regions.
+The app is a fixed-height workspace. The browser page itself does not scroll much; instead, the index, filters, Source Studio, timeline, dossier, path finder, and modal surfaces each have their own internal scroll regions.
 
 ## Run In GitHub Codespaces
 
@@ -102,29 +103,44 @@ Local data is private to the current browser profile and device. It is not uploa
 
 Important keys include:
 
-- `atlas_state_v7`: versioned local thinker and relationship state.
+- `atlas_state_v8`: versioned local thinker, relationship, and knowledge-entity state.
 - `atlas_import_queue_v2`: staged import review queue.
 - `atlas_import_audit_log_v1`: import review history.
 - `atlas_link_review_queue_v1`: queued relationship suggestions.
 - `atlas_rejected_link_suggestions_v1`: rejected link suggestions.
 
-Older `atlas_people_v6` and `atlas_edges_v6` storage is migrated into `atlas_state_v7` on startup.
+Older `atlas_state_v7`, `atlas_people_v6`, and `atlas_edges_v6` storage is migrated into `atlas_state_v8` on startup.
 
 Use the app's reset control if you want to restore the bundled seed dataset. Resetting clears local people, edges, import queues, audit logs, rejected suggestions, and link review queues.
 
 ## Main Interface
 
-![Atlas overview](docs/screenshots/atlas-overview.png)
+The app has four persistent workspaces:
 
-The app has three primary exploration surfaces:
+- **Atlas** is the network-first exploration surface. It combines the influence graph with search, filters, path finding, and an optional Scholar Dossier.
+- **Timeline** is a full-height chronological workspace for people, era bands, works, events, bookmarks, and relationship arcs.
+- **Sources** opens Source Studio, a dedicated evidence and graph-maintenance workspace without the graph or dossier competing for space.
+- **Focus** pairs a selected scholar's network with the Scholar Dossier for close reading or presentation.
 
-- **Timeline**: shows people by date, era bands, works, movements, and relationship arcs.
-- **Network graph**: shows the selected person and nearby relationship neighborhood.
-- **Detail panel**: shows the selected person's metadata, works, tags, and relationships.
+### Atlas
+
+![Atlas workspace with influence graph and scholar dossier](docs/screenshots/atlas-workspace.png)
+
+### Timeline workspace
+
+![Timeline workspace](docs/screenshots/timeline-workspace.png)
+
+### Source Studio
+
+![Source Studio workspace](docs/screenshots/sources-workspace.png)
+
+### Focus workspace
+
+![Focus workspace with scholar dossier](docs/screenshots/focus-workspace.png)
 
 Select a thinker from the timeline, graph, index, search results, thread stepper, path finder, or review lists to focus the app.
 
-For the next major UI direction, see [UI Redesign: Network-First Atlas Workspace](docs/ui-redesign.md). The redesign separates the Influence Atlas from Source Studio so network exploration and scholar dossiers are no longer crowded by import, export, and provenance-management tools.
+For the design rationale behind these workspaces, see [UI Redesign: Network-First Atlas Workspace](docs/ui-redesign.md).
 
 For the long-term data direction, see [Automated Validation Roadmap](docs/automated-validation-roadmap.md). It outlines milestones for replacing manual import and edge review with automated source collection, claim validation, graph repair, and canonical dataset generation.
 
@@ -132,15 +148,11 @@ For the long-term data direction, see [Automated Validation Roadmap](docs/automa
 
 The header is the global navigation and action bar:
 
-- **Explore** shows the combined split timeline and network workspace.
-- **Timeline** expands the historical timeline to the main workspace.
-- **Map** expands the relationship network graph to the main workspace.
-- **Add Thinker** opens a local manual-entry modal.
-- **Workbench** opens the curation and review panel.
-- **Find Path** opens the directed relationship path finder.
-- **Reset** restores the bundled dataset and clears local browser-side edits.
+- **Atlas**, **Timeline**, **Sources**, and **Focus** switch the primary workspace.
+- **Actions** contains global tasks including adding a thinker, opening Source Studio, exporting or importing data, and resetting the atlas.
+- **Reset Atlas** restores the bundled dataset and clears local browser-side edits.
 
-The second toolbar includes search, focus context, relationship shortcuts, filters, and quick lineage tools. These actions operate on the currently selected thinker whenever one is focused.
+The second toolbar includes scholar search, the current focus, fast filter presets, and the full filter drawer. Atlas also exposes **Find Bridge** for directed path searches. These actions operate on the currently selected thinker whenever one is focused.
 
 ### Screen Layout And Scrolling
 
@@ -151,9 +163,9 @@ The atlas uses nested work areas rather than one long document page:
 - The timeline canvas scrolls and pans inside its own viewport.
 - The network map pans and zooms inside its canvas.
 - The right dossier drawer scrolls independently from the rest of the app.
-- The Workbench and Path Finder panels have their own scroll behavior.
+- Source Studio and Path Finder have their own scroll behavior.
 
-If content appears to continue below the visible window, try scrolling inside the active panel itself rather than the outer page. For example, place the pointer over the dossier, Workbench, filter drawer, or index list before scrolling.
+If content appears to continue below the visible window, try scrolling inside the active panel itself rather than the outer page. For example, place the pointer over the dossier, Source Studio, filter drawer, or index list before scrolling.
 
 ## Search And Filters
 
@@ -168,7 +180,7 @@ The filter drawer supports:
 - Region filters.
 - Year range filters.
 
-Filtering affects the visible people in the main timeline and graph surfaces.
+Filtering affects the visible people in Atlas, Timeline, and Focus. Source Studio keeps the selected scholar as context while providing its own evidence-oriented filters.
 
 Recommended filter workflow:
 
@@ -179,7 +191,7 @@ Recommended filter workflow:
 
 ## Timeline
 
-The timeline is useful for historical placement and lineage inspection.
+Open **Timeline** for historical placement and lineage inspection. It is a dedicated workspace rather than a panel inside Atlas.
 
 Common controls include:
 
@@ -214,9 +226,9 @@ Network tips:
 - Use **Re-align** when the simulation has settled awkwardly.
 - Use **Reset View** after heavy panning or zooming.
 
-## Detail Panel
+## Scholar Dossier
 
-The detail panel is the main curation surface for a selected thinker. It shows:
+The Scholar Dossier is the reading surface for a selected thinker. It shows:
 
 - Core biographical metadata.
 - Field, subfield, era, region, movement, and bridge score.
@@ -225,11 +237,11 @@ The detail panel is the main curation surface for a selected thinker. It shows:
 - Topic and lens tags.
 - Source/review information where available.
 
-From the detail panel and surrounding controls you can add relationships, edit tags, inspect sparse neighborhoods, and jump to related people.
+From the dossier you can inspect the scholar's neighborhood, jump to related people, continue a curated thread, or send the scholar to Source Studio for relationship and source review. Close the desktop drawer when you want more graph space; the labeled **Dossier** tab on the right edge reopens it. At narrow widths the dossier becomes a bottom sheet.
 
-The detail panel has three tabs:
+The dossier has three tabs:
 
-- **Overview**: metadata, notes, works, immediate predecessors, and immediate successors.
+- **Dossier**: metadata, notes, works, immediate predecessors, and immediate successors.
 - **Context**: contemporaries, field peers, and era peers.
 - **Influences**: a compact upstream and downstream relationship map, plus three-hop lineage lists.
 
@@ -274,59 +286,18 @@ Thread maintenance workflow:
 4. Fix missing people, weak edges, and thread gaps reported by the QA output.
 5. Run `npm run lint` and `npm run build`.
 
-## Workbench
+## Source Studio
 
-The Workbench groups review and curation tasks into tabs.
+Open **Sources** for evidence review and graph maintenance. Source Studio preserves the selected scholar as context and separates curation work from visual exploration. Its tabs are:
 
-### Links
+- **Source health**: edges held for missing or weak evidence.
+- **Claim conflicts**: contradictory, duplicate, or invalid records requiring review.
+- **Candidate relationships**: scored link suggestions that can be accepted or rejected.
+- **Repair jobs**: dry-run graph changes before they are applied.
+- **Manual overrides**: staged imports and deliberate human corrections.
+- **Export/recovery**: backup, restore, and reset tools.
 
-Use link review to inspect suggested relationships. Suggestions may be categorized as:
-
-- likely influence
-- direct mentorship
-- collaboration
-- parallel development
-- source-context neighbor
-- needs review
-
-You can accept or reject suggestions. Rejected pairs are stored so they are not immediately suggested again.
-
-Accepted relationship suggestions are local browser edits unless you also update `src/data.ts`. Treat the Workbench as a curation aid, then preserve important accepted edges in source data when they should become part of the bundled atlas.
-
-### Tags
-
-Use tag review to inspect inferred topics and lens tags for a selected thinker.
-
-Tags are derived from fields, subfields, works, notes, and imported source descriptions. They help filtering and topic grouping.
-
-### Imports
-
-Use import review to stage, edit, accept, merge, skip, or clear imported people.
-
-Queued import items can have statuses:
-
-- `queued`
-- `edited`
-- `accepted`
-- `skipped`
-- `duplicate`
-
-The queue also uses confidence thresholds and quality labels to identify ready, duplicate, sparse, or source-gap candidates.
-
-### Duplicates
-
-Duplicate detection compares candidates and existing thinkers by:
-
-- normalized name
-- alternate names
-- birth/death proximity
-- Wikidata/source URL
-- works
-- movement
-
-Duplicate candidates can be inspected and merged into the existing thinker record.
-
-Merge carefully: prefer preserving source URLs, aliases, works, notes, and high-confidence dates. A merge affects local browser state; source-data changes still need to be made in `src/data.ts` if the result should be committed.
+Accepted relationships and imports change local browser state. Preserve important results in `src/data.ts` when they should become part of the bundled atlas. Duplicate review compares names, aliases, dates, source identifiers, works, and movements; merge carefully so sourced metadata is not discarded.
 
 ## Wikidata Import
 
@@ -385,13 +356,13 @@ Manual import is best for queueing people who are not easy to normalize from Wik
 
 ## Batch Paste
 
-The import workbench supports batch paste in this format:
+The **Manual overrides** tab in Source Studio supports batch paste in this format:
 
 ```text
 name | birth | death | field | notes
 ```
 
-Each valid line becomes an import review item. Use this for quick queueing before reviewing links and tags.
+Each valid line becomes an import review item. Use this for quick queueing before reviewing candidate relationships and source coverage.
 
 ## Data Conventions
 
@@ -597,7 +568,7 @@ The Wikidata flow needs network access. No credentials are required.
 
 ### A Panel Looks Cut Off
 
-The outer app intentionally uses a fixed viewport. Scroll the active panel, not the whole browser page. The most common scroll targets are the left index, filter drawer, Workbench, Path Finder, timeline viewport, and right dossier.
+The outer app intentionally uses a fixed viewport. Scroll the active panel, not the whole browser page. The most common scroll targets are the left index, filter drawer, Source Studio, Path Finder, timeline viewport, and right dossier.
 
 ### The Build Warns About Chunk Size
 
@@ -618,4 +589,4 @@ npm.cmd run build
 
 - The expanded first-class data model for works, concepts, institutions, source claims, and typed relationships is still in progress.
 - Many accepted or seed relationships still need source claims.
-- Production deployment is not configured yet.
+- Browser-side curation is local to one profile unless it is exported; the app does not yet provide shared multi-user persistence.
