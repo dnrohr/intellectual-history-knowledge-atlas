@@ -6291,7 +6291,7 @@ export default function App() {
         </AnimatePresence>
  
         {/* 2. DYNAMIC MAIN WORKSPACE AREA */}
-        <main className="flex-1 flex flex-col min-h-0 relative bg-[#090b10]">
+        <main className="flex-1 min-w-0 flex flex-col min-h-0 relative bg-[#090b10]">
           
           <div className="flex-1 relative flex flex-col min-h-0">
             {/* TIMELINE MODE */}
@@ -6454,23 +6454,21 @@ export default function App() {
             type="button"
             data-testid="dossier-reopen"
             onClick={() => setDossierOpen(true)}
-            className="absolute right-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md border border-[#38415f] bg-[#171b29] text-[#a9baf0] shadow-lg transition-colors hover:border-[#7b9cf5] hover:bg-[#20263a] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7b9cf5] max-lg:bottom-3 max-lg:top-auto max-lg:translate-y-0"
+            className="absolute right-2 top-1/2 z-[70] flex h-11 min-w-11 -translate-y-1/2 items-center justify-center gap-2 rounded-lg border border-[#52618c] bg-[#1b2132] px-3 text-[#c3d0f6] shadow-xl shadow-black/60 transition-colors hover:border-[#8da8ff] hover:bg-[#252e47] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8da8ff] max-lg:bottom-16 max-lg:top-auto max-lg:translate-y-0"
             title="Open scholar dossier"
             aria-label="Open scholar dossier"
+            aria-expanded="false"
           >
             <PanelRightOpen className="h-4 w-4" />
+            <span className="font-mono text-[9px] font-bold uppercase tracking-wider">Dossier</span>
           </button>
         )}
 
-        {/* 3. SLIDING RIGHT DRAWER FOR CHOSEN THINKER DETAIL INSPECTION */}
-        <AnimatePresence>
-          {selectedId && dossierOpen && (
-            <motion.div
+        {/* 3. RIGHT DRAWER FOR CHOSEN THINKER DETAIL INSPECTION.
+            This mounts synchronously so a close/reopen click cannot be lost inside an exit animation. */}
+        {selectedId && dossierOpen && (
+            <div
               data-testid="scholar-dossier"
-              initial={{ x: "100%", opacity: 0.95 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "100%", opacity: 0.95 }}
-              transition={{ type: "spring", damping: 24, stiffness: 240 }}
               style={{ width: detailWidth }}
               className="absolute lg:relative top-0 right-0 h-full shrink-0 border-l border-[#22273b] glass-panel-heavy flex flex-col z-30 shadow-2xl overflow-hidden max-lg:top-auto max-lg:bottom-0 max-lg:!h-[62%] max-lg:!w-full max-lg:border-l-0 max-lg:border-t"
             >
@@ -6602,9 +6600,8 @@ export default function App() {
                   )}
                 </div>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+        )}
       </div>
       )}
 
