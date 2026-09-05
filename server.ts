@@ -9,8 +9,27 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const allowedOrigins = new Set(
+  [process.env.APP_URL, ...(process.env.CORS_ALLOWED_ORIGINS || "").split(",")]
+    .map((origin) => origin?.trim().replace(/\/+$/, ""))
+    .filter((origin): origin is string => Boolean(origin))
+);
 
 app.use(express.json());
+app.use("/api", (req, res, next) => {
+  const origin = req.get("Origin")?.replace(/\/+$/, "");
+  if (origin && allowedOrigins.has(origin)) {
+    res.set("Access-Control-Allow-Origin", origin);
+    res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    res.set("Vary", "Origin");
+  }
+  if (req.method === "OPTIONS") {
+    res.sendStatus(origin && allowedOrigins.has(origin) ? 204 : 403);
+    return;
+  }
+  next();
+});
 
 // Main health route
 app.get("/api/health", (req, res) => {

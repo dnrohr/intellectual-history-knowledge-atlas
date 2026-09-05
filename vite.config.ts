@@ -5,6 +5,7 @@ import {defineConfig} from 'vitest/config';
 
 export default defineConfig(() => {
   return {
+    base: process.env.VITE_BASE_PATH || '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

@@ -45,7 +45,7 @@ import {
 } from "./edgeValidation";
 import { hasEdgeSourceEvidence } from "./storageSchemas";
 import { clearPersistedAtlasState, loadAtlasStateFromStorage, mergeAtlasStateWithCanonicalSeed, persistAtlasStateToStorage } from "./storageMigrations";
-import { PUBLIC_DEMO_MODE } from "./runtimeConfig";
+import { PUBLIC_DEMO_MODE, apiUrl } from "./runtimeConfig";
 import { 
   Plus, 
   RefreshCcw, 
@@ -1842,7 +1842,7 @@ export default function App() {
 
     setWikidataLoading(true);
     try {
-      const response = await fetch(`/api/import/wikidata/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(apiUrl(`/api/import/wikidata/search?q=${encodeURIComponent(query)}`));
       const json = await response.json();
       setWikidataCandidates(Array.isArray(json.candidates) ? json.candidates : []);
     } catch {
@@ -1864,7 +1864,7 @@ export default function App() {
     const results: typeof wikidataBatchCandidates = [];
     for (const name of names) {
       try {
-        const response = await fetch(`/api/import/wikidata/search?q=${encodeURIComponent(name)}`);
+        const response = await fetch(apiUrl(`/api/import/wikidata/search?q=${encodeURIComponent(name)}`));
         const json = await response.json();
         const candidate = Array.isArray(json.candidates) ? json.candidates[0] || null : null;
         results.push({

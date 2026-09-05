@@ -75,6 +75,8 @@ npm run start
 - `dist/` Vite frontend assets.
 - `dist/server.cjs` bundled Express server.
 
+`npm run build:client` produces only the static Vite site used by GitHub Pages.
+
 The build currently emits a Vite chunk-size warning because the main frontend bundle is large. This is a warning, not a failed build.
 
 ## Useful Commands
@@ -82,6 +84,7 @@ The build currently emits a Vite chunk-size warning because the main frontend bu
 ```bash
 npm run dev       # Start local development server
 npm run lint      # TypeScript check
+npm run build:client # Build the static frontend only
 npm run build     # Build frontend and server
 npm run start     # Serve the production build
 npm run qa:data   # Print dataset QA report
@@ -531,6 +534,18 @@ When adding a canonical thread:
 - If a thread references a person ID, make sure that person exists in `src/data.ts`.
 - Use `TODO.md` status markers to keep roadmap progress visible.
 
+## GitHub Pages
+
+The `Deploy to GitHub Pages` workflow publishes a public-demo build after every push to `main`. It sets Vite's base path to the repository name, so assets work at:
+
+```text
+https://dnrohr.github.io/intellectual-history-knowledge-atlas/
+```
+
+The workflow can also be run manually from the repository's **Actions** tab. Before the first run, open **Settings -> Pages** and choose **GitHub Actions** as the source.
+
+GitHub Pages is static and cannot run `server.ts`. The atlas, bundled data, exploration tools, and browser-local edits work without a backend. Wikidata import requires the Express service to be deployed separately. To connect it, create an Actions repository variable named `VITE_API_BASE_URL` containing the service origin, for example `https://your-atlas-api.example.com` (without a trailing slash). On that Express deployment, set `CORS_ALLOWED_ORIGINS=https://dnrohr.github.io`.
+
 ## Deployment Evaluation
 
 The current recommended target is **Render**. The app already builds to a Vite static bundle plus a bundled Express server, and `render.yaml` can run that shape directly with `npm run build` and `npm run start`.
@@ -555,6 +570,8 @@ Supported environment variables:
 - `NODE_ENV`: set to `production` for production serving. The dev server uses Vite middleware when this is not `production`.
 - `APP_URL`: optional public URL for future hosted integrations. It is documented in `.env.example` but not required by the current app.
 - `VITE_PUBLIC_DEMO_MODE`: set to `true` for public demo builds that should start from bundled sample data on each page load.
+- `VITE_API_BASE_URL`: optional public origin of the Express service for frontend-only hosts such as GitHub Pages. Empty by default, which keeps same-origin API requests for local and Render deployments.
+- `CORS_ALLOWED_ORIGINS`: optional comma-separated list of browser origins allowed to call the Express API. Set this on the API host when the frontend is deployed separately.
 
 Copy `.env.example` to `.env` for local overrides. Do not commit secrets or API keys.
 
